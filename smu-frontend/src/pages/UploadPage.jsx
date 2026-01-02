@@ -82,42 +82,64 @@ export default function UploadPage() {
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+  if (!file) return;
 
-    setUploading(true);
-    setUploadError(false);
-    setUploadStatusText("Getting presigned URL...");
-    setNotification(null);
+  setUploading(true);
+  setUploadError(false);
+  setUploadStatusText("Requesting upload policy...");
+  setNotification(null);
 
+  try {
     const presignData = await handleUploadUrl();
     setPresignResponse(presignData);
     setMediaId(presignData.media_id);
-    setUploadProgress(50);
-    setUploadStatusText("Uploading...");
-    setNotification({ type: 'info', message: 'Presigned URL obtained successfully. Starting upload...' });
-    try {
-      const response = await axios.put(presignData.upload_url, file, {
-        headers: presignData.headers,
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          setUploadProgress(percent);
-        },
-      });
-      setUploadProgress(100);
-      setUploadResponse(response);
-      setUploadStatusText("Uploaded");
-      setNotification({ type: 'success', message: 'File uploaded successfully! You can now check the validation status.' });
-    } catch (err) {
-      console.error(err);
-      setUploadProgress(0);
-      setUploadError(true);
-      setUploadStatusText("Failed");
-      setNotification({ type: 'error', message: 'Upload failed. Please try again.' });
-    } finally {
-      setUploading(false);
-    }
+
+    const { url, fields } = presignData.upload;
+
+    const formData = new FormData();
+
+    // Append fields FIRST
+    Object.entries(fields).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    // File MUST be last
+    formData.append("file", file);
+
+    setUploadStatusText("Uploading to S3...");
+    setUploadProgress(0);
+
+    const response = await axios.post(presignData.upload.url, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      onUploadProgress: (progressEvent) => {
+        const percent = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
+        setUploadProgress(percent);
+      }
+    });
+
+    setUploadProgress(100);
+    setUploadResponse(response);
+    setUploadStatusText("Upload complete");
+    setNotification({
+      type: "success",
+      message: "Upload successful. S3 validated size and type."
+    });
+
+  } catch (err) {
+    console.error(err);
+    setUploadError(true);
+    setUploadProgress(0);
+    setUploadStatusText("Upload failed");
+
+    setNotification({
+      type: "error",
+      message: "Upload rejected by S3 (size/type violation)."
+    });
+  } finally {
+    setUploading(false);
+  }
   };
 
   const handleCheckStatus = async () => {
