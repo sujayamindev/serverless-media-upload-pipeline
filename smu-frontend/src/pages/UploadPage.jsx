@@ -19,7 +19,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import PermMediaOutlinedIcon from '@mui/icons-material/PermMediaOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import AnimationOutlinedIcon from '@mui/icons-material/AnimationOutlined';
+import ClearIcon from '@mui/icons-material/Clear';
 import DeblurOutlinedIcon from '@mui/icons-material/DeblurOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { getUploadUrl, getMediaStatus } from "../api";
@@ -93,6 +93,7 @@ export default function UploadPage() {
     const presignData = await handleUploadUrl();
     setPresignResponse(presignData);
     setMediaId(presignData.media_id);
+    setUploadProgress(50);
 
     const { url, fields } = presignData.upload;
 
@@ -107,7 +108,7 @@ export default function UploadPage() {
     formData.append("file", file);
 
     setUploadStatusText("Uploading to S3...");
-    setUploadProgress(0);
+    setUploadProgress(50);
 
     const response = await axios.post(presignData.upload.url, formData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -220,22 +221,53 @@ export default function UploadPage() {
 
               {/* File Picker */}
               <Box sx={{border: "1px solid #e0e0e0", borderRadius: 2, p: 4, textAlign: "center", gap: 2, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
-                <input
-                  type="file"
-                  accept="file/*"
-                  hidden
-                  id="file-input"
-                  onChange={handleFileSelect}
-                />
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                  <input
+                    type="file"
+                    accept="file/*"
+                    hidden
+                    id="file-input"
+                    onChange={handleFileSelect}
+                  />
 
-                <label htmlFor="file-input">
-                  <Button variant="contained" component="span" disableElevation startIcon={<PermMediaOutlinedIcon />} 
-                  sx={{
-                    borderRadius: 2
-                    }}>
-                    Select a File
-                  </Button>
-                </label>
+                  <label htmlFor="file-input">
+                    <Button variant="contained" component="span" disableElevation startIcon={<PermMediaOutlinedIcon />} 
+                    sx={{
+                      borderRadius: 2
+                      }}>
+                      Select a File
+                    </Button>
+                  </label>
+                  
+                  {file && (
+                    <Button 
+                      variant="outlined" 
+                      onClick={() => {
+                        setFile(null);
+                        setUploadProgress(0);
+                        setPresignResponse(null);
+                        setUploadResponse(null);
+                        setMediaStatus(null);
+                        setMediaId(null);
+                        setUploadError(false);
+                        setUploadStatusText("");
+                        setNotification(null);
+                      }}
+                      startIcon={<ClearIcon />}
+                      disableElevation 
+                      color="warning"
+                      sx={{
+                        borderRadius: 2,
+                        borderWidth: 2,
+                        '&:hover': {
+                          borderWidth: 2
+                        }
+                      }}
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </Box>
                 
                 <Box 
                 sx={{ 
