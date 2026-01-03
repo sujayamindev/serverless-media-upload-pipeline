@@ -120,9 +120,9 @@ export default function UploadPage() {
       }
     });
 
-    setUploadProgress(100);
     setUploadResponse(response);
     setUploadStatusText("Upload complete");
+    setUploadProgress(100);
     setNotification({
       type: "success",
       message: "Upload successful. S3 validated size and type."
@@ -154,7 +154,7 @@ export default function UploadPage() {
       if (status.status === 'approved') {
         setNotification({ type: 'success', message: `File validated successfully! Status: ${status.status}` });
       } else if (status.status === 'rejected') {
-        setNotification({ type: 'error', message: `File rejected. Reason: ${status.reason || 'Unknown'}` });
+        setNotification({ type: 'error', message: `File rejected. Reason: ${status.rejection_reason || 'Unknown'}` });
       } else {
         setNotification({ type: 'info', message: `File status: ${status.status}` });
       }
@@ -187,7 +187,7 @@ export default function UploadPage() {
         {/* How It Works Link */}
         <Button
           component={Link}
-          to="/how-it-works"
+          to="/how-this-works"
           variant="outlined"
           startIcon={<InfoOutlinedIcon />}
           sx={{
@@ -198,7 +198,7 @@ export default function UploadPage() {
             }
           }}
         >
-          How It Works
+          How This Works
         </Button>
       </Box>
 

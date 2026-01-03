@@ -7,7 +7,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<UploadPage />} />
-        <Route path="/how-it-works" element={<HowItWorksPage />} />
+        <Route path="/how-this-works" element={<HowItWorksPage />} />
       </Routes>
     </Router>
   );
