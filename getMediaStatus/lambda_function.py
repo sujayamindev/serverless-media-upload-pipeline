@@ -43,8 +43,9 @@ def lambda_handler(event, context):
     data = {
         'media_id': item['media_id'],
         'status': item['status'],
+        'rejection_reason': item.get('rejection_reason'),
         'content_type': item.get('content_type'),
-        'size_bytes': item.get('size_bytes'),
+        'file_size': item.get('file_size'),
         'original_key': item.get('original_key'),
         'final_key': item.get('final_key'),
         'created_at': item.get('created_at'),
