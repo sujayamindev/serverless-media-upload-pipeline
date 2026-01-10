@@ -17,6 +17,7 @@ import {
   Stepper,
   Step,
   StepLabel,
+  StepConnector,
   Chip,
   Skeleton,
   List,
@@ -24,6 +25,7 @@ import {
   ListItemIcon,
   ListItemText
 } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import PermMediaOutlinedIcon from '@mui/icons-material/PermMediaOutlined';
@@ -42,6 +44,27 @@ import Looks5OutlinedIcon from '@mui/icons-material/Looks5Outlined';
 import { getUploadUrl, getMediaStatus } from "../api";
 import axios from "axios";
 import { Link } from 'react-router-dom';
+
+const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
+  alternativeLabel: {
+    top: 22,
+  },
+  active: {
+    '& .MuiStepConnector-line': {
+      borderColor: theme.palette.primary.main,
+    },
+  },
+  completed: {
+    '& .MuiStepConnector-line': {
+      borderColor: theme.palette.primary.main,
+    },
+  },
+  line: {
+    borderColor: '#e0e0e0',
+    borderTopWidth: 3,
+    borderRadius: 1,
+  },
+}));
 
 function LinearProgressWithLabel(props) {
   return (
@@ -70,7 +93,7 @@ export default function UploadPage() {
   const [uploadError, setUploadError] = useState(false);
   const [uploadStatusText, setUploadStatusText] = useState("");
   const [notification, setNotification] = useState(null);
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(-1);
 
   const handleFileSelect = (event) => {
     const selectedFile = event.target.files[0];
@@ -113,7 +136,7 @@ export default function UploadPage() {
     const presignData = await handleUploadUrl();
     setPresignResponse(presignData);
     setMediaId(presignData.media_id);
-    setUploadProgress(50);
+    setUploadProgress(0);
     setActiveStep(2);
 
     const { url, fields } = presignData.upload;
@@ -237,11 +260,7 @@ export default function UploadPage() {
           <Stepper 
             activeStep={activeStep} 
             alternativeLabel
-            sx={{
-              '& .MuiStepConnector-line': {
-                borderTopWidth: '3px'
-              }
-            }}
+            connector={<ColorlibConnector />}
           >
             <Step>
               <StepLabel 
@@ -436,7 +455,8 @@ export default function UploadPage() {
                   <label htmlFor="file-input">
                     <Button variant="contained" component="span" disableElevation startIcon={<PermMediaOutlinedIcon />} 
                     sx={{
-                      borderRadius: 2
+                      borderRadius: 2,
+                      px: 2.5,
                       }}>
                       Select a File
                     </Button>
@@ -455,7 +475,7 @@ export default function UploadPage() {
                         setUploadError(false);
                         setUploadStatusText("");
                         setNotification(null);
-                        setActiveStep(0);
+                        setActiveStep(-1);
                       }}
                       startIcon={<ClearIcon />}
                       disableElevation 
@@ -508,7 +528,7 @@ export default function UploadPage() {
                     disableElevation 
                     startIcon={<CloudUploadOutlinedIcon />}
                     sx={{
-                      borderRadius: 2
+                      borderRadius: 2,
                     }}
                   >
                     Upload
