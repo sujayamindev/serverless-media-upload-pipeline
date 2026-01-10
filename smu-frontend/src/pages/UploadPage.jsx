@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Card,
@@ -13,7 +13,16 @@ import {
   AccordionDetails,
   Grid,
   LinearProgress,
-  Alert
+  Alert,
+  Stepper,
+  Step,
+  StepLabel,
+  Chip,
+  Skeleton,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText
 } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
@@ -22,6 +31,14 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ClearIcon from '@mui/icons-material/Clear';
 import DeblurOutlinedIcon from '@mui/icons-material/DeblurOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ApiIcon from '@mui/icons-material/Api';
+import FunctionsIcon from '@mui/icons-material/Functions';
+import CloudQueueIcon from '@mui/icons-material/CloudQueue';
+import StorageIcon from '@mui/icons-material/Storage';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import ImageIcon from '@mui/icons-material/Image';
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
+import Looks5OutlinedIcon from '@mui/icons-material/Looks5Outlined';
 import { getUploadUrl, getMediaStatus } from "../api";
 import axios from "axios";
 import { Link } from 'react-router-dom';
@@ -53,6 +70,7 @@ export default function UploadPage() {
   const [uploadError, setUploadError] = useState(false);
   const [uploadStatusText, setUploadStatusText] = useState("");
   const [notification, setNotification] = useState(null);
+  const [activeStep, setActiveStep] = useState(0);
 
   const handleFileSelect = (event) => {
     const selectedFile = event.target.files[0];
@@ -66,6 +84,7 @@ export default function UploadPage() {
       setUploadError(false);
       setUploadStatusText("");
       setNotification(null);
+      setActiveStep(0);
     }
   };
 
@@ -88,12 +107,14 @@ export default function UploadPage() {
   setUploadError(false);
   setUploadStatusText("Requesting upload policy...");
   setNotification(null);
+  setActiveStep(1);
 
   try {
     const presignData = await handleUploadUrl();
     setPresignResponse(presignData);
     setMediaId(presignData.media_id);
     setUploadProgress(50);
+    setActiveStep(2);
 
     const { url, fields } = presignData.upload;
 
@@ -123,6 +144,7 @@ export default function UploadPage() {
     setUploadResponse(response);
     setUploadStatusText("Upload complete");
     setUploadProgress(100);
+    setActiveStep(3);
     setNotification({
       type: "success",
       message: "Upload successful. S3 validated size and type."
@@ -133,6 +155,7 @@ export default function UploadPage() {
     setUploadError(true);
     setUploadProgress(0);
     setUploadStatusText("Upload failed");
+    setActiveStep(0);
 
     setNotification({
       type: "error",
@@ -146,14 +169,17 @@ export default function UploadPage() {
   const handleCheckStatus = async () => {
     if (!mediaId) return;
     setStatusLoading(true);
+    setActiveStep(4);
 
     try {
       const status = await getMediaStatus(mediaId);
       setMediaStatus(status);
       
       if (status.status === 'approved') {
+        setActiveStep(5);
         setNotification({ type: 'success', message: `File validated successfully! Status: ${status.status}` });
       } else if (status.status === 'rejected') {
+        setActiveStep(5);
         setNotification({ type: 'error', message: `File rejected. Reason: ${status.rejection_reason || 'Unknown'}` });
       } else {
         setNotification({ type: 'info', message: `File status: ${status.status}` });
@@ -202,12 +228,189 @@ export default function UploadPage() {
         </Button>
       </Box>
 
+      {/* AWS Pipeline Visualization */}
+      <Card elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: 4, mb: 4 }}>
+        <CardContent>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
+            AWS Pipeline Flow
+          </Typography>
+          <Stepper 
+            activeStep={activeStep} 
+            alternativeLabel
+            sx={{
+              '& .MuiStepConnector-line': {
+                borderTopWidth: '3px'
+              }
+            }}
+          >
+            <Step>
+              <StepLabel 
+                StepIconComponent={() => (
+                  <Box sx={{ 
+                    width: 40, 
+                    height: 40, 
+                    mt: -1,
+                    borderRadius: '50%', 
+                    backgroundColor: activeStep >= 0 ? 'primary.main' : '#e0e0e0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <PermMediaOutlinedIcon sx={{ color: 'white', fontSize: 20 }} />
+                  </Box>
+                )}
+              >
+                <Typography variant="caption" fontWeight={activeStep >= 0 ? "bold" : "normal"}>
+                  File Selected
+                </Typography>
+              </StepLabel>
+            </Step>
+            <Step>
+              <StepLabel 
+                StepIconComponent={() => (
+                  <Box sx={{ 
+                    width: 40, 
+                    height: 40, 
+                    mt: -1,
+                    borderRadius: '50%', 
+                    backgroundColor: activeStep >= 1 ? 'primary.main' : '#e0e0e0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <ApiIcon sx={{ color: 'white', fontSize: 20 }} />
+                  </Box>
+                )}
+              >
+                <Typography variant="caption" fontWeight={activeStep >= 1 ? "bold" : "normal"}>
+                  API Gateway
+                </Typography>
+              </StepLabel>
+            </Step>
+            <Step>
+              <StepLabel 
+                StepIconComponent={() => (
+                  <Box sx={{ 
+                    width: 40, 
+                    height: 40, 
+                    mt: -1,
+                    borderRadius: '50%', 
+                    backgroundColor: activeStep >= 2 ? 'primary.main' : '#e0e0e0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <FunctionsIcon sx={{ color: 'white', fontSize: 20 }} />
+                  </Box>
+                )}
+              >
+                <Typography variant="caption" fontWeight={activeStep >= 2 ? "bold" : "normal"}>
+                  Lambda (Presign)
+                </Typography>
+              </StepLabel>
+            </Step>
+            <Step>
+              <StepLabel 
+                StepIconComponent={() => (
+                  <Box sx={{ 
+                    width: 40, 
+                    height: 40, 
+                    mt: -1,
+                    borderRadius: '50%', 
+                    backgroundColor: activeStep >= 3 ? 'primary.main' : '#e0e0e0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <CloudQueueIcon sx={{ color: 'white', fontSize: 20 }} />
+                  </Box>
+                )}
+              >
+                <Typography variant="caption" fontWeight={activeStep >= 3 ? "bold" : "normal"}>
+                  S3 Upload
+                </Typography>
+              </StepLabel>
+            </Step>
+            <Step>
+              <StepLabel 
+                StepIconComponent={() => (
+                  <Box sx={{ 
+                    width: 40, 
+                    height: 40, 
+                    mt: -1,
+                    borderRadius: '50%', 
+                    backgroundColor: activeStep >= 4 ? 'primary.main' : '#e0e0e0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <StorageIcon sx={{ color: 'white', fontSize: 20 }} />
+                  </Box>
+                )}
+              >
+                <Typography variant="caption" fontWeight={activeStep >= 4 ? "bold" : "normal"}>
+                  DynamoDB Query
+                </Typography>
+              </StepLabel>
+            </Step>
+            <Step>
+              <StepLabel 
+                StepIconComponent={() => (
+                  <Box sx={{ 
+                    width: 40, 
+                    height: 40, 
+                    mt: -1,
+                    borderRadius: '50%', 
+                    backgroundColor: activeStep >= 5 ? 'primary.main' : '#e0e0e0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <VerifiedUserIcon sx={{ color: 'white', fontSize: 20 }} />
+                  </Box>
+                )}
+              >
+                <Typography variant="caption" fontWeight={activeStep >= 5 ? "bold" : "normal"}>
+                  Validation Complete
+                </Typography>
+              </StepLabel>
+            </Step>
+          </Stepper>
+        </CardContent>
+      </Card>
 
       <Box sx={{ display: 'flex', gap: 3, mb: 6, alignItems: 'flex-start' }}>
         {/* Left Card - Upload Section */}
         <Card elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: 4, flex: 1 }}>
           <CardContent>
             <Stack spacing={3}>
+              {/* File Requirements Info Card */}
+              <Alert severity="info" icon={<InfoOutlinedIcon />} sx={{ borderRadius: 2 }}>
+                <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
+                  File Requirements
+                </Typography>
+                <List dense sx={{ py: 0 }}>
+                  <ListItem sx={{ py: 0.5, px: 0 }}>
+                    <ListItemIcon sx={{ minWidth: 32 }}>
+                      <ImageOutlinedIcon fontSize="small" color="primary" />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary="Accepted formats: JPEG, PNG, WebP"
+                      primaryTypographyProps={{ variant: 'body2' }}
+                    />
+                  </ListItem>
+                  <ListItem sx={{ py: 0.5, px: 0 }}>
+                    <ListItemIcon sx={{ minWidth: 32 }}>
+                      <Looks5OutlinedIcon fontSize="small" color="primary" />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary="Maximum file size: 5 MB"
+                      primaryTypographyProps={{ variant: 'body2' }}
+                    />
+                  </ListItem>
+                </List>
+              </Alert>
+
               {/* Notification Area */}
               {notification && (
                 <Alert 
@@ -252,6 +455,7 @@ export default function UploadPage() {
                         setUploadError(false);
                         setUploadStatusText("");
                         setNotification(null);
+                        setActiveStep(0);
                       }}
                       startIcon={<ClearIcon />}
                       disableElevation 
@@ -343,7 +547,34 @@ export default function UploadPage() {
                 Responses
               </Typography>
 
+              {/* Empty State */}
+              {!presignResponse && !uploadResponse && !mediaStatus && (
+                <Box 
+                  sx={{ 
+                    p: 6, 
+                    textAlign: 'center',
+                    border: '2px dashed #e0e0e0',
+                    borderRadius: 2,
+                    backgroundColor: '#fafafa'
+                  }}
+                >
+                  <InfoOutlinedIcon sx={{ fontSize: 48, color: '#bdbdbd', mb: 2 }} />
+                  <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                    No Upload Yet
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Select and upload a file to see technical responses from AWS services including presigned URLs, upload confirmations, and validation results.
+                  </Typography>
+                </Box>
+              )}
+
              {/* Presign Response */}
+              {uploading && !presignResponse && (
+                <Box>
+                  <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 2, mb: 1 }} />
+                  <Skeleton variant="text" width="60%" />
+                </Box>
+              )}
               {presignResponse && (
                 <Accordion 
                   defaultExpanded
@@ -385,6 +616,12 @@ export default function UploadPage() {
               )}
 
               {/* Upload Response */}
+              {uploading && presignResponse && !uploadResponse && (
+                <Box>
+                  <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 2, mb: 1 }} />
+                  <Skeleton variant="text" width="50%" />
+                </Box>
+              )}
               {uploadResponse && (
                 <Accordion 
                   defaultExpanded
@@ -426,6 +663,12 @@ export default function UploadPage() {
               )}
 
               {/* Validation Result */}
+              {statusLoading && (
+                <Box>
+                  <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 2, mb: 1 }} />
+                  <Skeleton variant="text" width="70%" />
+                </Box>
+              )}
               {presignResponse && uploadResponse && mediaStatus &&!uploadError && uploadProgress === 100 && (
                 <Accordion 
                   defaultExpanded
