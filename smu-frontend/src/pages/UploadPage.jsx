@@ -395,7 +395,7 @@ export default function UploadPage() {
                       <ImageOutlinedIcon fontSize="small" color="primary" />
                     </ListItemIcon>
                     <ListItemText 
-                      primary="Accepted formats: JPEG, PNG, WebP"
+                      primary="Accepted formats: JPEG, PNG, WebP, MP4, WebM, MOV"
                       primaryTypographyProps={{ variant: 'body2' }}
                     />
                   </ListItem>
@@ -404,7 +404,7 @@ export default function UploadPage() {
                       <Looks5OutlinedIcon fontSize="small" color="primary" />
                     </ListItemIcon>
                     <ListItemText 
-                      primary="Maximum file size: 5 MB"
+                      primary="Maximum file size: 50 MB"
                       primaryTypographyProps={{ variant: 'body2' }}
                     />
                   </ListItem>
@@ -427,7 +427,7 @@ export default function UploadPage() {
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                   <input
                     type="file"
-                    accept="file/*"
+                    accept="image/*,video/*"
                     hidden
                     id="file-input"
                     onChange={handleFileSelect}
@@ -745,11 +745,21 @@ export default function UploadPage() {
                       justifyContent: "center"
                     }}
                   >
-                    <img
-                      src={mediaStatus.preview_url}
-                      alt="Preview"
-                      style={{ maxWidth: "100%", height: "auto", borderRadius: "4px" }}
-                    />
+                    {mediaStatus.detected_type?.startsWith('video/') ? (
+                      <video
+                        controls
+                        style={{ maxWidth: "100%", height: "auto", borderRadius: "4px" }}
+                      >
+                        <source src={mediaStatus.preview_url} type={mediaStatus.detected_type} />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <img
+                        src={mediaStatus.preview_url}
+                        alt="Preview"
+                        style={{ maxWidth: "100%", height: "auto", borderRadius: "4px" }}
+                      />
+                    )}
                   </AccordionDetails>
                 </Accordion>
               )}

@@ -115,7 +115,8 @@ export default function HowItWorksPage() {
                     <Typography variant="body2" paragraph>
                         Once the file reaches S3, an event automatically triggers a
                         Lambda function that validates the file type, size, and content
-                        type. The file is then moved to either <code>approved</code> or
+                        type. Images are verified with Pillow, videos with OpenCV. Files
+                        up to 50 MB are supported. The file is then moved to either <code>approved</code> or
                         <code> rejected</code>.
                     </Typography>
                     <Typography variant="body2">

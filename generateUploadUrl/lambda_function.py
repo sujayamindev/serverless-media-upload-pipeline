@@ -6,13 +6,16 @@ s3 = boto3.client("s3")
 
 BUCKET_NAME = "smart-media-upload-pipeline-v1"
 UPLOAD_PREFIX = "incoming/"
-MAX_SIZE_BYTES = 5 * 1024 * 1024  # 5MB
+MAX_SIZE_BYTES = 50 * 1024 * 1024  # 50MB
 
 ALLOWED_MIME = {
     "jpg": "image/jpeg",
     "jpeg": "image/jpeg",
     "png": "image/png",
-    "webp": "image/webp"
+    "webp": "image/webp",
+    "mp4": "video/mp4",
+    "webm": "video/webm",
+    "mov": "video/quicktime"
 }
 
 def lambda_handler(event, context):
