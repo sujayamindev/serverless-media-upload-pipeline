@@ -91,6 +91,7 @@ export default function UploadPage() {
   const [mediaStatus, setMediaStatus] = useState(null);
   const [statusLoading, setStatusLoading] = useState(false);
   const [uploadError, setUploadError] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadStatusText, setUploadStatusText] = useState("");
   const [notification, setNotification] = useState(null);
   const [activeStep, setActiveStep] = useState(-1);
@@ -105,6 +106,7 @@ export default function UploadPage() {
       setMediaStatus(null);
       setMediaId(null);
       setUploadError(false);
+      setUploadSuccess(false);
       setUploadStatusText("");
       setNotification(null);
       setActiveStep(0);
@@ -168,6 +170,7 @@ export default function UploadPage() {
     setUploadStatusText("Upload complete");
     setUploadProgress(100);
     setActiveStep(3);
+    setUploadSuccess(true);
     setNotification({
       type: "success",
       message: "Upload successful. S3 validated size and type."
@@ -473,6 +476,7 @@ export default function UploadPage() {
                         setMediaStatus(null);
                         setMediaId(null);
                         setUploadError(false);
+                        setUploadSuccess(false);
                         setUploadStatusText("");
                         setNotification(null);
                         setActiveStep(-1);
@@ -539,7 +543,7 @@ export default function UploadPage() {
               <Divider />
 
               {/* Check Status Button */}
-              {presignResponse && presignResponse && !uploadError && uploadProgress === 100 && (
+              {presignResponse && !uploadError && uploadProgress === 100 && uploadSuccess && (
                 <Button
                   variant="outlined"
                   onClick={handleCheckStatus}
@@ -765,12 +769,14 @@ export default function UploadPage() {
                       justifyContent: "center"
                     }}
                   >
-                    {mediaStatus.detected_type?.startsWith('video/') ? (
+                    {mediaStatus.content_type?.startsWith('video/') ? (
                       <video
                         controls
+                        crossOrigin="anonymous"
+                        preload="metadata"
                         style={{ maxWidth: "100%", height: "auto", borderRadius: "4px" }}
                       >
-                        <source src={mediaStatus.preview_url} type={mediaStatus.detected_type} />
+                        <source src={mediaStatus.preview_url} type={mediaStatus.content_type} />
                         Your browser does not support the video tag.
                       </video>
                     ) : (
