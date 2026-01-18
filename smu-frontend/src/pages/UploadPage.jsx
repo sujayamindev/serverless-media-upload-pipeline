@@ -227,7 +227,7 @@ export default function UploadPage() {
           </Box>
           <Box>
             <Typography variant="h5" fontWeight="bold">
-              Smart Media Upload Pipeline
+              Secure Cloud-Native Media Upload Pipeline
             </Typography>
             
             <Typography variant="body2" color="text.secondary" sx={{ mb: 0 }}>
