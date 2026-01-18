@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
+import diagram from '../assets/diagram.svg';
 
 export default function HowItWorksPage() {
     const navigate = useNavigate();
@@ -32,6 +33,14 @@ export default function HowItWorksPage() {
                 a file and how different AWS services work together.
             </Typography>
 
+            <Box sx={{ display: 'flex', justifyContent: 'left', my: 4, border: "1px solid #e0e0e0", borderRadius: 2, }}>
+                <img 
+                    src={diagram} 
+                    alt="System Architecture Diagram" 
+                    style={{ maxWidth: '70%', height: 'auto', marginLeft: '36px', marginRight: '16px' }}
+                />
+            </Box>
+
             <Stack spacing={4}>
                 {/* Frontend Hosting */}
                 <Box sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 3 }}>
@@ -41,8 +50,7 @@ export default function HowItWorksPage() {
 
                     <Typography variant="body2" paragraph>
                         The frontend is a static React application hosted securely on Amazon S3
-                        and delivered globally via Amazon CloudFront. The S3 bucket is kept
-                        private and is only accessible through CloudFront.
+                        and delivered globally via Amazon CloudFront. The S3 bucket is private and only accessible via CloudFront using Origin Access Control (OAC).
                     </Typography>
 
                     <Typography variant="body2" paragraph>
@@ -95,7 +103,8 @@ export default function HowItWorksPage() {
                     <Typography variant="body2" paragraph>
                         When you click <strong>Upload</strong>, the frontend does NOT
                         upload the file to the backend. Instead, it requests a
-                        <strong> short-lived, pre-signed upload policy</strong>.
+                        <strong> short-lived, pre-signed POST upload policy</strong>.
+                        <i> Why POST? Because it allows strict server-enforced conditions such as content-length-range.</i>
                     </Typography>
                     <Typography variant="body2" paragraph>
                         This policy strictly defines allowed file size, content type,
@@ -184,6 +193,9 @@ export default function HowItWorksPage() {
                         Images are validated using Pillow, videos using OpenCV.
                         Files up to 50&nbsp;MB are supported. Each file is then moved
                         to either <code><i>approved</i></code> or <code><i>rejected</i></code>.
+                    </Typography>
+                    <Typography variant="body2" paragraph>
+                        This prevents attackers from bypassing client-side checks by renaming files or forging MIME types.
                     </Typography>
                     <Typography variant="body2">
                         <strong>AWS Services involved:</strong>
@@ -297,10 +309,14 @@ export default function HowItWorksPage() {
                             browser requests, S3 will reject uploads that violate these constraints.
                         </Typography>
 
-                        <Typography variant="body2">
+                        <Typography variant="body2" paragraph>
                             Temporary credentials, short-lived URLs, IAM least-privilege roles,
                             and automatic cleanup rules together reduce the blast radius of misuse
                             or abuse.
+                        </Typography>
+
+                        <Typography variant="body2" paragraph>
+                            No AWS credentials are ever exposed to the client, and all access is scoped, temporary, and auditable.
                         </Typography>
                     </Box>
             </Stack>
