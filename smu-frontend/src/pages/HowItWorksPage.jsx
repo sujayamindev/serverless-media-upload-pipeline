@@ -24,7 +24,7 @@ export default function HowItWorksPage() {
             </Button>
 
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-                How This Works 🚀
+                How This Works
             </Typography>
 
             <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
@@ -33,15 +33,74 @@ export default function HowItWorksPage() {
             </Typography>
 
             <Stack spacing={4}>
+                {/* Frontend Hosting */}
+                <Box sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 3 }}>
+                    <Typography variant="h6" fontWeight="bold" gutterBottom>
+                        Frontend Hosting & Delivery
+                    </Typography>
+
+                    <Typography variant="body2" paragraph>
+                        The frontend is a static React application hosted securely on Amazon S3
+                        and delivered globally via Amazon CloudFront. The S3 bucket is kept
+                        private and is only accessible through CloudFront.
+                    </Typography>
+
+                    <Typography variant="body2" paragraph>
+                        CloudFront provides HTTPS, caching, and low-latency access, while an
+                        Origin Access Control (OAC) ensures that users cannot bypass CloudFront
+                        to access the S3 bucket directly.
+                    </Typography>
+
+                    <Typography variant="body2">
+                        <strong>AWS Services involved:</strong>
+                        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1, mb: -1 }}>
+                            <Chip
+                                icon={<Box sx={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img
+                                        src="https://a.b.cdn.console.awsstatic.com/a/v1/DKY2SIL5N3MJQCULDNOQE7TKLNQIUXRSOHBJKJGQAHLZO7TLH3TQ/icon/c0828e0381730befd1f7a025057c74fb-43acc0496e64afba82dbc9ab774dc622.svg"
+                                        alt=""
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                </Box>}
+                                label="S3"
+                                variant="outlined"
+                                size="medium"
+                            />
+
+                            <Chip
+                                icon={<Box sx={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img
+                                        src="https://a.b.cdn.console.awsstatic.com/a/v1/O5KUMVBWS74QN7SCF6UJX2EBWYVGGRWTRCB3H6YPT5QYNZU7RUYQ/icon/4200ac8906c9a841a229ed9e5008a533-465d196059bdeeb0ffcb07ebe5f79b28.svg"
+                                        alt=""
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                </Box>}
+                                label="CloudFront"
+                                variant="outlined"
+                                size="medium"
+                            />
+                        </Stack>
+
+                        <br />• Amazon S3 (private static hosting)
+                        <br />• Amazon CloudFront (CDN + HTTPS)
+                        <br />• Origin Access Control (OAC)
+                    </Typography>
+                </Box>
+
                 {/* Step 1 */}
                 <Box sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 3 }}>
                     <Typography variant="h6" fontWeight="bold" gutterBottom>
-                        1️⃣ Requesting a Secure Upload URL
+                        Requesting a Secure Upload Policy
                     </Typography>
                     <Typography variant="body2" paragraph>
                         When you click <strong>Upload</strong>, the frontend does NOT
-                        upload the file directly to the backend. Instead, it requests a
-                        temporary, secure upload URL.
+                        upload the file to the backend. Instead, it requests a
+                        <strong> short-lived, pre-signed upload policy</strong>.
+                    </Typography>
+                    <Typography variant="body2" paragraph>
+                        This policy strictly defines allowed file size, content type,
+                        upload location, and expiration time. These rules are enforced
+                        by Amazon S3 itself.
                     </Typography>
                     <Typography variant="body2">
                         <strong>AWS Services involved:</strong>
@@ -75,20 +134,24 @@ export default function HowItWorksPage() {
                             />
                         </Stack>
                         <br />• Amazon API Gateway
-                        <br />• AWS Lambda (generateUploadUrl)
-                        <br />• Amazon S3 (pre-signed URL)
+                        <br />• AWS Lambda (generateUploadPolicy)
+                        <br />• Amazon S3 (pre-signed POST)
                     </Typography>
                 </Box>
 
                 {/* Step 2 */}
                 <Box sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 3 }}>
                     <Typography variant="h6" fontWeight="bold" gutterBottom>
-                        2️⃣ Direct Upload to Amazon S3
+                        Direct Upload to Amazon S3
                     </Typography>
                     <Typography variant="body2" paragraph>
                         The browser uploads the file directly to Amazon S3 using the
-                        pre-signed URL. This avoids routing large files through the
-                        backend and scales efficiently.
+                        pre-signed url. The backend is completely bypassed during
+                        file transfer.
+                    </Typography>
+                    <Typography variant="body2" paragraph>
+                        On success, Amazon S3 responds with HTTP 204 (No Content),
+                        which confirms the upload without returning a response body.
                     </Typography>
                     <Typography variant="body2">
                         <strong>AWS Services involved:</strong>
@@ -110,14 +173,17 @@ export default function HowItWorksPage() {
                 {/* Step 3 */}
                 <Box sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 3 }}>
                     <Typography variant="h6" fontWeight="bold" gutterBottom>
-                        3️⃣ Automatic Server-Side Validation
+                        Automatic Server-Side Validation
                     </Typography>
                     <Typography variant="body2" paragraph>
-                        Once the file reaches S3, an event automatically triggers a
-                        Lambda function that validates the file type, size, and content
-                        type. Images are verified with Pillow, videos with OpenCV. Files
-                        up to 50 MB are supported. The file is then moved to either <code>approved</code> or
-                        <code> rejected</code>.
+                        When a file appears in S3, an event triggers a Lambda function
+                        that performs server-side validation. The actual file content
+                        is inspected rather than trusting client-provided metadata.
+                    </Typography>
+                    <Typography variant="body2" paragraph>
+                        Images are validated using Pillow, videos using OpenCV.
+                        Files up to 50&nbsp;MB are supported. Each file is then moved
+                        to either <code><i>approved</i></code> or <code><i>rejected</i></code>.
                     </Typography>
                     <Typography variant="body2">
                         <strong>AWS Services involved:</strong>
@@ -159,12 +225,12 @@ export default function HowItWorksPage() {
                 {/* Step 4 */}
                 <Box sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 3 }}>
                     <Typography variant="h6" fontWeight="bold" gutterBottom>
-                        4️⃣ Checking Status & Previewing Media
+                        Checking Status & Previewing Media
                     </Typography>
                     <Typography variant="body2" paragraph>
                         When you click <strong>Check Status</strong>, the frontend asks
                         the backend for the current validation result. If approved, a
-                        temporary preview URL is generated.
+                        temporary pre-signed preview URL is generated.
                     </Typography>
                     <Typography variant="body2">
                         <strong>AWS Services involved:</strong>
@@ -212,6 +278,31 @@ export default function HowItWorksPage() {
                         <br />• Amazon S3 (pre-signed GET URL)
                     </Typography>
                 </Box>
+
+                {/* Security Notes */}
+                    <Box sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 3 }}>
+                        <Typography variant="h6" fontWeight="bold" gutterBottom>
+                            Security Notes
+                        </Typography>
+
+                        <Typography variant="body2" paragraph>
+                            This system is designed with a <strong>zero-trust client model</strong>.
+                            The frontend is treated as untrusted, and all critical validation and
+                            enforcement happens on the server or at the AWS service level.
+                        </Typography>
+
+                        <Typography variant="body2" paragraph>
+                            File size, content type, upload location, and expiration are enforced by
+                            Amazon S3 using a pre-signed POST policy. Even if a user tampers with
+                            browser requests, S3 will reject uploads that violate these constraints.
+                        </Typography>
+
+                        <Typography variant="body2">
+                            Temporary credentials, short-lived URLs, IAM least-privilege roles,
+                            and automatic cleanup rules together reduce the blast radius of misuse
+                            or abuse.
+                        </Typography>
+                    </Box>
             </Stack>
         </Container>
     );
