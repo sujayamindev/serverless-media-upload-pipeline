@@ -6,7 +6,7 @@ dynamodb = boto3.resource('dynamodb')
 s3 = boto3.client('s3')
 
 TABLE_NAME = 'MediaUploads'
-BUCKET_NAME = 'smart-media-upload-pipeline-v1'
+BUCKET_NAME = 'secure-cloud-native-media-upload-pipeline'
 PRESIGNED_EXPIRATION = 300  # 5 minutes
 
 table = dynamodb.Table(TABLE_NAME)

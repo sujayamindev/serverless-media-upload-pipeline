@@ -4,7 +4,7 @@ import uuid
 
 s3 = boto3.client("s3")
 
-BUCKET_NAME = "smart-media-upload-pipeline-v1"
+BUCKET_NAME = "secure-cloud-native-media-upload-pipeline"
 UPLOAD_PREFIX = "incoming/"
 MAX_SIZE_BYTES = 50 * 1024 * 1024  # 50MB
 

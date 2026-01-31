@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 import logging
 import io
+from urllib import parse
 
 try:
     import filetype
@@ -19,6 +20,9 @@ logger.setLevel(logging.INFO)
 s3 = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('MediaUploads')
+tags = {'keep': 'false'}
+
+tag_string = parse.urlencode(tags)
 
 APPROVED_FOLDER = 'approved/'
 REJECTED_FOLDER = 'rejected/'
@@ -206,8 +210,11 @@ def lambda_handler(event, context):
             s3.copy_object(
                 Bucket=bucket,
                 CopySource={'Bucket': bucket, 'Key': key},
-                Key=destination
+                Key=destination,
+                TaggingDirective='REPLACE',
+                Tagging=tag_string
             )
+
             s3.delete_object(Bucket=bucket, Key=key)
             
             logger.info(f"Moved {filename} to {destination}")
@@ -241,7 +248,9 @@ def lambda_handler(event, context):
                 s3.copy_object(
                     Bucket=bucket,
                     CopySource={'Bucket': bucket, 'Key': key},
-                    Key=error_destination
+                    Key=error_destination,
+                    TaggingDirective='REPLACE',
+                    Tagging=tag_string
                 )
                 s3.delete_object(Bucket=bucket, Key=key)
                 
