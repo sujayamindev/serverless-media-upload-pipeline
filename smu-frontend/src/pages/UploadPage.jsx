@@ -601,7 +601,6 @@ export default function UploadPage() {
               )}
               {presignResponse && (
                 <Accordion 
-                  defaultExpanded
                   elevation={0}
                   sx={{ 
                     border: "1px solid #e0e0e0",
@@ -648,7 +647,6 @@ export default function UploadPage() {
               )}
               {uploadResponse && (
                 <Accordion 
-                  defaultExpanded
                   elevation={0}
                   sx={{ 
                     border: "1px solid #e0e0e0",
@@ -695,7 +693,6 @@ export default function UploadPage() {
               )}
               {presignResponse && uploadResponse && mediaStatus &&!uploadError && uploadProgress === 100 && (
                 <Accordion 
-                  defaultExpanded
                   elevation={0}
                   sx={{ 
                     border: "1px solid #e0e0e0",
