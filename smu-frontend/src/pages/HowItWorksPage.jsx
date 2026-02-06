@@ -155,7 +155,7 @@ export default function HowItWorksPage() {
                     </Typography>
                     <Typography variant="body2" paragraph>
                         The browser uploads the file directly to Amazon S3 using the
-                        pre-signed url. The backend is completely bypassed during
+                        pre-signed POST. The backend is not involved in the file data path during upload.
                         file transfer.
                     </Typography>
                     <Typography variant="body2" paragraph>
@@ -191,7 +191,7 @@ export default function HowItWorksPage() {
                     </Typography>
                     <Typography variant="body2" paragraph>
                         Images are validated using Pillow, videos using OpenCV.
-                        Files up to 50&nbsp;MB are supported. Each file is then moved
+                        Files up to 50&nbsp;MB are supported in the current configuration. Each file is then moved
                         to either <code><i>approved</i></code> or <code><i>rejected</i></code>.
                     </Typography>
                     <Typography variant="body2" paragraph>
@@ -243,6 +243,9 @@ export default function HowItWorksPage() {
                         When you click <strong>Check Status</strong>, the frontend asks
                         the backend for the current validation result. If approved, a
                         temporary pre-signed preview URL is generated.
+                    </Typography>
+                    <Typography variant="body2" paragraph>
+                        DynamoDB acts as the system of record for media validation status.
                     </Typography>
                     <Typography variant="body2">
                         <strong>AWS Services involved:</strong>
