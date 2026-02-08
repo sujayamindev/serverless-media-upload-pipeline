@@ -231,7 +231,7 @@ export default function UploadPage() {
             </Typography>
             
             <Typography variant="body2" color="text.secondary" sx={{ mb: 0 }}>
-              Upload an image or video and let the backend validate it
+              Upload media securely with server-side validation on AWS
             </Typography>
           </Box>
         </Box>
