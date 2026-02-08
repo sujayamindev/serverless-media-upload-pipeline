@@ -1,4 +1,4 @@
-# Upload media securely with server-side validation on AWS
+# Secure Cloud-Native Media Upload Pipeline (AWS Serverless)
 
 A **secure, serverless media upload pipeline** built on AWS, designed using a **zero-trust client model** with **direct-to-S3 uploads**, strict server-side validation, and short-lived access everywhere.
 
