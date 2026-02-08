@@ -1,4 +1,4 @@
-# Smart Media Upload Pipeline
+# Upload media securely with server-side validation on AWS
 
 A **secure, serverless media upload pipeline** built on AWS, designed using a **zero-trust client model** with **direct-to-S3 uploads**, strict server-side validation, and short-lived access everywhere.
 
@@ -24,7 +24,7 @@ This project demonstrates how to solve these problems using **AWS-native pattern
 
 ## Architecture Overview
 
-![Architecture Diagram](docs\diagram.svg)
+![Architecture Diagram](docs/diagram.svg)
 
 ### High-level flow
 
