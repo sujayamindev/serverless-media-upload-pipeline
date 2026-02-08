@@ -155,8 +155,7 @@ export default function HowItWorksPage() {
                     </Typography>
                     <Typography variant="body2" paragraph>
                         The browser uploads the file directly to Amazon S3 using the
-                        pre-signed POST. The backend is not involved in the file data path during upload.
-                        file transfer.
+                        pre-signed POST. The backend is not involved in the file transfer.
                     </Typography>
                     <Typography variant="body2" paragraph>
                         On success, Amazon S3 responds with HTTP 204 (No Content),
