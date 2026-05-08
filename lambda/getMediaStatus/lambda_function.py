@@ -1,9 +1,10 @@
 import json
 import boto3
 from datetime import datetime
+from botocore.client import Config
 
 dynamodb = boto3.resource('dynamodb')
-s3 = boto3.client('s3')
+s3 = boto3.client('s3', config=Config(signature_version='s3v4'))
 
 TABLE_NAME = 'MediaUploads'
 BUCKET_NAME = 'secure-cloud-native-media-upload-pipeline'
