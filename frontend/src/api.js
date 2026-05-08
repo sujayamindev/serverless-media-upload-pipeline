@@ -1,16 +1,21 @@
 import axios from 'axios';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const API_KEY  = import.meta.env.VITE_API_KEY;
 
-if (!API_BASE) {
-  throw new Error(
-    'VITE_API_BASE_URL is not set. Copy frontend/.env.example to frontend/.env and fill in the value.'
-  );
-}
+if (!API_BASE) throw new Error('VITE_API_BASE_URL is not set.');
+if (!API_KEY)  throw new Error('VITE_API_KEY is not set.');
+
+const apiClient = axios.create({
+  baseURL: API_BASE,
+  headers: {
+    'x-api-key': API_KEY,
+  },
+});
 
 export const getUploadUrl = async (filename, filesize) => {
   try {
-    const response = await axios.post(`${API_BASE}/generate-upload-url`, {
+    const response = await apiClient.post('/generate-upload-url', {
       filename,
       filesize,
     });
@@ -22,7 +27,7 @@ export const getUploadUrl = async (filename, filesize) => {
 
 export const getMediaStatus = async (mediaId) => {
   try {
-    const response = await axios.post(`${API_BASE}/media-status`, {
+    const response = await apiClient.post('/media-status', {
       media_id: mediaId,
     });
     return response.data;
