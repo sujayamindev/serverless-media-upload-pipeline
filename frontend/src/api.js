@@ -1,6 +1,12 @@
 import axios from 'axios';
 
-const API_BASE = 'https://oqw0a4j9b8.execute-api.us-east-1.amazonaws.com'; // API Gateway endpoint
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+if (!API_BASE) {
+  throw new Error(
+    'VITE_API_BASE_URL is not set. Copy frontend/.env.example to frontend/.env and fill in the value.'
+  );
+}
 
 export const getUploadUrl = async (filename, filesize) => {
   try {
@@ -10,7 +16,7 @@ export const getUploadUrl = async (filename, filesize) => {
     });
     return response.data;
   } catch (err) {
-    return (err);
+    return err;
   }
 };
 
@@ -21,6 +27,6 @@ export const getMediaStatus = async (mediaId) => {
     });
     return response.data;
   } catch (err) {
-    return (err);
+    return err;
   }
 };
