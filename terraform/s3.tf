@@ -62,6 +62,18 @@ resource "aws_s3_bucket_lifecycle_configuration" "media" {
       days = 7
     }
   }
+  rule {
+    id     = "cleanup-incoming-stuck-files"
+    status = "Enabled"
+
+    filter {
+      prefix = "incoming/"
+    }
+
+    expiration {
+      days = 1
+    }
+  }
 }
 
 # S3 trigger: ObjectCreated in incoming/ → imageValidator Lambda
