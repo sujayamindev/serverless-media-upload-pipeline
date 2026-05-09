@@ -1,7 +1,7 @@
 locals {
-  lambda_runtime = "python3.11"
+  lambda_runtime                 = "python3.11"
   lambda_image_validator_runtime = "python3.12"
-  lambda_timeout = 300
+  lambda_timeout                 = 300
 }
 
 # ─── Package each Lambda as a zip ────────────────────────────────────────────
@@ -51,7 +51,7 @@ resource "aws_lambda_function" "image_validator" {
   function_name    = "imageValidator"
   role             = aws_iam_role.image_validator.arn
   handler          = "lambda_function.lambda_handler"
-  runtime          = local.lambda_image_validator_runtime 
+  runtime          = local.lambda_image_validator_runtime
   timeout          = local.lambda_timeout
   memory_size      = 1024
   filename         = data.archive_file.image_validator.output_path

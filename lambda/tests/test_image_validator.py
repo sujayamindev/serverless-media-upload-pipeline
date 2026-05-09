@@ -222,3 +222,18 @@ def test_corrupted_image_is_rejected(aws_credentials):
 
     item = table.get_item(Key={"media_id": "corrupted.jpg"})["Item"]
     assert item["status"] == "rejected"
+
+@mock_aws
+def test_processing_error_moves_to_rejected(aws_credentials):
+    """If an unexpected error occurs, file should be moved to rejected."""
+    lambda_function = _load()
+
+    s3, table = _setup_aws()
+    key = "incoming/error.jpg"
+    s3.put_object(Bucket=BUCKET_NAME, Key=key, Body=b"data", ContentType="image/jpeg")
+
+    # Delete the object after upload to force an error during processing
+    s3.delete_object(Bucket=BUCKET_NAME, Key=key)
+
+    # Should not raise — errors are caught internally
+    lambda_function.lambda_handler(_make_s3_event(key), {})

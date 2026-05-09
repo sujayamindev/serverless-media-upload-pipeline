@@ -13,7 +13,7 @@ variable "project_name" {
 variable "max_file_size_bytes" {
   description = "Maximum allowed upload size in bytes"
   type        = number
-  default     = 52428800  # 50 MB
+  default     = 52428800 # 50 MB
 }
 
 variable "validator_layer_arns" {
