@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Container,
   Card,
@@ -141,7 +141,7 @@ export default function UploadPage() {
     setUploadProgress(0);
     setActiveStep(2);
 
-    const { url, fields } = presignData.upload;
+    const { _url, fields } = presignData.upload;
 
     const formData = new FormData();
 
@@ -210,7 +210,7 @@ export default function UploadPage() {
       } else {
         setNotification({ type: 'info', message: `File status: ${status.status}` });
       }
-    } catch (err) {
+    } catch {
       // Handle error silently
       setNotification({ type: 'error', message: 'Failed to check status. Please try again.' });
     } finally {
