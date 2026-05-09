@@ -1,7 +1,9 @@
 import json
+import os
 import boto3
 from datetime import datetime
 from botocore.client import Config
+import os
 
 dynamodb = boto3.resource('dynamodb')
 s3 = boto3.client('s3', config=Config(signature_version='s3v4'))
@@ -10,9 +12,17 @@ TABLE_NAME = 'MediaUploads'
 BUCKET_NAME = 'secure-cloud-native-media-upload-pipeline'
 PRESIGNED_EXPIRATION = 300  # 5 minutes
 
+VALID_API_KEY = os.environ.get("API_KEY")
+
 table = dynamodb.Table(TABLE_NAME)
 
 def lambda_handler(event, context):
+    # API key check
+    if VALID_API_KEY:
+        headers = event.get("headers") or {}
+        if headers.get("x-api-key") != VALID_API_KEY:
+            return response(403, "Forbidden")
+        
     body = json.loads(event.get('body', '{}'))
     media_id = body.get('media_id')
 

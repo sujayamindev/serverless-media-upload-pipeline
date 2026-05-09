@@ -1,7 +1,8 @@
 import json
 import boto3
 import uuid
-
+import os
+    
 s3 = boto3.client("s3")
 
 BUCKET_NAME = "secure-cloud-native-media-upload-pipeline"
@@ -18,7 +19,15 @@ ALLOWED_MIME = {
     "mov": "video/quicktime"
 }
 
+VALID_API_KEY = os.environ.get("API_KEY")
+
 def lambda_handler(event, context):
+    # API key check
+    if VALID_API_KEY:
+        headers = event.get("headers") or {}
+        if headers.get("x-api-key") != VALID_API_KEY:
+            return response(403, "Forbidden")
+        
     body = json.loads(event.get("body", "{}"))
 
     filename = body.get("filename")
