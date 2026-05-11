@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Card,
@@ -25,7 +25,7 @@ import {
   ListItemIcon,
   ListItemText
 } from "@mui/material";
-import { styled } from '@mui/material/styles';
+import { styled, keyframes } from '@mui/material/styles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import PermMediaOutlinedIcon from '@mui/icons-material/PermMediaOutlined';
@@ -41,9 +41,13 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import ImageIcon from '@mui/icons-material/Image';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import Looks5OutlinedIcon from '@mui/icons-material/Looks5Outlined';
+import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined';
+import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 import { getUploadUrl, getMediaStatus } from "../api";
 import axios from "axios";
 import { Link } from 'react-router-dom';
+
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
 const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   alternativeLabel: {
@@ -66,6 +70,12 @@ const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
+const pulse = keyframes`
+  0% { box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(25, 118, 210, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(25, 118, 210, 0); }
+`;
+
 function LinearProgressWithLabel(props) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -80,6 +90,35 @@ function LinearProgressWithLabel(props) {
     </Box>
   );
 }
+
+const pollValidationStatus = async (mediaId) => {
+  const maxAttempts = 30;
+  const interval = 3000; // 3 seconds
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const result = await getMediaStatus(mediaId);
+      
+      // Got a real result — done
+      if (result.status === 'approved' || result.status === 'rejected') {
+        return result;
+      }
+      
+    } catch (err) {
+      // 404 means Lambda hasn't written to DynamoDB yet — not an error, just not ready
+      if (err.response?.status === 404) {
+        // Keep polling silently
+      } else {
+        // Real error — stop polling
+        throw err;
+      }
+    }
+
+    await new Promise(resolve => setTimeout(resolve, interval));
+  }
+
+  throw new Error('Validation timed out after 90 seconds');
+};
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
@@ -117,12 +156,7 @@ export default function UploadPage() {
     if (!file.name || !file.size) {
       throw new Error("Filename and filesize are required");
     }
-
-    try {
-      return await getUploadUrl(file.name, file.size);
-    } catch (err) {
-      console.error(err);
-    }
+    return await getUploadUrl(file.name, file.size);
   };
 
   const handleUpload = async () => {
@@ -141,7 +175,7 @@ export default function UploadPage() {
     setUploadProgress(0);
     setActiveStep(2);
 
-    const { _url, fields } = presignData.upload;
+    const { fields } = presignData.upload;
 
     const formData = new FormData();
 
@@ -154,7 +188,6 @@ export default function UploadPage() {
     formData.append("file", file);
 
     setUploadStatusText("Uploading to S3...");
-    setUploadProgress(50);
 
     const response = await axios.post(presignData.upload.url, formData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -192,31 +225,42 @@ export default function UploadPage() {
   }
   };
 
-  const handleCheckStatus = async () => {
-    if (!mediaId) return;
-    setStatusLoading(true);
-    setActiveStep(4);
+  useEffect(() => {
+    let isMounted = true;
 
-    try {
-      const status = await getMediaStatus(mediaId);
-      setMediaStatus(status);
-      
-      if (status.status === 'approved') {
-        setActiveStep(5);
-        setNotification({ type: 'success', message: `File validated successfully! Status: ${status.status}` });
-      } else if (status.status === 'rejected') {
-        setActiveStep(5);
-        setNotification({ type: 'error', message: `File rejected. Reason: ${status.rejection_reason || 'Unknown'}` });
-      } else {
-        setNotification({ type: 'info', message: `File status: ${status.status}` });
+    const checkStatus = async () => {
+      if (!isMounted) return;
+      setStatusLoading(true);
+      setActiveStep((prev) => (prev < 4 ? 4 : prev));
+
+      try {
+        const status = await pollValidationStatus(mediaId);
+        if (!isMounted) return;
+        setMediaStatus(status);
+        
+        if (status.status === 'approved') {
+          setActiveStep(5);
+          setNotification({ type: 'success', message: `File validated successfully! Status: ${status.status}` });
+        } else if (status.status === 'rejected') {
+          setActiveStep(5);
+          setNotification({ type: 'error', message: `File rejected. Reason: ${status.rejection_reason || 'Unknown'}` });
+        }
+      } catch (err) {
+        if (!isMounted) return;
+        setNotification({ type: 'error', message: err.message || 'Failed to check status. Retrying...' });
+      } finally {
+        if (isMounted) setStatusLoading(false);
       }
-    } catch {
-      // Handle error silently
-      setNotification({ type: 'error', message: 'Failed to check status. Please try again.' });
-    } finally {
-      setStatusLoading(false);
+    };
+
+    if (uploadSuccess && mediaId) {
+      checkStatus();
     }
-  };
+
+    return () => {
+      isMounted = false;
+    };
+  }, [uploadSuccess, mediaId]);
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4 }}>
@@ -364,7 +408,8 @@ export default function UploadPage() {
                     backgroundColor: activeStep >= 4 ? 'primary.main' : '#e0e0e0',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    animation: statusLoading ? `${pulse} 1.5s ease-in-out infinite` : 'none',
                   }}>
                     <StorageIcon sx={{ color: 'white', fontSize: 20 }} />
                   </Box>
@@ -379,17 +424,18 @@ export default function UploadPage() {
               <StepLabel 
                 StepIconComponent={() => (
                   <Box sx={{ 
-                    width: 40, 
-                    height: 40, 
-                    mt: -1,
-                    borderRadius: '50%', 
-                    backgroundColor: activeStep >= 5 ? 'primary.main' : '#e0e0e0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <VerifiedUserIcon sx={{ color: 'white', fontSize: 20 }} />
-                  </Box>
+                  width: 40, 
+                  height: 40, 
+                  mt: -1,
+                  borderRadius: '50%', 
+                  backgroundColor: activeStep >= 4 ? 'primary.main' : '#e0e0e0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  animation: statusLoading ? `${pulse} 1.5s ease-in-out infinite` : 'none',  // ← add this
+                }}>
+                  <CheckCircleOutlineOutlinedIcon sx={{ color: 'white', fontSize: 20 }} />
+                </Box>
                 )}
               >
                 <Typography variant="caption" fontWeight={activeStep >= 5 ? "bold" : "normal"}>
@@ -538,25 +584,6 @@ export default function UploadPage() {
                     Upload
                   </Button>
                 )
-              )}
-
-              <Divider />
-
-              {/* Check Status Button */}
-              {presignResponse && !uploadError && uploadProgress === 100 && uploadSuccess && (
-                <Button
-                  variant="outlined"
-                  onClick={handleCheckStatus}
-                  disabled={statusLoading}
-                  disableElevation 
-                  startIcon={<CheckCircleOutlineIcon />}
-                  sx={{
-                    borderWidth: 2,
-                    borderRadius: 2
-                  }}
-                >
-                  {statusLoading ? "Checking..." : "Check Status"}
-                </Button>
               )}
 
             </Stack>
@@ -767,6 +794,28 @@ export default function UploadPage() {
                     }}
                   >
                     {mediaStatus.content_type?.startsWith('video/') ? (
+                      mediaStatus.content_type === 'video/quicktime' && !isSafari ? (
+                        <Box sx={{ textAlign: 'center', p: 2 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                            MOV files cannot be previewed in the browser. Download to view.
+                          </Typography>
+                          <Button
+                            variant="outlined"
+                            href={mediaStatus.preview_url}
+                            download
+                            startIcon={<CloudDownloadOutlinedIcon />}
+                            sx={{
+                              borderRadius: 2,
+                              borderWidth: 2,
+                              '&:hover': {
+                                borderWidth: 2
+                              }
+                            }}
+                          >
+                            Download File
+                          </Button>
+                        </Box>
+                      ) : (
                       <video
                         controls
                         crossOrigin="anonymous"
@@ -776,6 +825,7 @@ export default function UploadPage() {
                         <source src={mediaStatus.preview_url} type={mediaStatus.content_type} />
                         Your browser does not support the video tag.
                       </video>
+                      )
                     ) : (
                       <img
                         src={mediaStatus.preview_url}
@@ -790,6 +840,33 @@ export default function UploadPage() {
             </Stack>
           </CardContent>
         </Card>
+      </Box>
+
+      {/* GitHub Repository Link */}
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1000 }}>
+        <a 
+          href="https://github.com/sujayamindev/secure-cloud-native-media-upload-pipeline" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px',
+            textDecoration: 'none',
+            color: 'inherit',
+            opacity: 0.6, 
+            transition: 'opacity 0.2s', 
+            cursor: 'pointer' 
+          }}
+          onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+          onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+        >
+          <img 
+            src="https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg" 
+            alt="GitHub Repository" 
+            style={{ width: 30, height: 30 }} 
+          />
+        </a>
       </Box>
 
     </Container>

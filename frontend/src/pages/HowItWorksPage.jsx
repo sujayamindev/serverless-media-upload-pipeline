@@ -143,7 +143,7 @@ export default function HowItWorksPage() {
                             />
                         </Stack>
                         <br />• Amazon API Gateway
-                        <br />• AWS Lambda (generateUploadPolicy)
+                        <br />• AWS Lambda (generateUploadUrl)
                         <br />• Amazon S3 (pre-signed POST)
                     </Typography>
                 </Box>
@@ -189,12 +189,16 @@ export default function HowItWorksPage() {
                         is inspected rather than trusting client-provided metadata.
                     </Typography>
                     <Typography variant="body2" paragraph>
-                        Images are validated using Pillow, videos using OpenCV.
-                        Files up to 50&nbsp;MB are supported in the current configuration. Each file is then moved
-                        to either <code><i>approved</i></code> or <code><i>rejected</i></code>.
+                        Validation uses three libraries in sequence: <code>filetype</code> inspects
+                        binary magic numbers to detect the true file type regardless of extension,
+                        Pillow verifies image integrity, and OpenCV reads at least one frame from
+                        video files. Files up to 50&nbsp;MB are supported. Each file is then moved
+                        to either <code>approved</code> or <code>rejected</code>.
                     </Typography>
                     <Typography variant="body2" paragraph>
-                        This prevents attackers from bypassing client-side checks by renaming files or forging MIME types.
+                        This prevents attackers from bypassing client-side checks by renaming files
+                        or forging MIME types — the actual binary content is inspected, not the
+                        filename or Content-Type header.
                     </Typography>
                     <Typography variant="body2">
                         <strong>AWS Services involved:</strong>
@@ -239,12 +243,22 @@ export default function HowItWorksPage() {
                         Checking Status & Previewing Media
                     </Typography>
                     <Typography variant="body2" paragraph>
-                        When you click <strong>Check Status</strong>, the frontend asks
-                        the backend for the current validation result. If approved, a
-                        temporary pre-signed preview URL is generated.
+                        Once the file is uploaded to S3, the frontend automatically polls
+                        the backend every 3 seconds to check the validation result. No
+                        manual action is required.
                     </Typography>
                     <Typography variant="body2" paragraph>
-                        DynamoDB acts as the system of record for media validation status.
+                        During polling, 404 responses are handled gracefully — they simply
+                        mean the <code>imageValidator</code> Lambda hasn't finished writing
+                        to DynamoDB yet. Polling continues silently until an
+                        <code> approved</code> or <code>rejected</code> status is returned,
+                        or until the 90-second timeout is reached.
+                    </Typography>
+                    <Typography variant="body2" paragraph>
+                        If approved, the <code>getMediaStatus</code> Lambda generates a
+                        temporary pre-signed GET URL from S3, allowing the browser to
+                        preview the file directly without exposing the bucket publicly.
+                        DynamoDB acts as the system of record for all validation results.
                     </Typography>
                     <Typography variant="body2">
                         <strong>AWS Services involved:</strong>
@@ -305,6 +319,11 @@ export default function HowItWorksPage() {
                             enforcement happens on the server or at the AWS service level.
                         </Typography>
 
+                        <Typography variant="body2" paragraph>
+                            All API Gateway endpoints require a valid API key sent via the
+                            <code> x-api-key</code> header. Requests without a valid key are
+                            rejected before reaching any Lambda function.
+                        </Typography>
                         <Typography variant="body2" paragraph>
                             File size, content type, upload location, and expiration are enforced by
                             Amazon S3 using a pre-signed POST policy. Even if a user tampers with
