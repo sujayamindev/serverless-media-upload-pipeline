@@ -26,12 +26,8 @@ export const getUploadUrl = async (filename, filesize) => {
 };
 
 export const getMediaStatus = async (mediaId) => {
-  try {
-    const response = await apiClient.post('/media-status', {
-      media_id: mediaId,
-    });
-    return response.data;
-  } catch (err) {
-    return err;
-  }
+  const response = await apiClient.post('/media-status', {
+    media_id: mediaId,
+  });
+  return response.data;
 };
