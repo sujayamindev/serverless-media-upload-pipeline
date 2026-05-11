@@ -1,349 +1,418 @@
-# Secure Cloud-Native Media Upload Pipeline (AWS Serverless)
+<div align="center">
 
-A **secure, serverless media upload pipeline** built on AWS, designed using a **zero-trust client model** with **direct-to-S3 uploads**, strict server-side validation, and short-lived access everywhere.
+# Secure Cloud-Native Media Upload Pipeline
 
-This project demonstrates **production-grade cloud architecture**, security-first design decisions, and clear separation of responsibilities between frontend, backend, and storage.
+A serverless, security-first media upload pipeline built on AWS.<br/>
+Files go directly from the browser to S3 — the backend never touches the file bytes.
 
----
+[![CI](https://github.com/sujayamindev/secure-cloud-native-media-upload-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/sujayamindev/secure-cloud-native-media-upload-pipeline/actions/workflows/ci.yml)
+![AWS](https://img.shields.io/badge/AWS-Serverless-FF9900?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjZmZmIiB2aWV3Qm94PSIwIDAgMzIgMzIiPjxwYXRoIGQ9Ik02LjU4NCA5LjAxYy0xLjM2IDAtMi43NC41My0yLjk3LjgyLS4wNi4xMi0uMiAxLjA5LjEzIDEuMDkuMTEgMCAuMTYuMDIuNDgtLjEzIDEuMi0uNDcgMS45Ni0uNDYgMi4wNy0uNDYgMS4zNS0uMTMgMi4xMy43OSAyLjAxIDEuOTh2LjdjLTEuMTQtLjI3LTEuNzktLjI4LTIuMTEtLjI4LTEuNjYtLjEtMy4xOTQuNzc2LTMuMTk0IDIuNyAwIDIuMTEgMS44ODMgMi41NiAyLjYxMyAyLjUzIDEuMDkuMDEgMi4xMy0uNDggMi44Mi0xLjMzLjU1IDEuMjMuOSAxLjE1LjkxIDEuMTUuMSAwIC4xOC0uMDQuMjYtLjA5bC41Ny0uNGMuMS0uMDYuMTgtLjE2LjE5LS4yOC0uMDEtLjI5LS41My0uNzQtLjQ5LTEuNzV2LTMuMTJhMy4xOCAzLjE4IDAgMCAwLS43OTktMi4zNSAzLjQyIDMuNDIgMCAwIDAtMi40OS0uNzhtMTkuMzczIDBjLTIgMC0zLjE1IDEuMjUtMy4xMiAyLjUyIDAgMS43NCAxLjc2IDIuMjkgMS45NiAyLjM1IDEuNjkuNTMgMS45Mi41NSAyLjM5Ljk1LjQuNDEuMzUgMS4yMS0uMjQgMS41Ni0uMTcuMS0uOS41NC0yLjU1LjItLjU1LS4xMS0uODQtLjI0LTEuMjktLjQzLS4xMi0uMDQtLjQtLjExLS40LjI2di40OWMwIC4yMy4xNC40NC4zNS41NCAxLjA1LjUzIDIuMzEuNTUgMi41OC41NS4wNCAwIDIuMzQuMDAxIDMuMTEtMS41NS4xNTgtLjMyLjU3LTEuNDktLjItMi40OS0uNjQtLjc1LTEuMTktLjgzLTIuODMtMS4zMy0uMTQtLjA0LTEuMzUtLjM1LTEuMzQtMS4yLS4wNi0xLjA5IDEuNDItMS4xNSAxLjczLTEuMTMgMS4yNS0uMDIgMS44Ny40NSAyLjIxLjQ4LjE1IDAgLjIyLS4wOS4yMi0uMjl2LS40NmEuNS41IDAgMCAwLS4wOS0uMzFjLS40LS41Mi0xLjkzLS43MS0yLjQ5LS43MW0tMTUuMTguMjVjLS4xMS4wMi0uMTkuMTMtLjE3LjI0LjAyLjEzLjA0LjI2LjA5LjM5bDIuMjQgNy4zOWMuMDUuMjQuMjEuNS41Ni40NmguODJjLjUuMDUuNTctLjQzLjU4LS40OGwxLjQ3LTYuMTYgMS40OSA2LjE3Yy4wMS4wNS4wOC41My41Ny40OGguODNjLjM2LjA0LjUzLS4yMi41OC0uNDYgMi41Mi04LjExIDIuMzUtNy41NiAyLjM3LTcuNjQuMDQtLjQyLS4yLS4zOS0uMjQtLjM4aC0uODljLS40NS0uMDUtLjU0LjM2LS41Ni40NmwtMS42NiA2LjQxLTEuNS02LjQxYy0uMDctLjQ5LS40Ny0uNDctLjU3LS40NmgtLjc3Yy0uNDQtLjA0LS41NS4zMS0uNTguNDZsLTEuNDkgNi4zMi0xLjYtNi4zMmMtLjA0LS4yLS4xNy0uNTEtLjU2LS40N3ptLTQuMjU0IDQuNjNjLjcyLjAxIDEuMzQyLjEyIDEuNzcyLjIyIDAgLjUuMDE4Ljc4LS4wOTIgMS4yMy0uMTQuNDgtLjc1OSAxLjM1LTIuMjE5IDEuMzctLjg0LjA0LTEuMzktLjYyLTEuMzQtMS4zNy0uMDUtMS4yIDEuMTktMS41IDEuODgtMS40NW0yMi41MTggNi4xMTJjLS45MzMuMDEzLTIuMDM1LjIyMi0yLjg3MS44MDktLjI1OC4xNzktLjIxMy40MjcuMDc0LjM5NC45NC0uMTEzIDMuMDMyLS4zNjcgMy40MDYuMTExcy0uNDE0IDIuNDUtLjc2MyAzLjMzMmMtLjEwOC4yNjMuMTIuMzcyLjM2MS4xNzIgMS41NjQtMS4zMSAxLjk3LTQuMDU2IDEuNjUtNC40NS0uMTYtLjE5OC0uOTI0LS4zODEtMS44NTctLjM2OG0tMjcuODI0IDFjLS4yMTguMDMtLjMxMi4zMDYtLjA4NC41MjVDNS4wNSAyNS4yMDEgMTAuMjI2IDI3IDE1Ljk3MyAyN2M0LjA5OSAwIDguODU3LTEuMzM3IDEyLjE0Mi0zLjg1Ny41NDMtLjQyLjA4LTEuMDQ3LS40NzYtLjgtMy42ODMgMS42MjYtNy42ODQgMi40MDktMTEuMzI1IDIuNDA5LTUuMzk2IDAtMTAuNjItMS4xMjctMTQuODQ1LTMuNjg2YS40LjQgMCAwIDAtLjI1Mi0uMDY0Ii8+PC9zdmc+)
+![Terraform](https://img.shields.io/badge/IaC-Terraform-7B42BC?logo=terraform&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-## Why This Project Exists
+**[🔗 Live Demo](https://d2mt0cnx8t9hcw.cloudfront.net)**
 
-Uploading user-generated media sounds simple — until it isn’t.
-
-Common problems in traditional upload systems:
-
-* Backend servers become bottlenecks for large files
-* Client-side validation is easy to bypass
-* Long-lived credentials increase security risk
-* File size and type enforcement is unreliable
-* Scaling becomes expensive and complex
-
-This project demonstrates how to solve these problems using **AWS-native patterns** that are scalable, secure, and cost-efficient.
+</div>
 
 ---
 
-## Architecture Overview
+## Table of Contents
+
+- [The Problem](#the-problem)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Security Design](#security-design)
+- [Repository Structure](#repository-structure)
+- [Local Development](#local-development)
+- [Deployment](#deployment)
+- [CI/CD](#cicd)
+- [Test Coverage](#test-coverage)
+- [Cost](#cost)
+- [Design Decisions](#design-decisions)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
+
+---
+
+## The Problem
+
+Traditional upload systems route file bytes through a backend server. This creates three compounding problems: the server becomes a bottleneck for large files, client-side validation is trivially bypassed by renaming files or forging MIME types, and long-lived credentials increase the blast radius of any compromise.
+
+This project solves all three using AWS-native patterns.
+
+---
+
+## Architecture
 
 ![Architecture Diagram](docs/diagram.svg)
 
-### High-level flow
+### Flow
 
-1. The frontend requests a **short-lived upload policy**
-2. The browser uploads the file **directly to Amazon S3**
-3. Amazon S3 triggers **server-side media validation**
-4. Files are automatically **approved or rejected**
-5. The frontend securely checks status and previews approved media
+| Step | What happens |
+|------|-------------|
+| **1** | Frontend calls API Gateway → `generateUploadUrl` Lambda → returns a short-lived presigned POST policy |
+| **2** | Browser uploads the file directly to S3 (`incoming/`) using the presigned policy — backend is bypassed entirely |
+| **3** | S3 `ObjectCreated` event triggers `imageValidator` Lambda → validates binary content → moves file to `approved/` or `rejected/` → writes result to DynamoDB |
+| **4** | Frontend auto-polls API Gateway → `getMediaStatus` Lambda → reads DynamoDB → returns status and a presigned GET URL for preview |
 
-The backend is **never involved in file transfer**, eliminating upload bottlenecks and reducing attack surface.
-
----
-
-## How It Works (Summary)
-
-### 1. Secure Upload Policy
-
-* The frontend requests a **pre-signed POST policy** from the backend
-* The policy strictly enforces:
-
-  * File size limits
-  * Content type
-  * Upload location
-  * Expiration time
-* These rules are enforced by **Amazon S3**, not the client
-
-### 2. Direct Upload to S3
-
-* The browser uploads the file directly to S3 using the presigned POST policy
-* The backend is completely bypassed during transfer
-* S3 validates the upload conditions and responds with HTTP `204 No Content` on success
-
-### 3. Automatic Server-Side Validation
-
-* An S3 event triggers a Lambda function
-* The file’s **actual binary content** is inspected:
-
-  * Images → Pillow
-  * Videos → OpenCV
-* Files are moved to:
-
-  * `approved/` if valid
-  * `rejected/` if invalid
-* Validation results are stored in DynamoDB
-
-### 4. Status & Secure Preview
-
-* The frontend requests the validation status
-* If approved, a **short-lived pre-signed GET URL** is generated
-* Media can be previewed without exposing the bucket
-
-A full, step-by-step explanation is available in the **How it works** page inside the application.
+The backend is **never involved in file transfer**. S3 enforces all upload constraints at the infrastructure level.
 
 ---
 
-## Security Design 🔐
+## Tech Stack
 
-This system is intentionally built with a **zero-trust client model**.
-
-Key security principles:
-
-* The frontend is treated as **untrusted**
-* No AWS credentials are ever exposed to the browser
-* All access is **temporary, scoped, and auditable**
-
-### Security mechanisms used
-
-* **Pre-signed POST policies** with strict conditions
-* **Server-side validation** of actual file content
-* **Private S3 buckets** with CloudFront Origin Access Control (OAC)
-* **Time-limited presigned URLs** (5-minute expiration) for uploads and previews
-* **Least-privilege IAM roles**
-* **Automatic lifecycle cleanup** of uploaded files
-
-Even if a user tampers with browser requests, **Amazon S3 enforces the rules and rejects invalid uploads**.
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 19, Material UI 7, Vite — hosted on S3, delivered via CloudFront (OAC) |
+| **API** | Amazon API Gateway (HTTP API) with API key authentication |
+| **Compute** | AWS Lambda (Python 3.12) — `generateUploadUrl`, `imageValidator`, `getMediaStatus` |
+| **Storage** | Amazon S3 — lifecycle rules, event triggers, presigned URLs |
+| **Database** | Amazon DynamoDB — validation status and file metadata |
+| **IaC** | Terraform — all resources defined as code |
+| **CI** | GitHub Actions — Lambda tests, frontend lint/build, Terraform validation |
 
 ---
 
-## Technology Stack
+## Security Design
 
-### Frontend
+> [!NOTE]
+> This system uses a **zero-trust client model** — the frontend is treated as untrusted throughout. No AWS credentials are ever exposed to the browser.
 
-* React
-* Material UI (MUI)
-* Hosted on Amazon S3
-* Delivered via Amazon CloudFront (OAC + HTTPS)
-
-### Backend
-
-* Amazon API Gateway
-* AWS Lambda
-* Pre-signed POST & GET generation
-
-### Storage & Processing
-
-* Amazon S3
-* Amazon DynamoDB
-* S3 Event Triggers
-* AWS Lambda with Python libraries:
-  * Pillow (image validation)
-  * OpenCV (video validation)
-  * filetype (content-type detection)
+| Mechanism | Protection |
+|-----------|-----------|
+| **Presigned POST policy** | Enforces file size, content type, upload path, and 5-minute expiration at the S3 level — tampered requests are rejected by S3 itself |
+| **Binary content validation** | `filetype` checks magic numbers (not extensions) → Pillow verifies image integrity → OpenCV reads video frames — catches renamed executables and forged MIME types |
+| **API key authentication** | All API Gateway endpoints require `x-api-key` — requests without a valid key are rejected before reaching any Lambda |
+| **Private S3 + OAC** | Bucket is inaccessible directly — frontend access goes through CloudFront, Lambda access through IAM roles only |
+| **Least-privilege IAM roles** | Each Lambda has its own scoped role — `generateUploadUrl` can only `s3:PutObject` on `incoming/*` |
+| **Presigned GET URLs** | Approved files previewed via short-lived signed URLs — bucket is never public |
+| **Automatic lifecycle cleanup** | `incoming/` expires after 1 day, `approved/` and `rejected/` after 7 days |
 
 ---
 
-## Prerequisites
+## Repository Structure
 
-* AWS Account with appropriate permissions (S3, Lambda, API Gateway, DynamoDB, CloudFront)
-* AWS CLI configured
-* Node.js 18+ and npm
-* Python 3.9+ (for Lambda functions)
+<details>
+<summary>Click to expand</summary>
+
+```
+.
+├── frontend/                   # React application
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── UploadPage.jsx
+│   │   │   └── HowItWorksPage.jsx
+│   │   └── api.js
+│   ├── .env.example
+│   └── package.json
+├── lambda/                     # Lambda function source code
+│   ├── generateUploadUrl/
+│   │   └── lambda_function.py
+│   ├── imageValidator/
+│   │   └── lambda_function.py
+│   ├── getMediaStatus/
+│   │   └── lambda_function.py
+│   ├── tests/                  # pytest + moto test suite (21 tests)
+│   │   ├── conftest.py
+│   │   ├── test_generate_upload_url.py
+│   │   ├── test_get_media_status.py
+│   │   └── test_image_validator.py
+│   ├── requirements-dev.txt
+│   └── pytest.ini
+├── terraform/                  # Infrastructure as Code
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   ├── s3.tf
+│   ├── lambda.tf
+│   ├── api_gateway.tf
+│   ├── dynamodb.tf
+│   ├── cloudfront.tf
+│   ├── iam.tf
+│   └── terraform.tfvars.example
+├── docs/
+│   └── diagram.png
+└── .github/
+    └── workflows/
+        └── ci.yml
+```
+
+</details>
 
 ---
 
 ## Local Development
 
+### Prerequisites
+
+- Node.js 18+ and npm
+- Python 3.12+
+- AWS CLI configured (`aws configure`)
+- Terraform 1.5+
+
 ### Frontend
 
 ```bash
-cd smu-frontend
+cd frontend
+cp .env.example .env
+# Fill in VITE_API_BASE_URL and VITE_API_KEY
 npm install
 npm run dev
+# → http://localhost:5173
 ```
 
-The frontend will run on `http://localhost:5173` by default.
+### Lambda tests
 
-### Configuration
-
-Update the API Gateway endpoint in `smu-frontend/src/api.js`:
-
-```javascript
-const API_BASE = 'https://your-api-id.execute-api.us-east-1.amazonaws.com';
+```bash
+cd lambda
+pip install -r requirements-dev.txt
+pytest tests/ -v --cov=generateUploadUrl --cov=getMediaStatus --cov=imageValidator
 ```
 
 ---
 
 ## Deployment
 
-### Infrastructure Components
+> [!IMPORTANT]
+> All AWS infrastructure is managed with Terraform. A single `terraform apply` creates and configures every resource — S3 buckets, Lambda functions, API Gateway, DynamoDB, CloudFront, and IAM roles.
 
-1. **S3 Buckets**
-   * Media storage bucket: `secure-cloud-native-media-upload-pipeline`
-   * Frontend hosting bucket (CloudFront origin)
+### Step 1 — Configure variables
 
-2. **DynamoDB Table**
-   * Table name: `MediaUploads`
-   * Primary key: `media_id` (String)
-
-3. **Lambda Functions**
-   * `generateUploadUrl` - Creates presigned POST policies
-   * `imageValidator` - Server-side content validation
-   * `getMediaStatus` - Returns validation status and preview URLs
-
-4. **API Gateway**
-   * REST API with two endpoints:
-     * `POST /generate-upload-url`
-     * `POST /media-status`
-
-5. **CloudFront Distribution**
-   * Origin: Frontend S3 bucket
-   * Origin Access Control (OAC) enabled
-   * HTTPS only
-
-### Lambda Dependencies
-
-The validation Lambda requires these Python libraries (typically packaged as Lambda Layers):
-
-```
-Pillow>=10.0.0
-opencv-python-headless>=4.8.0
-filetype>=1.2.0
-boto3>=1.28.0
+```bash
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your values
 ```
 
-**Note:** Due to size constraints, package these as a Lambda Layer or use a container image deployment.
+| Variable | Description |
+|----------|-------------|
+| `aws_region` | AWS region to deploy into |
+| `project_name` | Base name for all resources — must be globally unique (used as S3 bucket name) |
+| `api_key` | API key for frontend authentication — any strong random string |
+| `cloudfront_waf_arn` | WAF ARN if your CloudFront distribution requires one |
+| `validator_layer_arns` | ARNs of Lambda layers for Pillow, OpenCV, and filetype |
 
-### S3 Bucket Configuration
+### Step 2 — Lambda layers
 
-**Security Checklist:**
-- ✅ Block all public access
-- ✅ Enable versioning
-- ✅ Server-side encryption (AES-256 or KMS)
-- ✅ CORS configured for direct uploads:
-  ```json
-  {
-    "AllowedOrigins": ["https://your-cloudfront-domain.com"],
-    "AllowedMethods": ["POST", "PUT"],
-    "AllowedHeaders": ["*"],
-    "ExposeHeaders": ["ETag"],
-    "MaxAgeSeconds": 3000
-  }
-  ```
-- ✅ S3 Event Notifications enabled (trigger `imageValidator` Lambda on `s3:ObjectCreated:*` in `incoming/` prefix)
-- ✅ Lifecycle policy for automatic cleanup:
-  * Delete objects in `approved/` and `rejected/` after 7 days
-  * Tag objects with `keep=false` for cleanup
+The `imageValidator` Lambda requires Pillow, OpenCV, and filetype as Lambda layers built for `python3.12` on Amazon Linux 2.
 
-### IAM Permissions
+**Option A — Use public KLayers (recommended)**
 
-**generateUploadUrl Lambda:**
-- `s3:PutObject` (for presigned POST generation)
+The [KLayers project](https://github.com/keithrozario/Klayers) publishes pre-built Lambda layers. Find the Pillow ARN for `python3.12` in your region and add it to `terraform.tfvars`.
 
-**imageValidator Lambda:**
-- `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject`, `s3:PutObjectTagging`
-- `dynamodb:PutItem`
+**Option B — Build your own**
 
-**getMediaStatus Lambda:**
-- `dynamodb:GetItem`
-- `s3:GetObject` (for presigned GET URL generation)
+```bash
+mkdir -p lambda_layer/python
 
----
+docker run --rm \
+  -v "$PWD/lambda_layer:/out" \
+  public.ecr.aws/lambda/python:3.12 \
+  pip install Pillow opencv-python-headless filetype \
+  --target /out/python --quiet
 
-## Cost Considerations
+cd lambda_layer && zip -r ../validator-layer.zip python/
 
-This architecture is designed to be cost-efficient for small to medium workloads:
+aws lambda publish-layer-version \
+  --layer-name validator-dependencies \
+  --zip-file fileb://validator-layer.zip \
+  --compatible-runtimes python3.12 \
+  --region us-east-1
+```
 
-| Service | Pricing Model | Estimated Cost (10K uploads/month) |
-|---------|--------------|------------------------------------|
-| **S3** | Storage + requests | ~$1 |
-| **Lambda** | Invocations + duration | ~$2 (within free tier) |
-| **API Gateway** | Requests | ~$0.04 |
-| **DynamoDB** | On-demand | ~$0.30 |
-| **CloudFront** | Data transfer | ~$1 |
+### Step 3 — Deploy infrastructure
 
-**Estimated monthly cost:** < $5 for 10,000 uploads
+```bash
+cd terraform
+terraform init
+terraform plan    # review what will be created
+terraform apply
+```
 
-**Free Tier Coverage:**
-- Lambda: 1M requests/month + 400,000 GB-seconds
-- API Gateway: 1M requests/month (first 12 months)
-- DynamoDB: 25 GB storage + 25 WCU + 25 RCU
-- CloudFront: 1 TB data transfer/month (first 12 months)
+Copy the outputs into `frontend/.env`:
 
----
+```bash
+terraform output api_gateway_url      # → VITE_API_BASE_URL
+terraform output -raw api_key_value   # → VITE_API_KEY
+terraform output cloudfront_domain    # → your live URL
+```
 
-## Testing
+### Step 4 — Deploy the frontend
 
-### Security Test Cases
+```bash
+cd frontend
+npm run build
+aws s3 sync dist/ s3://YOUR_FRONTEND_BUCKET --delete
+aws cloudfront create-invalidation --distribution-id YOUR_DIST_ID --paths "/*"
+```
 
-Test the security mechanisms by attempting:
+### Importing existing resources
 
-| Test Case | Expected Result |
-|-----------|----------------|
-| ✅ Valid JPEG/PNG/WEBP | Approved |
-| ✅ Valid MP4/WEBM/MOV | Approved |
-| ❌ Text file renamed to `.jpg` | Rejected (content validation) |
-| ❌ Executable renamed to `.png` | Rejected (content validation) |
-| ❌ File exceeding 50MB | Rejected by S3 (presigned policy) |
-| ❌ Wrong Content-Type header | Rejected by S3 (presigned policy) |
-| ❌ Upload after 5 minutes | Rejected (expired presigned URL) |
-| ❌ Corrupted image file | Rejected (Pillow validation fails) |
-| ❌ Video with 0 frames | Rejected (OpenCV validation fails) |
+<details>
+<summary>If you have manually created AWS resources, import them before applying</summary>
 
-### Testing Workflow
+```bash
+terraform import aws_s3_bucket.media               YOUR_BUCKET_NAME
+terraform import aws_dynamodb_table.media_uploads  MediaUploads
+terraform import aws_lambda_function.generate_upload_url  generateUploadUrl
+terraform import aws_lambda_function.image_validator      imageValidator
+terraform import aws_lambda_function.get_media_status     getMediaStatus
+terraform import aws_apigatewayv2_api.main         YOUR_API_ID
+terraform import aws_cloudfront_distribution.frontend  YOUR_DISTRIBUTION_ID
+```
 
-1. Upload a valid image → Should move to `approved/` folder
-2. Check DynamoDB → Record should have `status: approved`
-3. Request status → Should receive presigned preview URL
-4. Wait 5 minutes → Preview URL should expire
-5. Upload invalid file → Should move to `rejected/` folder with reason
+</details>
 
 ---
 
-## Design Decisions & Tradeoffs
+## CI/CD
 
-This project intentionally prioritizes **clarity, security, and correctness** over feature completeness.
+GitHub Actions runs three jobs on every push to `main` or `develop`:
 
-### Intentional limitations
+| Job | What it checks |
+|-----|---------------|
+| **Lambda tests** | 21 pytest tests with moto mocks — enforces 70% coverage floor |
+| **Frontend** | ESLint + Vite production build with placeholder env vars |
+| **Terraform validate** | `terraform init`, `validate`, and `fmt -check` |
 
-* No authentication layer (focus is on upload pipeline security)
-* Polling-based status checks instead of push notifications
-* Single-region deployment
-* Lambda size limits constrain max validation size
-
-These tradeoffs keep the system easy to reason about while still demonstrating real-world patterns.
+> [!NOTE]
+> CD is intentionally manual via `terraform apply` locally. Automated deployment from a public repository requires OIDC-based authentication with a scoped deploy role — a straightforward addition for a team environment.
 
 ---
 
+## Test Coverage
 
-## What This Project Demonstrates
+<details>
+<summary>View all 21 test scenarios</summary>
 
-* Secure direct-to-S3 upload patterns
-* Zero-trust frontend architecture
-* Server-side media validation
-* Practical AWS security best practices
-* Clear separation of responsibilities
-* Production-style cloud system design
+| Scenario | Lambda | Result |
+|----------|--------|:------:|
+| Valid JPEG/PNG/WebP upload request | `generateUploadUrl` | ✅ |
+| Valid MP4 upload request | `generateUploadUrl` | ✅ |
+| File exceeds 50 MB | `generateUploadUrl` | ❌ 400 |
+| Disallowed extension (`.exe`, `.pdf`) | `generateUploadUrl` | ❌ 400 |
+| Missing filename or filesize | `generateUploadUrl` | ❌ 400 |
+| Approved file returns presigned URL | `getMediaStatus` | ✅ |
+| Rejected file returns rejection reason | `getMediaStatus` | ✅ |
+| Unknown media ID | `getMediaStatus` | ❌ 404 |
+| Real JPEG binary approved | `imageValidator` | ✅ → `approved/` |
+| Fake JPEG (wrong magic bytes) | `imageValidator` | ❌ → `rejected/` |
+| Corrupted image | `imageValidator` | ❌ → `rejected/` |
+| File over size limit | `imageValidator` | ❌ → `rejected/` |
+| Disallowed extension | `imageValidator` | ❌ → `rejected/` |
+
+</details>
+
+---
+
+## Cost
+
+Designed for cost-efficiency on low-to-medium traffic. Most costs fall within AWS free tier limits for new accounts.
+
+| Service | Pricing model | ~10K uploads/month |
+|---------|:------------:|:-----------------:|
+| S3 | Storage + requests | ~$1.00 |
+| Lambda | Invocations + duration | ~$2.00 |
+| API Gateway | Per request | ~$0.04 |
+| DynamoDB | PAY_PER_REQUEST | ~$0.30 |
+| CloudFront | Data transfer | ~$1.00 |
+| **Total** | | **< $5.00** |
+
+---
+
+## Design Decisions
+
+<details>
+<summary><strong>Why presigned POST instead of presigned PUT?</strong></summary>
+
+Presigned PUT allows size enforcement only at the IAM/bucket policy level. Presigned POST supports a `content-length-range` condition that S3 enforces directly, rejecting oversized uploads before any bytes are stored. It also allows strict content-type enforcement per upload.
+
+</details>
+
+<details>
+<summary><strong>Why poll instead of push for validation status?</strong></summary>
+
+Push notifications (SNS → WebSocket or FCM) would require additional infrastructure. For a single-user demo, polling every 3 seconds with graceful 404 handling achieves the same result with no extra components. The frontend handles 404 responses silently — they mean the validator hasn't finished yet, not that an error occurred.
+
+</details>
+
+<details>
+<summary><strong>Why separate IAM roles per Lambda?</strong></summary>
+
+Each function is scoped to exactly the permissions it needs. `generateUploadUrl` can only write to `incoming/`, `getMediaStatus` can only read from `approved/` and query DynamoDB. A compromise of one function cannot be used to access resources belonging to another.
+
+</details>
+
+<details>
+<summary><strong>Production hardening not included</strong></summary>
+
+- **Malware scanning** — AWS GuardDuty S3 Malware Protection would add a scan-tag check before file approval. Omitted to avoid the cost of the WAF/malware subscription required for CloudFront distributions.
+- **Push notifications** — FCM integration for instant validation results instead of polling.
+- **Transcoding** — MOV files are served as a download link on non-Safari browsers rather than transcoded to MP4. An ffmpeg Lambda layer would handle this in production.
+- **Multi-region deployment** — single region keeps costs and complexity low for a demo.
+
+</details>
 
 ---
 
 ## Troubleshooting
 
-**Upload fails immediately:**
-- Check CORS configuration on S3 bucket
-- Verify API Gateway endpoint URL is correct
-- Ensure file size is under 50MB
+<details>
+<summary><strong>Upload fails with 403</strong></summary>
 
-**File stuck in "incoming" folder:**
-- Check S3 Event Notification is configured
-- Verify Lambda has execution permissions
-- Review CloudWatch Logs for validation errors
+- Verify `VITE_API_KEY` in `frontend/.env` matches `api_key` in `terraform.tfvars`
+- Rebuild and redeploy the frontend after updating env vars
 
-**Status check returns 404:**
-- File may still be processing (wait a few seconds)
-- DynamoDB record may not exist
-- Check `media_id` matches uploaded file name
+</details>
 
-**Preview URL doesn't work:**
-- URL expires after 5 minutes
-- Check S3 bucket permissions for Lambda
-- Verify file is in `approved/` folder
+<details>
+<summary><strong>File stuck in <code>incoming/</code> folder</strong></summary>
+
+- Check S3 event notification is configured (Terraform manages this — verify in the AWS console)
+- Check CloudWatch logs: `aws logs tail /aws/lambda/imageValidator --since 10m`
+- Verify Lambda layers are compatible with `python3.12`
+
+</details>
+
+<details>
+<summary><strong>Status check returns 404 immediately after upload</strong></summary>
+
+This is expected — `imageValidator` is still running. The frontend handles 404s silently and keeps polling. If it persists beyond 30 seconds, check `imageValidator` logs.
+
+</details>
+
+<details>
+<summary><strong>Preview URL doesn't load</strong></summary>
+
+- Presigned GET URLs expire after 5 minutes
+- Verify the file is in `approved/`, not `rejected/`
+- Check `getMediaStatus` Lambda role has `s3:GetObject` on `approved/*`
+
+</details>
+
+<details>
+<summary><strong><code>terraform apply</code> fails on CloudFront</strong></summary>
+
+If your distribution has a WAF subscription plan, AWS requires `web_acl_id` to be present — it cannot be removed. Add the WAF ARN to `terraform.tfvars` as `cloudfront_waf_arn`.
+
+</details>
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 
 <div align="center">
 
-**Built with ☁️ on AWS | Engineered for Security**
+**[🔗 Live Demo](https://d2mt0cnx8t9hcw.cloudfront.net)**
 
-*A portfolio project demonstrating production-grade serverless architecture*
+If you found this project useful, consider giving it a ⭐
+
+<sub>Built on AWS &nbsp;·&nbsp; Managed with Terraform &nbsp;·&nbsp; Tested with pytest &nbsp;·&nbsp; © 2026 Sujaya Mindev</sub>
 
 </div>
-
-
