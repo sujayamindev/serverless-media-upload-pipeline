@@ -3,7 +3,6 @@ import os
 import boto3
 from datetime import datetime
 from botocore.client import Config
-import os
 
 dynamodb = boto3.resource('dynamodb')
 s3 = boto3.client('s3', config=Config(signature_version='s3v4'))
@@ -23,7 +22,7 @@ def lambda_handler(event, context):
         if headers.get("x-api-key") != VALID_API_KEY:
             return response(403, "Forbidden")
         
-    body = json.loads(event.get('body', '{}'))
+    body = json.loads(event.get('body') or '{}')
     media_id = body.get('media_id')
 
     if not media_id:

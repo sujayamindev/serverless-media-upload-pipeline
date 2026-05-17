@@ -341,6 +341,32 @@ export default function HowItWorksPage() {
                         </Typography>
                     </Box>
             </Stack>
+
+            <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1000 }}>
+                <a
+                    href="https://github.com/sujayamindev/secure-cloud-native-media-upload-pipeline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        opacity: 0.6,
+                        transition: 'opacity 0.2s',
+                        cursor: 'pointer'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                    onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+                >
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg"
+                        alt="GitHub Repository"
+                        style={{ width: 30, height: 30 }}
+                    />
+                </a>
+            </Box>
         </Container>
     );
 }

@@ -135,19 +135,23 @@ export default function UploadPage() {
   const [notification, setNotification] = useState(null);
   const [activeStep, setActiveStep] = useState(-1);
 
+  const resetState = () => {
+    setUploadProgress(0);
+    setPresignResponse(null);
+    setUploadResponse(null);
+    setMediaStatus(null);
+    setMediaId(null);
+    setUploadError(false);
+    setUploadSuccess(false);
+    setUploadStatusText("");
+    setNotification(null);
+  };
+
   const handleFileSelect = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
-      setUploadProgress(0);
-      setPresignResponse(null);
-      setUploadResponse(null);
-      setMediaStatus(null);
-      setMediaId(null);
-      setUploadError(false);
-      setUploadSuccess(false);
-      setUploadStatusText("");
-      setNotification(null);
+      resetState();
       setActiveStep(0);
     }
   };
@@ -209,8 +213,7 @@ export default function UploadPage() {
       message: "Upload successful. S3 validated size and type."
     });
 
-  } catch (err) {
-    console.error(err);
+  } catch {
     setUploadError(true);
     setUploadProgress(0);
     setUploadStatusText("Upload failed");
@@ -428,11 +431,11 @@ export default function UploadPage() {
                   height: 40, 
                   mt: -1,
                   borderRadius: '50%', 
-                  backgroundColor: activeStep >= 4 ? 'primary.main' : '#e0e0e0',
+                  backgroundColor: activeStep >= 5 ? 'primary.main' : '#e0e0e0',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  animation: statusLoading ? `${pulse} 1.5s ease-in-out infinite` : 'none',  // ← add this
+                  animation: statusLoading ? `${pulse} 1.5s ease-in-out infinite` : 'none',
                 }}>
                   <CheckCircleOutlineOutlinedIcon sx={{ color: 'white', fontSize: 20 }} />
                 </Box>
@@ -516,15 +519,7 @@ export default function UploadPage() {
                       variant="outlined" 
                       onClick={() => {
                         setFile(null);
-                        setUploadProgress(0);
-                        setPresignResponse(null);
-                        setUploadResponse(null);
-                        setMediaStatus(null);
-                        setMediaId(null);
-                        setUploadError(false);
-                        setUploadSuccess(false);
-                        setUploadStatusText("");
-                        setNotification(null);
+                        resetState();
                         setActiveStep(-1);
                       }}
                       startIcon={<ClearIcon />}
@@ -555,7 +550,7 @@ export default function UploadPage() {
                   }} >
                   {file && (
                     <Typography variant="body2">
-                      {file.name} — {(file.size / 1024).toFixed(1)} KB
+                      {file.name} — {file.size >= 1024 * 1024 ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : `${(file.size / 1024).toFixed(1)} KB`}
                     </Typography>
                   )}
                 </Box>
@@ -788,7 +783,7 @@ export default function UploadPage() {
                       backgroundColor: "#fafafa",
                       p: 2,
                       overflow: "auto",
-                      maxHeight: "auto",
+                      maxHeight: "none",
                       display: "flex",
                       justifyContent: "center"
                     }}

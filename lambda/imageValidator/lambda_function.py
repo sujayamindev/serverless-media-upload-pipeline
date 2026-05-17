@@ -110,6 +110,7 @@ def validate_video_content(file_content, filename):
                 cap = cv2.VideoCapture(tmp_path)
                 
                 if not cap.isOpened():
+                    cap.release()
                     return False, "Unable to open video file", detected_mime
                 
                 # Try to read at least one frame
@@ -160,6 +161,7 @@ def lambda_handler(event, context):
         
         logger.info(f"Processing file: {key}")
         
+        size = None
         try:
             # Get object metadata
             obj_metadata = s3.head_object(Bucket=bucket, Key=key)
@@ -260,7 +262,7 @@ def lambda_handler(event, context):
                     'original_key': key,
                     'final_key': error_destination,
                     'rejection_reason': f"Processing error: {str(e)}",
-                    'file_size': str(size),
+                    'file_size': str(size) if size is not None else 'unknown',
                     'created_at': record.get('eventTime', datetime.now().isoformat()),
                     'checked_at': datetime.now().isoformat(),  
                 })
