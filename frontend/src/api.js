@@ -14,15 +14,11 @@ const apiClient = axios.create({
 });
 
 export const getUploadUrl = async (filename, filesize) => {
-  try {
-    const response = await apiClient.post('/generate-upload-url', {
-      filename,
-      filesize,
-    });
-    return response.data;
-  } catch (err) {
-    return err;
-  }
+  const response = await apiClient.post('/generate-upload-url', {
+    filename,
+    filesize,
+  });
+  return response.data;
 };
 
 export const getMediaStatus = async (mediaId) => {

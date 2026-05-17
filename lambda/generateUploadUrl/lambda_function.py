@@ -28,7 +28,7 @@ def lambda_handler(event, context):
         if headers.get("x-api-key") != VALID_API_KEY:
             return response(403, "Forbidden")
         
-    body = json.loads(event.get("body", "{}"))
+    body = json.loads(event.get("body") or "{}")
 
     filename = body.get("filename")
     filesize = body.get("filesize")
