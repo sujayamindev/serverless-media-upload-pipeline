@@ -1,6 +1,7 @@
 import boto3
 import os
-from datetime import datetime
+import warnings
+from datetime import datetime, timezone
 import logging
 import io
 from urllib import parse
@@ -13,13 +14,19 @@ except ImportError as e:
     logging.error(f"Missing required library: {e}")
     raise
 
+# Cap decoded pixel count and turn decompression-bomb warnings into hard errors
+# so a malicious image with declared gigapixel dimensions can be rejected before
+# Pillow allocates memory for it.
+Image.MAX_IMAGE_PIXELS = 50_000_000
+warnings.simplefilter("error", Image.DecompressionBombWarning)
+
 # Configure logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 s3 = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('MediaUploads')
+table = dynamodb.Table(os.environ['TABLE_NAME'])
 tags = {'keep': 'false'}
 
 tag_string = parse.urlencode(tags)
@@ -28,7 +35,9 @@ APPROVED_FOLDER = 'approved/'
 REJECTED_FOLDER = 'rejected/'
 
 ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime']
-ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.mp4', '.webm', '.mov']
+IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
+VIDEO_EXTENSIONS = {'.mp4', '.webm', '.mov'}
+ALLOWED_EXTENSIONS = IMAGE_EXTENSIONS | VIDEO_EXTENSIONS
 MAX_SIZE_BYTES = 50 * 1024 * 1024  # 50MB max
 
 
@@ -162,52 +171,57 @@ def lambda_handler(event, context):
         logger.info(f"Processing file: {key}")
         
         size = None
+        # Initialize early so the error/salvage path can always reference them.
+        content_type = "unknown"
+        detected_type = "unknown"
         try:
             # Get object metadata
             obj_metadata = s3.head_object(Bucket=bucket, Key=key)
             size = obj_metadata['ContentLength']
             content_type = obj_metadata['ContentType']
+            detected_type = content_type
             ext = os.path.splitext(key.lower())[1]
-            
+
             # Initialize validation variables
             status = 'rejected'
             rejection_reason = None
-            detected_type = content_type
-            
+
             # Step 1: Basic metadata validation
             if size > MAX_SIZE_BYTES:
                 rejection_reason = f"File too large: {size} bytes (max {MAX_SIZE_BYTES})"
                 logger.info(f"Rejected {filename}: {rejection_reason}")
-            
+
             elif ext not in ALLOWED_EXTENSIONS:
                 rejection_reason = f"Invalid file extension: {ext}"
                 logger.info(f"Rejected {filename}: {rejection_reason}")
-            
+
             else:
                 # Step 2: Download file for content-based validation
                 logger.info(f"Downloading {filename} for content validation")
                 obj = s3.get_object(Bucket=bucket, Key=key)
                 file_content = obj['Body'].read()
-                
-                # Step 3: Detect file type and route to appropriate validator
-                kind = filetype.guess(file_content)
-                if kind and kind.mime.startswith('video/'):
-                    # Validate as video
+
+                # Step 3: Route by extension (the validated authority).
+                # Each validator performs magic-byte assertion internally, so a
+                # mismatched extension/content combo will be rejected with the
+                # correct reason rather than silently sent to the wrong path.
+                if ext in VIDEO_EXTENSIONS:
                     is_valid, reason, detected_type = validate_video_content(file_content, filename)
-                else:
-                    # Validate as image
+                elif ext in IMAGE_EXTENSIONS:
                     is_valid, reason, detected_type = validate_image_content(file_content, filename)
-                
+                else:
+                    is_valid, reason, detected_type = False, f"Invalid file extension: {ext}", "unknown"
+
                 if is_valid:
                     status = 'approved'
                     logger.info(f"Approved {filename}: {reason}")
                 else:
                     rejection_reason = reason
                     logger.info(f"Rejected {filename}: {reason}")
-            
+
             # Determine destination folder
             destination = (APPROVED_FOLDER if status == 'approved' else REJECTED_FOLDER) + filename
-            
+
             # Move object to appropriate folder
             s3.copy_object(
                 Bucket=bucket,
@@ -217,8 +231,15 @@ def lambda_handler(event, context):
                 Tagging=tag_string
             )
 
-            s3.delete_object(Bucket=bucket, Key=key)
-            
+            # Best-effort delete; if it fails the lifecycle rule on incoming/
+            # (1 day) will clean up. Don't re-raise — re-raising would surface
+            # to the outer except, which would then re-process the still-stale
+            # incoming/ object and duplicate validation work.
+            try:
+                s3.delete_object(Bucket=bucket, Key=key)
+            except Exception as delete_error:
+                print(f"Failed to delete {key} after copy; lifecycle will clean up: {delete_error}")
+
             logger.info(f"Moved {filename} to {destination}")
             
             # Write metadata to DynamoDB
@@ -231,19 +252,24 @@ def lambda_handler(event, context):
                 'detected_type': detected_type,
                 'file_size': str(size),
                 'created_at': record['eventTime'],
-                'checked_at': datetime.now().isoformat(),
+                'checked_at': datetime.now(timezone.utc).isoformat(),
             }
-            
+
             # Add rejection reason if applicable
             if rejection_reason:
                 dynamo_item['rejection_reason'] = rejection_reason
-            
+
+            # Preserve user_sub written by generateUploadUrl at upload time
+            existing = table.get_item(Key={'media_id': filename}).get('Item') or {}
+            if existing.get('user_sub'):
+                dynamo_item['user_sub'] = existing['user_sub']
+
             table.put_item(Item=dynamo_item)
             logger.info(f"Updated DynamoDB for {filename}")
             
         except Exception as e:
             logger.error(f"Error processing {key}: {str(e)}", exc_info=True)
-            
+
             # Attempt to move to rejected folder and log error
             try:
                 error_destination = REJECTED_FOLDER + filename
@@ -254,18 +280,27 @@ def lambda_handler(event, context):
                     TaggingDirective='REPLACE',
                     Tagging=tag_string
                 )
-                s3.delete_object(Bucket=bucket, Key=key)
-                
-                table.put_item(Item={
+                try:
+                    s3.delete_object(Bucket=bucket, Key=key)
+                except Exception as delete_error:
+                    print(f"Failed to delete {key} after error-path copy; lifecycle will clean up: {delete_error}")
+
+                error_item = {
                     'media_id': filename,
                     'status': 'rejected',
                     'original_key': key,
                     'final_key': error_destination,
                     'rejection_reason': f"Processing error: {str(e)}",
+                    'content_type': content_type,
+                    'detected_type': detected_type,
                     'file_size': str(size) if size is not None else 'unknown',
-                    'created_at': record.get('eventTime', datetime.now().isoformat()),
-                    'checked_at': datetime.now().isoformat(),  
-                })
+                    'created_at': record.get('eventTime', datetime.now(timezone.utc).isoformat()),
+                    'checked_at': datetime.now(timezone.utc).isoformat(),
+                }
+                existing = table.get_item(Key={'media_id': filename}).get('Item') or {}
+                if existing.get('user_sub'):
+                    error_item['user_sub'] = existing['user_sub']
+                table.put_item(Item=error_item)
             except Exception as cleanup_error:
                 logger.error(f"Failed to handle error for {key}: {str(cleanup_error)}")
     

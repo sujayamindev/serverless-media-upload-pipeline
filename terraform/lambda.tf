@@ -4,6 +4,25 @@ locals {
   lambda_timeout                 = 300
 }
 
+# ─── Dead-Letter Queue for imageValidator S3 async invocations ───────────────
+
+resource "aws_sqs_queue" "image_validator_dlq" {
+  name                      = "${var.project_name}-image-validator-dlq"
+  message_retention_seconds = 1209600 # 14 days
+  tags                      = local.tags
+}
+
+resource "aws_lambda_function_event_invoke_config" "image_validator" {
+  function_name          = aws_lambda_function.image_validator.function_name
+  maximum_retry_attempts = 2
+
+  destination_config {
+    on_failure {
+      destination = aws_sqs_queue.image_validator_dlq.arn
+    }
+  }
+}
+
 # ─── Package each Lambda as a zip ────────────────────────────────────────────
 
 data "archive_file" "generate_upload_url" {
@@ -32,14 +51,18 @@ resource "aws_lambda_function" "generate_upload_url" {
   role             = aws_iam_role.generate_upload_url.arn
   handler          = "lambda_function.lambda_handler"
   runtime          = local.lambda_runtime
+  architectures    = ["arm64"]
   timeout          = 30
   filename         = data.archive_file.generate_upload_url.output_path
   source_code_hash = data.archive_file.generate_upload_url.output_base64sha256
+  # reserved_concurrent_executions omitted — account concurrent execution quota
+  # is 10 (sandbox limit); reserving any value drops unreserved below the
+  # mandatory minimum of 10. Raise via AWS Service Quotas before adding.
 
   environment {
     variables = {
       BUCKET_NAME = aws_s3_bucket.media.id
-      API_KEY     = var.api_key
+      TABLE_NAME  = aws_dynamodb_table.media_uploads.name
     }
   }
   tags = local.tags
@@ -52,16 +75,21 @@ resource "aws_lambda_function" "image_validator" {
   role             = aws_iam_role.image_validator.arn
   handler          = "lambda_function.lambda_handler"
   runtime          = local.lambda_image_validator_runtime
+  architectures    = ["arm64"]
   timeout          = local.lambda_timeout
   memory_size      = 1024
   filename         = data.archive_file.image_validator.output_path
   source_code_hash = data.archive_file.image_validator.output_base64sha256
+  # reserved_concurrent_executions omitted — account concurrent execution quota
+  # is 10 (sandbox limit); reserving any value drops unreserved below the
+  # mandatory minimum of 10. Raise via AWS Service Quotas before adding.
 
   layers = var.validator_layer_arns
 
   environment {
     variables = {
       BUCKET_NAME = aws_s3_bucket.media.id
+      TABLE_NAME  = aws_dynamodb_table.media_uploads.name
     }
   }
   tags = local.tags
@@ -83,15 +111,18 @@ resource "aws_lambda_function" "get_media_status" {
   role             = aws_iam_role.get_media_status.arn
   handler          = "lambda_function.lambda_handler"
   runtime          = local.lambda_runtime
+  architectures    = ["arm64"]
   timeout          = 30
   filename         = data.archive_file.get_media_status.output_path
   source_code_hash = data.archive_file.get_media_status.output_base64sha256
+  # reserved_concurrent_executions omitted — account concurrent execution quota
+  # is 10 (sandbox limit); reserving any value drops unreserved below the
+  # mandatory minimum of 10. Raise via AWS Service Quotas before adding.
 
   environment {
     variables = {
       BUCKET_NAME = aws_s3_bucket.media.id
       TABLE_NAME  = aws_dynamodb_table.media_uploads.name
-      API_KEY     = var.api_key
     }
   }
   tags = local.tags

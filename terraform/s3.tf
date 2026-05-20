@@ -29,10 +29,30 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "media" {
   }
 }
 
+resource "aws_s3_bucket_policy" "media_tls" {
+  bucket = aws_s3_bucket.media.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid       = "DenyNonTLS"
+      Effect    = "Deny"
+      Principal = "*"
+      Action    = "s3:*"
+      Resource = [
+        aws_s3_bucket.media.arn,
+        "${aws_s3_bucket.media.arn}/*"
+      ]
+      Condition = {
+        Bool = { "aws:SecureTransport" = "false" }
+      }
+    }]
+  })
+}
+
 resource "aws_s3_bucket_cors_configuration" "media" {
   bucket = aws_s3_bucket.media.id
   cors_rule {
-    allowed_headers = ["*"]
+    allowed_headers = ["content-type", "cache-control"]
     allowed_methods = ["GET", "POST", "PUT"]
     allowed_origins = ["https://${aws_cloudfront_distribution.frontend.domain_name}"]
     expose_headers  = ["ETag"]
@@ -51,6 +71,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "media" {
     expiration {
       days = 7
     }
+    noncurrent_version_expiration {
+      noncurrent_days = 7
+    }
   }
   rule {
     id     = "cleanup-rejected-files"
@@ -60,6 +83,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "media" {
     }
     expiration {
       days = 7
+    }
+    noncurrent_version_expiration {
+      noncurrent_days = 7
     }
   }
   rule {
@@ -72,6 +98,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "media" {
 
     expiration {
       days = 1
+    }
+    noncurrent_version_expiration {
+      noncurrent_days = 7
     }
   }
 }

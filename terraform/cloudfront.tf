@@ -27,10 +27,12 @@ resource "aws_cloudfront_distribution" "frontend" {
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
     compress               = true
-    min_ttl                = 0
-    default_ttl            = 0
-    max_ttl                = 0
     cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+
+    function_association {
+      event_type   = "viewer-response"
+      function_arn = aws_cloudfront_function.security_headers.arn
+    }
   }
 
   # SPA routing — serve index.html for 403/404

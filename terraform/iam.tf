@@ -25,6 +25,11 @@ resource "aws_iam_role_policy" "generate_upload_url" {
       },
       {
         Effect   = "Allow"
+        Action   = ["dynamodb:PutItem"]
+        Resource = aws_dynamodb_table.media_uploads.arn
+      },
+      {
+        Effect   = "Allow"
         Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
         Resource = "arn:aws:logs:*:*:*"
       }
@@ -57,7 +62,6 @@ resource "aws_iam_role_policy" "image_validator" {
         Effect = "Allow"
         Action = [
           "s3:GetObject",
-          "s3:CopyObject",
           "s3:PutObject",
           "s3:DeleteObject",
           "s3:PutObjectTagging"
@@ -66,13 +70,13 @@ resource "aws_iam_role_policy" "image_validator" {
       },
       {
         Effect   = "Allow"
-        Action   = ["s3:HeadObject"]
-        Resource = "${aws_s3_bucket.media.arn}/*"
+        Action   = ["dynamodb:GetItem", "dynamodb:PutItem"]
+        Resource = aws_dynamodb_table.media_uploads.arn
       },
       {
         Effect   = "Allow"
-        Action   = ["dynamodb:PutItem"]
-        Resource = aws_dynamodb_table.media_uploads.arn
+        Action   = ["sqs:SendMessage"]
+        Resource = aws_sqs_queue.image_validator_dlq.arn
       },
       {
         Effect   = "Allow"
