@@ -16,15 +16,6 @@ aws_region = "us-east-1"
 # Must be globally unique for S3 bucket naming — use a name specific to your project.
 project_name = "your-project-name"
 
-# Optional: custom domain name for the CloudFront distribution (e.g. "media.yourdomain.com").
-# Leave blank to use the default CloudFront domain (*.cloudfront.net).
-frontend_domain = ""
-
-# API key used to authenticate requests from the frontend to API Gateway.
-# Generate any strong random string (e.g. `openssl rand -hex 20`).
-# This value must also be set as VITE_API_KEY in frontend/.env.
-api_key = "your-api-key-here"
-
 # WAF Web ACL ARN attached to your CloudFront distribution.
 # Find this in AWS Console → WAF & Shield → Web ACLs (set region to Global/CloudFront).
 # If your distribution was created with a WAF subscription plan, this is required —
@@ -40,12 +31,10 @@ cloudfront_waf_arn = "arn:aws:wafv2:us-east-1:YOUR_ACCOUNT_ID:global/webacl/YOUR
 # Option B — Build your own layers and publish them to your account:
 #   See README.md → Deployment → Lambda Layers for build instructions.
 #
-# The three layers required are (in this order):
-#   1. Pillow         — image verification
-#   2. opencv         — video frame validation
-#   3. filetype       — binary magic-number detection
+# A single consolidated arm64 layer containing Pillow, opencv-python-headless, and filetype.
+# Build with: pip install --platform manylinux2014_aarch64 --python-version 3.12
+#             --implementation cp --only-binary=:all: -t python/ pillow opencv-python-headless filetype
+# Publish with --compatible-architectures arm64
 validator_layer_arns = [
-  "arn:aws:lambda:REGION:ACCOUNT_ID:layer:YOUR_PILLOW_LAYER:VERSION",
-  "arn:aws:lambda:REGION:ACCOUNT_ID:layer:YOUR_OPENCV_LAYER:VERSION",
-  "arn:aws:lambda:REGION:ACCOUNT_ID:layer:YOUR_FILETYPE_LAYER:VERSION",
+  "arn:aws:lambda:REGION:ACCOUNT_ID:layer:YOUR_ARM64_LAYER:VERSION",
 ]

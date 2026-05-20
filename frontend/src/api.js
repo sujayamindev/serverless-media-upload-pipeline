@@ -1,16 +1,18 @@
 import axios from 'axios';
+import { getAccessToken } from './auth/cognito';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
-const API_KEY  = import.meta.env.VITE_API_KEY;
 
 if (!API_BASE) throw new Error('VITE_API_BASE_URL is not set.');
-if (!API_KEY)  throw new Error('VITE_API_KEY is not set.');
 
 const apiClient = axios.create({
   baseURL: API_BASE,
-  headers: {
-    'x-api-key': API_KEY,
-  },
+});
+
+apiClient.interceptors.request.use(async (config) => {
+  const token = await getAccessToken();
+  config.headers.Authorization = `Bearer ${token}`;
+  return config;
 });
 
 export const getUploadUrl = async (filename, filesize) => {

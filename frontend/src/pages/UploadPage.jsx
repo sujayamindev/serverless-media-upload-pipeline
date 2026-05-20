@@ -43,11 +43,13 @@ import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import Looks5OutlinedIcon from '@mui/icons-material/Looks5Outlined';
 import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined';
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { getUploadUrl, getMediaStatus } from "../api";
 import axios from "axios";
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/useAuth';
 
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const canPlayQuicktime = document.createElement('video').canPlayType('video/quicktime') !== '';
 
 const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   alternativeLabel: {
@@ -91,36 +93,53 @@ function LinearProgressWithLabel(props) {
   );
 }
 
-const pollValidationStatus = async (mediaId) => {
+const pollValidationStatus = async (mediaId, signal) => {
   const maxAttempts = 30;
   const interval = 3000; // 3 seconds
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    if (signal?.aborted) {
+      throw new DOMException('Polling aborted', 'AbortError');
+    }
     try {
       const result = await getMediaStatus(mediaId);
-      
-      // Got a real result — done
-      if (result.status === 'approved' || result.status === 'rejected') {
+      // pending is an intermediate state — keep polling.
+      if (result.status === 'pending') {
+        // fallthrough to sleep
+      } else {
+        // approved, rejected, or any other terminal value.
         return result;
       }
-      
     } catch (err) {
-      // 404 means Lambda hasn't written to DynamoDB yet — not an error, just not ready
+      if (signal?.aborted) {
+        throw new DOMException('Polling aborted', 'AbortError');
+      }
+      // 404 means Lambda hasn't written to DynamoDB yet — keep polling.
       if (err.response?.status === 404) {
-        // Keep polling silently
+        // fallthrough to sleep
       } else {
         // Real error — stop polling
         throw err;
       }
     }
 
-    await new Promise(resolve => setTimeout(resolve, interval));
+    // Sleep, but bail immediately if the caller aborts mid-sleep.
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(resolve, interval);
+      if (signal) {
+        signal.addEventListener('abort', () => {
+          clearTimeout(timeout);
+          reject(new DOMException('Polling aborted', 'AbortError'));
+        }, { once: true });
+      }
+    });
   }
 
   throw new Error('Validation timed out after 90 seconds');
 };
 
 export default function UploadPage() {
+  const { signOut } = useAuth();
   const [file, setFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
@@ -213,102 +232,116 @@ export default function UploadPage() {
       message: "Upload successful. S3 validated size and type."
     });
 
-  } catch {
+  } catch (err) {
+    console.error("Upload error:", err);
     setUploadError(true);
     setUploadProgress(0);
     setUploadStatusText("Upload failed");
     setActiveStep(0);
 
-    setNotification({
-      type: "error",
-      message: "Upload rejected by S3 (size/type violation)."
-    });
+    const status = err?.response?.status;
+    let message;
+    if (status === 401 || status === 403) {
+      message = "Authentication error — please sign in again.";
+    } else if (status === 400) {
+      message = "Upload rejected: invalid file or request.";
+    } else {
+      message = "Upload failed. Check the console for details.";
+    }
+    setNotification({ type: "error", message });
   } finally {
     setUploading(false);
   }
   };
 
   useEffect(() => {
-    let isMounted = true;
+    if (!(uploadSuccess && mediaId)) return undefined;
+
+    const controller = new AbortController();
 
     const checkStatus = async () => {
-      if (!isMounted) return;
       setStatusLoading(true);
       setActiveStep((prev) => (prev < 4 ? 4 : prev));
 
       try {
-        const status = await pollValidationStatus(mediaId);
-        if (!isMounted) return;
+        const status = await pollValidationStatus(mediaId, controller.signal);
+        if (controller.signal.aborted) return;
         setMediaStatus(status);
-        
+
         if (status.status === 'approved') {
           setActiveStep(5);
           setNotification({ type: 'success', message: `File validated successfully! Status: ${status.status}` });
         } else if (status.status === 'rejected') {
           setActiveStep(5);
           setNotification({ type: 'error', message: `File rejected. Reason: ${status.rejection_reason || 'Unknown'}` });
+        } else {
+          setActiveStep(5);
+          setNotification({ type: 'warning', message: `Unexpected status: ${status.status}` });
         }
       } catch (err) {
-        if (!isMounted) return;
+        if (err?.name === 'AbortError' || controller.signal.aborted) return;
         setNotification({ type: 'error', message: err.message || 'Failed to check status. Retrying...' });
       } finally {
-        if (isMounted) setStatusLoading(false);
+        if (!controller.signal.aborted) setStatusLoading(false);
       }
     };
 
-    if (uploadSuccess && mediaId) {
-      checkStatus();
-    }
+    checkStatus();
 
     return () => {
-      isMounted = false;
+      controller.abort();
     };
   }, [uploadSuccess, mediaId]);
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4 }}>
-      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}>
+    <Container maxWidth="xl" sx={{ mt: { xs: 2, sm: 4 } }}>
+      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between', flexWrap: 'wrap' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Box sx={{alignItems: 'center', display: 'flex'}}>
-            <DeblurOutlinedIcon sx={{fontSize: 54, color: 'primary.main'}} />
+            <DeblurOutlinedIcon sx={{ fontSize: { xs: 36, sm: 54 }, color: 'primary.main' }} />
           </Box>
           <Box>
-            <Typography variant="h5" fontWeight="bold">
+            <Typography variant="h5" fontWeight="bold" sx={{ fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' } }}>
               Secure Cloud-Native Media Upload Pipeline
             </Typography>
-            
+
             <Typography variant="body2" color="text.secondary" sx={{ mb: 0 }}>
               Upload media securely with server-side validation on AWS
             </Typography>
           </Box>
         </Box>
-        
-        {/* How It Works Link */}
-        <Button
-          component={Link}
-          to="/how-this-works"
-          variant="outlined"
-          startIcon={<InfoOutlinedIcon />}
-          sx={{
-            borderRadius: 2,
-            borderWidth: 2,
-            '&:hover': {
-              borderWidth: 2
-            }
-          }}
-        >
-          How This Works
-        </Button>
+
+        {/* How It Works Link + Sign out */}
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Button
+            component={Link}
+            to="/how-this-works"
+            variant="text"
+            startIcon={<InfoOutlinedIcon />}
+            sx={{ borderRadius: 2 }}
+          >
+            How This Works
+          </Button>
+          <Button
+            onClick={signOut}
+            variant="text"
+            startIcon={<LogoutIcon />}
+            sx={{ borderRadius: 2, color: 'text.secondary' }}
+          >
+            Sign out
+          </Button>
+        </Box>
       </Box>
 
       {/* AWS Pipeline Visualization */}
       <Card elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: 4, mb: 4 }}>
-        <CardContent>
+        <CardContent sx={{ overflowX: 'auto' }}>
           <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
             AWS Pipeline Flow
           </Typography>
-          <Stepper 
-            activeStep={activeStep} 
+          <Box sx={{ minWidth: 500 }}>
+          <Stepper
+            activeStep={activeStep}
             alternativeLabel
             connector={<ColorlibConnector />}
           >
@@ -447,10 +480,11 @@ export default function UploadPage() {
               </StepLabel>
             </Step>
           </Stepper>
+          </Box>
         </CardContent>
       </Card>
 
-      <Box sx={{ display: 'flex', gap: 3, mb: 6, alignItems: 'flex-start' }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 6, alignItems: { xs: 'stretch', md: 'flex-start' } }}>
         {/* Left Card - Upload Section */}
         <Card elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: 4, flex: 1 }}>
           <CardContent>
@@ -494,7 +528,7 @@ export default function UploadPage() {
               )}
 
               {/* File Picker */}
-              <Box sx={{border: "1px solid #e0e0e0", borderRadius: 2, p: 4, textAlign: "center", gap: 2, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
+              <Box sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: { xs: 2, sm: 4 }, textAlign: "center", gap: 2, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                   <input
                     type="file"
@@ -549,7 +583,7 @@ export default function UploadPage() {
                   verticalAlign: "middle" 
                   }} >
                   {file && (
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
                       {file.name} — {file.size >= 1024 * 1024 ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : `${(file.size / 1024).toFixed(1)} KB`}
                     </Typography>
                   )}
@@ -621,10 +655,20 @@ export default function UploadPage() {
                   <Skeleton variant="text" width="60%" />
                 </Box>
               )}
-              {presignResponse && (
-                <Accordion 
+              {presignResponse && (() => {
+                const displayData = { ...presignResponse };
+                if (displayData.upload?.fields) {
+                  // eslint-disable-next-line no-unused-vars
+                  const { policy, 'x-amz-signature': _xAmzSig, ...safeFields } = displayData.upload.fields;
+                  displayData.upload = {
+                    ...displayData.upload,
+                    fields: { ...safeFields, policy: '[redacted]', 'x-amz-signature': '[redacted]' }
+                  };
+                }
+                return (
+                <Accordion
                   elevation={0}
-                  sx={{ 
+                  sx={{
                     border: "1px solid #e0e0e0",
                     borderRadius: "8px !important",
                     "&:before": { display: "none" },
@@ -633,7 +677,7 @@ export default function UploadPage() {
                 >
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
-                    sx={{ 
+                    sx={{
                       backgroundColor: "#f5f5f5",
                       borderRadius: "8px",
                       "&.Mui-expanded": {
@@ -653,12 +697,13 @@ export default function UploadPage() {
                       maxHeight: "300px"
                     }}
                   >
-                    <pre style={{ margin: 0, fontFamily: "monospace", fontSize: "0.875rem" }}>
-                      {JSON.stringify(presignResponse, null, 2)}
+                    <pre style={{ margin: 0, fontFamily: "monospace", fontSize: "0.75rem", overflowX: "auto" }}>
+                      {JSON.stringify(displayData, null, 2)}
                     </pre>
                   </AccordionDetails>
                 </Accordion>
-              )}
+                );
+              })()}
 
               {/* Upload Response */}
               {uploading && presignResponse && !uploadResponse && (
@@ -699,7 +744,7 @@ export default function UploadPage() {
                       maxHeight: "300px"
                     }}
                   >
-                    <pre style={{ margin: 0, fontFamily: "monospace", fontSize: "0.875rem" }}>
+                    <pre style={{ margin: 0, fontFamily: "monospace", fontSize: "0.75rem", overflowX: "auto" }}>
                       {JSON.stringify(uploadResponse, null, 2)}
                     </pre>
                   </AccordionDetails>
@@ -745,7 +790,7 @@ export default function UploadPage() {
                       maxHeight: "300px"
                     }}
                   >
-                    <pre style={{ margin: 0, fontFamily: "monospace", fontSize: "0.875rem" }}>
+                    <pre style={{ margin: 0, fontFamily: "monospace", fontSize: "0.75rem", overflowX: "auto" }}>
                       {JSON.stringify(mediaStatus, null, 2)}
                     </pre>
                   </AccordionDetails>
@@ -789,7 +834,7 @@ export default function UploadPage() {
                     }}
                   >
                     {mediaStatus.content_type?.startsWith('video/') ? (
-                      mediaStatus.content_type === 'video/quicktime' && !isSafari ? (
+                      mediaStatus.content_type === 'video/quicktime' && !canPlayQuicktime ? (
                         <Box sx={{ textAlign: 'center', p: 2 }}>
                           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                             MOV files cannot be previewed in the browser. Download to view.
@@ -838,7 +883,7 @@ export default function UploadPage() {
       </Box>
 
       {/* GitHub Repository Link */}
-      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1000 }}>
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1000, display: { xs: 'none', md: 'block' } }}>
         <a 
           href="https://github.com/sujayamindev/secure-cloud-native-media-upload-pipeline" 
           target="_blank" 
@@ -856,11 +901,12 @@ export default function UploadPage() {
           onMouseOver={(e) => e.currentTarget.style.opacity = 1}
           onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
         >
-          <img 
-            src="https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg" 
-            alt="GitHub Repository" 
-            style={{ width: 30, height: 30 }} 
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg"
+            alt="GitHub Repository"
+            style={{ width: 24, height: 24 }}
           />
+          <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>View on GitHub</span>
         </a>
       </Box>
 

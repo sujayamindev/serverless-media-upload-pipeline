@@ -28,7 +28,9 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run Lambda tests with coverage
+        shell: bash
         run: |
+          set -euo pipefail
           cd lambda
           pytest tests/ \
             --cov=generateUploadUrl \
@@ -69,7 +71,8 @@ jobs:
           npm run build
         env:
           VITE_API_BASE_URL: https://placeholder.execute-api.us-east-1.amazonaws.com
-          VITE_API_KEY: placeholder-key
+          VITE_COGNITO_USER_POOL_ID: placeholder-pool-id
+          VITE_COGNITO_CLIENT_ID: placeholder-client-id
 
   # ─── Terraform validate ────────────────────────────────────────────────────
   terraform-validate:
@@ -93,8 +96,17 @@ jobs:
         run: |
           cd terraform
           terraform validate \
-            -var="api_key=placeholder" \
             -var="cloudfront_waf_arn=arn:aws:wafv2:us-east-1:000000000000:global/webacl/placeholder/placeholder"
+
+      - name: tflint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+      - name: Run tflint
+        run: |
+          tflint --init
+          tflint
+        working-directory: terraform
 
       - name: Terraform format check
         run: |

@@ -1,28 +1,31 @@
 import json
 import os
 import boto3
-from datetime import datetime
 from botocore.client import Config
 
 dynamodb = boto3.resource('dynamodb')
 s3 = boto3.client('s3', config=Config(signature_version='s3v4'))
 
-TABLE_NAME = 'MediaUploads'
-BUCKET_NAME = 'secure-cloud-native-media-upload-pipeline'
+TABLE_NAME = os.environ.get('TABLE_NAME', 'MediaUploads')
+BUCKET_NAME = os.environ.get('BUCKET_NAME', 'secure-cloud-native-media-upload-pipeline')
 PRESIGNED_EXPIRATION = 300  # 5 minutes
-
-VALID_API_KEY = os.environ.get("API_KEY")
 
 table = dynamodb.Table(TABLE_NAME)
 
+
 def lambda_handler(event, context):
-    # API key check
-    if VALID_API_KEY:
-        headers = event.get("headers") or {}
-        if headers.get("x-api-key") != VALID_API_KEY:
-            return response(403, "Forbidden")
-        
-    body = json.loads(event.get('body') or '{}')
+    try:
+        user_sub = event["requestContext"]["authorizer"]["jwt"]["claims"]["sub"]
+    except (KeyError, TypeError):
+        return response(401, "Unauthorized")
+
+    if not user_sub:
+        return response(401, "Unauthorized")
+
+    try:
+        body = json.loads(event.get('body') or '{}')
+    except json.JSONDecodeError:
+        return response(400, 'Invalid JSON body')
     media_id = body.get('media_id')
 
     if not media_id:
@@ -35,7 +38,12 @@ def lambda_handler(event, context):
         if not item:
             return response(404, 'Media not found')
     except Exception as e:
-        return response(500, f'DynamoDB error: {str(e)}')
+        print(f'Error: {str(e)}')
+        return response(500, 'Internal error')
+
+    # Ownership check — fail secure for legacy records missing user_sub
+    if item.get('user_sub') != user_sub:
+        return response(403, 'Forbidden')
 
     # Generate presigned URL for approved items
     preview_url = None
@@ -47,7 +55,8 @@ def lambda_handler(event, context):
                 ExpiresIn=PRESIGNED_EXPIRATION
             )
         except Exception as e:
-            return response(500, f'S3 presign error: {str(e)}')
+            print(f'Error: {str(e)}')
+            return response(500, 'Internal error')
 
     # Build response
     data = {
@@ -64,6 +73,7 @@ def lambda_handler(event, context):
     }
 
     return response(200, data)
+
 
 def response(status, message):
     return {

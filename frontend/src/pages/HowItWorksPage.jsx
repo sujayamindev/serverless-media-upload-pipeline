@@ -16,15 +16,40 @@ export default function HowItWorksPage() {
 
     return (
         <Container maxWidth="xl" sx={{ mt: 4, minHeight: '100vh', pb: 6 }}>
-            <Button
-                startIcon={<ArrowBackIcon />}
-                onClick={() => navigate('/')}
-                sx={{ mb: 3 }}
-            >
-                Back to Upload
-            </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 1 }}>
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => navigate('/')}
+                >
+                    Back to Upload
+                </Button>
+                <a
+                    href="https://github.com/sujayamindev/secure-cloud-native-media-upload-pipeline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        opacity: 0.6,
+                        transition: 'opacity 0.2s',
+                        cursor: 'pointer'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                    onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+                >
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg"
+                        alt="GitHub Repository"
+                        style={{ width: 24, height: 24 }}
+                    />
+                    <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>View on GitHub</span>
+                </a>
+            </Box>
 
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
+            <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' } }}>
                 How This Works
             </Typography>
 
@@ -33,11 +58,11 @@ export default function HowItWorksPage() {
                 a file and how different AWS services work together.
             </Typography>
 
-            <Box sx={{ display: 'flex', justifyContent: 'left', my: 4, border: "1px solid #e0e0e0", borderRadius: 2, }}>
-                <img 
-                    src={diagram} 
-                    alt="System Architecture Diagram" 
-                    style={{ maxWidth: '70%', height: 'auto', marginLeft: '36px', marginRight: '16px' }}
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4, border: "1px solid #e0e0e0", borderRadius: 2, overflowX: 'auto', p: { xs: 1, sm: 2 } }}>
+                <img
+                    src={diagram}
+                    alt="System Architecture Diagram"
+                    style={{ maxWidth: '100%', height: 'auto', display: 'block' }}
                 />
             </Box>
 
@@ -54,9 +79,7 @@ export default function HowItWorksPage() {
                     </Typography>
 
                     <Typography variant="body2" paragraph>
-                        CloudFront provides HTTPS, caching, and low-latency access, while an
-                        Origin Access Control (OAC) ensures that users cannot bypass CloudFront
-                        to access the S3 bucket directly.
+                        CloudFront provides HTTPS, caching, and low-latency global access.
                     </Typography>
 
                     <Typography variant="body2">
@@ -107,6 +130,9 @@ export default function HowItWorksPage() {
                         <i> Why POST? Because it allows strict server-enforced conditions such as content-length-range.</i>
                     </Typography>
                     <Typography variant="body2" paragraph>
+                        Before the presigned policy is issued, API Gateway validates a JWT access token included in the request. This token is issued by Amazon Cognito when you sign in — unauthenticated requests are rejected at the gateway before reaching any Lambda function.
+                    </Typography>
+                    <Typography variant="body2" paragraph>
                         This policy strictly defines allowed file size, content type,
                         upload location, and expiration time. These rules are enforced
                         by Amazon S3 itself.
@@ -114,6 +140,15 @@ export default function HowItWorksPage() {
                     <Typography variant="body2">
                         <strong>AWS Services involved:</strong>
                         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1, mb: -1 }}>
+                            <Chip
+                                icon={<Box sx={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src="https://miro.medium.com/v2/1*3Qv7hpvX8cyjzHjumzetLw.png" alt=""
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </Box>}
+                                label="Cognito"
+                                variant="outlined"
+                                size="medium"
+                            />
                             <Chip
                                 icon={<Box sx={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <img src="https://a.b.cdn.console.awsstatic.com/a/v1/YQSXE26XPXPOFR4RNTHADZ6A5EBPBODPAKV6IERNZE66HMBAER2A/icon/fb0cde6228b21d89ec222b45efec54e7-0856e92285f4e7ed254b2588d1fe1829.svg" alt=""
@@ -142,6 +177,7 @@ export default function HowItWorksPage() {
                                 size="medium"
                             />
                         </Stack>
+                        <br />• Amazon Cognito
                         <br />• Amazon API Gateway
                         <br />• AWS Lambda (generateUploadUrl)
                         <br />• Amazon S3 (pre-signed POST)
@@ -200,6 +236,13 @@ export default function HowItWorksPage() {
                         or forging MIME types — the actual binary content is inspected, not the
                         filename or Content-Type header.
                     </Typography>
+                    <Typography variant="body2" paragraph>
+                        If the Lambda fails repeatedly — for example, due to a cold-start error or
+                        misconfigured layer — S3 retries the invocation twice before giving up. Instead
+                        of silently dropping the event, a dead-letter queue (Amazon SQS) captures the
+                        original S3 event payload. Failed validations leave a recoverable record that
+                        can be inspected and replayed once the underlying issue is resolved.
+                    </Typography>
                     <Typography variant="body2">
                         <strong>AWS Services involved:</strong>
                         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1, mb: -1 }}>
@@ -230,10 +273,20 @@ export default function HowItWorksPage() {
                                 variant="outlined"
                                 size="medium"
                             />
+                            <Chip
+                                icon={<Box sx={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src="https://www.apono.io/wp-content/uploads/2023/05/amazon-sqs-min.png" alt=""
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </Box>}
+                                label="Amazon SQS"
+                                variant="outlined"
+                                size="medium"
+                            />
                         </Stack>
                         <br />• Amazon S3 (event trigger)
                         <br />• AWS Lambda (media validation)
                         <br />• Amazon DynamoDB (status storage)
+                        <br />• Amazon SQS (dead-letter queue)
                     </Typography>
                 </Box>
 
@@ -320,9 +373,12 @@ export default function HowItWorksPage() {
                         </Typography>
 
                         <Typography variant="body2" paragraph>
-                            All API Gateway endpoints require a valid API key sent via the
-                            <code> x-api-key</code> header. Requests without a valid key are
-                            rejected before reaching any Lambda function.
+                            All API Gateway endpoints are protected by a Cognito JWT authorizer.
+                            Requests must include an <code>Authorization: Bearer &lt;access_token&gt;</code>
+                            header issued by the Cognito User Pool. Unauthenticated or expired tokens
+                            are rejected before reaching any Lambda function. Per-record ownership is
+                            then enforced inside the Lambda by comparing the JWT <code>sub</code> claim
+                            against the stored <code>user_sub</code>.
                         </Typography>
                         <Typography variant="body2" paragraph>
                             File size, content type, upload location, and expiration are enforced by
@@ -339,34 +395,17 @@ export default function HowItWorksPage() {
                         <Typography variant="body2" paragraph>
                             No AWS credentials are ever exposed to the client, and all access is scoped, temporary, and auditable.
                         </Typography>
+
+                        <Typography variant="body2" paragraph>
+                            Every response from CloudFront passes through a viewer-response Function that
+                            injects HTTP security headers: HSTS (1 year, includeSubDomains),
+                            X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy:
+                            strict-origin, and a strict Content-Security-Policy. These headers are enforced
+                            at the CDN layer regardless of what the origin returns.
+                        </Typography>
                     </Box>
             </Stack>
 
-            <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1000 }}>
-                <a
-                    href="https://github.com/sujayamindev/secure-cloud-native-media-upload-pipeline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        opacity: 0.6,
-                        transition: 'opacity 0.2s',
-                        cursor: 'pointer'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.opacity = 1}
-                    onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
-                >
-                    <img
-                        src="https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg"
-                        alt="GitHub Repository"
-                        style={{ width: 30, height: 30 }}
-                    />
-                </a>
-            </Box>
         </Container>
     );
 }

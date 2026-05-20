@@ -66,10 +66,11 @@ The backend is **never involved in file transfer**. S3 enforces all upload const
 | Layer | Technology |
 |-------|-----------|
 | **Frontend** | React 19, Material UI 7, Vite — hosted on S3, delivered via CloudFront (OAC) |
-| **API** | Amazon API Gateway (HTTP API) with API key authentication |
+| **API** | Amazon API Gateway (HTTP API) — JWT authorizer backed by Amazon Cognito User Pool |
 | **Compute** | AWS Lambda (Python 3.12) — `generateUploadUrl`, `imageValidator`, `getMediaStatus` |
 | **Storage** | Amazon S3 — lifecycle rules, event triggers, presigned URLs |
 | **Database** | Amazon DynamoDB — validation status and file metadata |
+| **Amazon SQS** | Dead-letter queue for imageValidator async invocation failures — captures S3 event payloads after Lambda exhausts retries so failed validations can be inspected and replayed |
 | **IaC** | Terraform — all resources defined as code |
 | **CI** | GitHub Actions — Lambda tests, frontend lint/build, Terraform validation |
 
@@ -84,11 +85,13 @@ The backend is **never involved in file transfer**. S3 enforces all upload const
 |-----------|-----------|
 | **Presigned POST policy** | Enforces file size, content type, upload path, and 5-minute expiration at the S3 level — tampered requests are rejected by S3 itself |
 | **Binary content validation** | `filetype` checks magic numbers (not extensions) → Pillow verifies image integrity → OpenCV reads video frames — catches renamed executables and forged MIME types |
-| **API key authentication** | All API Gateway endpoints require `x-api-key` — requests without a valid key are rejected before reaching any Lambda |
+| **Cognito JWT authentication** | All API Gateway routes require a valid Bearer token from the Cognito User Pool — unauthenticated or expired tokens are rejected at the gateway before any Lambda is invoked |
+| **Per-user upload isolation** | Every upload record stores the uploader's `user_sub` (Cognito subject claim) — `getMediaStatus` returns 403 if the requesting user does not match the record owner |
 | **Private S3 + OAC** | Bucket is inaccessible directly — frontend access goes through CloudFront, Lambda access through IAM roles only |
 | **Least-privilege IAM roles** | Each Lambda has its own scoped role — `generateUploadUrl` can only `s3:PutObject` on `incoming/*` |
 | **Presigned GET URLs** | Approved files previewed via short-lived signed URLs — bucket is never public |
 | **Automatic lifecycle cleanup** | `incoming/` expires after 1 day, `approved/` and `rejected/` after 7 days |
+| **CloudFront security headers** | A CloudFront viewer-response Function injects HSTS (1 year), X-Frame-Options: DENY, X-Content-Type-Options, Referrer-Policy, and a strict Content-Security-Policy on every response |
 
 ---
 
@@ -101,9 +104,14 @@ The backend is **never involved in file transfer**. S3 enforces all upload const
 .
 ├── frontend/                   # React application
 │   ├── src/
+│   │   ├── auth/
+│   │   │   ├── cognito.js
+│   │   │   ├── AuthContext.jsx
+│   │   │   └── (AuthPage is in pages/)
 │   │   ├── pages/
 │   │   │   ├── UploadPage.jsx
-│   │   │   └── HowItWorksPage.jsx
+│   │   │   ├── HowItWorksPage.jsx
+│   │   │   └── AuthPage.jsx
 │   │   └── api.js
 │   ├── .env.example
 │   └── package.json
@@ -114,7 +122,7 @@ The backend is **never involved in file transfer**. S3 enforces all upload const
 │   │   └── lambda_function.py
 │   ├── getMediaStatus/
 │   │   └── lambda_function.py
-│   ├── tests/                  # pytest + moto test suite (21 tests)
+│   ├── tests/                  # pytest + moto test suite (27 tests)
 │   │   ├── conftest.py
 │   │   ├── test_generate_upload_url.py
 │   │   ├── test_get_media_status.py
@@ -130,10 +138,12 @@ The backend is **never involved in file transfer**. S3 enforces all upload const
 │   ├── api_gateway.tf
 │   ├── dynamodb.tf
 │   ├── cloudfront.tf
+│   ├── cloudfront_function.tf
+│   ├── cognito.tf
 │   ├── iam.tf
 │   └── terraform.tfvars.example
 ├── docs/
-│   └── diagram.png
+│   └── diagram.svg
 └── .github/
     └── workflows/
         └── ci.yml
@@ -157,7 +167,7 @@ The backend is **never involved in file transfer**. S3 enforces all upload const
 ```bash
 cd frontend
 cp .env.example .env
-# Fill in VITE_API_BASE_URL and VITE_API_KEY
+# Fill in VITE_API_BASE_URL, VITE_COGNITO_USER_POOL_ID, VITE_COGNITO_CLIENT_ID
 npm install
 npm run dev
 # → http://localhost:5173
@@ -190,7 +200,6 @@ cp terraform.tfvars.example terraform.tfvars
 |----------|-------------|
 | `aws_region` | AWS region to deploy into |
 | `project_name` | Base name for all resources — must be globally unique (used as S3 bucket name) |
-| `api_key` | API key for frontend authentication — any strong random string |
 | `cloudfront_waf_arn` | WAF ARN if your CloudFront distribution requires one |
 | `validator_layer_arns` | ARNs of Lambda layers for Pillow, OpenCV, and filetype |
 
@@ -234,9 +243,10 @@ terraform apply
 Copy the outputs into `frontend/.env`:
 
 ```bash
-terraform output api_gateway_url      # → VITE_API_BASE_URL
-terraform output -raw api_key_value   # → VITE_API_KEY
-terraform output cloudfront_domain    # → your live URL
+terraform output api_gateway_url                    # → VITE_API_BASE_URL
+terraform output -raw cognito_user_pool_id          # → VITE_COGNITO_USER_POOL_ID
+terraform output -raw cognito_client_id             # → VITE_COGNITO_CLIENT_ID
+terraform output cloudfront_domain                  # → your live URL
 ```
 
 ### Step 4 — Deploy the frontend
@@ -261,6 +271,9 @@ terraform import aws_lambda_function.image_validator      imageValidator
 terraform import aws_lambda_function.get_media_status     getMediaStatus
 terraform import aws_apigatewayv2_api.main         YOUR_API_ID
 terraform import aws_cloudfront_distribution.frontend  YOUR_DISTRIBUTION_ID
+terraform import aws_sqs_queue.image_validator_dlq     YOUR_QUEUE_URL
+terraform import aws_cognito_user_pool.main            YOUR_USER_POOL_ID
+terraform import aws_cognito_user_pool_client.main     YOUR_USER_POOL_ID/YOUR_CLIENT_ID
 ```
 
 </details>
@@ -273,9 +286,9 @@ GitHub Actions runs three jobs on every push to `main` or `develop`:
 
 | Job | What it checks |
 |-----|---------------|
-| **Lambda tests** | 21 pytest tests with moto mocks — enforces 70% coverage floor |
+| **Lambda tests** | 27 pytest tests with moto mocks — enforces 70% coverage floor |
 | **Frontend** | ESLint + Vite production build with placeholder env vars |
-| **Terraform validate** | `terraform init`, `validate`, and `fmt -check` |
+| **Terraform validate** | `terraform init`, `validate`, `tflint`, and `fmt -check` |
 
 > [!NOTE]
 > CD is intentionally manual via `terraform apply` locally. Automated deployment from a public repository requires OIDC-based authentication with a scoped deploy role — a straightforward addition for a team environment.
@@ -285,23 +298,37 @@ GitHub Actions runs three jobs on every push to `main` or `develop`:
 ## Test Coverage
 
 <details>
-<summary>View all 21 test scenarios</summary>
+<summary>View all 27 test scenarios</summary>
 
 | Scenario | Lambda | Result |
 |----------|--------|:------:|
 | Valid JPEG/PNG/WebP upload request | `generateUploadUrl` | ✅ |
 | Valid MP4 upload request | `generateUploadUrl` | ✅ |
+| Valid WebP upload request | `generateUploadUrl` | ✅ |
 | File exceeds 50 MB | `generateUploadUrl` | ❌ 400 |
 | Disallowed extension (`.exe`, `.pdf`) | `generateUploadUrl` | ❌ 400 |
+| Unsupported extension (`.pdf`) rejected | `generateUploadUrl` | ❌ 400 |
 | Missing filename or filesize | `generateUploadUrl` | ❌ 400 |
+| Missing filesize | `generateUploadUrl` | ❌ 400 |
+| Request with missing JWT | `generateUploadUrl` | ❌ 401 |
+| DynamoDB record includes user_sub on upload | `generateUploadUrl` | ✅ |
+| Malformed JSON body | `generateUploadUrl` | ❌ 400 |
 | Approved file returns presigned URL | `getMediaStatus` | ✅ |
 | Rejected file returns rejection reason | `getMediaStatus` | ✅ |
 | Unknown media ID | `getMediaStatus` | ❌ 404 |
+| Cross-account media_id request | `getMediaStatus` | ❌ 403 |
+| Legacy record without user_sub | `getMediaStatus` | ❌ 403 |
+| Request with missing JWT | `getMediaStatus` | ❌ 401 |
+| Response contains all expected metadata fields | `getMediaStatus` | ✅ |
+| Malformed JSON body | `getMediaStatus` | ❌ 400 |
 | Real JPEG binary approved | `imageValidator` | ✅ → `approved/` |
+| Real PNG binary approved | `imageValidator` | ✅ → `approved/` |
 | Fake JPEG (wrong magic bytes) | `imageValidator` | ❌ → `rejected/` |
 | Corrupted image | `imageValidator` | ❌ → `rejected/` |
 | File over size limit | `imageValidator` | ❌ → `rejected/` |
 | Disallowed extension | `imageValidator` | ❌ → `rejected/` |
+| DynamoDB record created for approved file | `imageValidator` | ✅ |
+| Processing error moves file to rejected | `imageValidator` | ❌ → `rejected/` |
 
 </details>
 
@@ -362,8 +389,7 @@ Each function is scoped to exactly the permissions it needs. `generateUploadUrl`
 <details>
 <summary><strong>Upload fails with 403</strong></summary>
 
-- Verify `VITE_API_KEY` in `frontend/.env` matches `api_key` in `terraform.tfvars`
-- Rebuild and redeploy the frontend after updating env vars
+- Verify Cognito env vars (`VITE_COGNITO_USER_POOL_ID`, `VITE_COGNITO_CLIENT_ID`, `VITE_AWS_REGION`) are correctly set in `frontend/.env` and the frontend has been rebuilt and redeployed
 
 </details>
 
