@@ -12,7 +12,8 @@ Files go directly from the browser to S3 — the backend never touches the file 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-**[🔗 Live Demo](https://d2mt0cnx8t9hcw.cloudfront.net)**
+<a href="https://d2mt0cnx8t9hcw.cloudfront.net/"> <img alt="Static Badge" src="https://img.shields.io/badge/%F0%9F%94%97%20Live%20Demo-brightgreen?style=for-the-badge"> </a>
+
 
 </div>
 
@@ -435,7 +436,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 <div align="center">
 
-**[🔗 Live Demo](https://d2mt0cnx8t9hcw.cloudfront.net)**
+<a href="https://d2mt0cnx8t9hcw.cloudfront.net/"> <img alt="Static Badge" src="https://img.shields.io/badge/%F0%9F%94%97%20Live%20Demo-brightgreen?style=for-the-badge"> </a>
 
 If you found this project useful, consider giving it a ⭐
 
