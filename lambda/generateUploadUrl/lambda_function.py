@@ -8,7 +8,7 @@ import boto3
 s3 = boto3.client("s3")
 dynamodb = boto3.resource("dynamodb")
 
-BUCKET_NAME = os.environ.get("BUCKET_NAME", "secure-cloud-native-media-upload-pipeline")
+BUCKET_NAME = os.environ.get("BUCKET_NAME", "serverless-media-upload-pipeline")
 TABLE_NAME = os.environ.get("TABLE_NAME", "MediaUploads")
 UPLOAD_PREFIX = "incoming/"
 MAX_SIZE_BYTES = 50 * 1024 * 1024  # 50MB

@@ -15,7 +15,7 @@ def _load():
     spec.loader.exec_module(mod)
     return mod
 
-BUCKET_NAME = "secure-cloud-native-media-upload-pipeline"
+BUCKET_NAME = "serverless-media-upload-pipeline"
 TABLE_NAME = "MediaUploads"
 
 

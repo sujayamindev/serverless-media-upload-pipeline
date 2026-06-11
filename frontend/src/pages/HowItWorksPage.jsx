@@ -24,7 +24,7 @@ export default function HowItWorksPage() {
                     Back to Upload
                 </Button>
                 <a
-                    href="https://github.com/sujayamindev/secure-cloud-native-media-upload-pipeline"
+                    href="https://github.com/sujayamindev/serverless-media-upload-pipeline"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{

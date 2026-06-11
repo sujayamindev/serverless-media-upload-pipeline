@@ -125,7 +125,7 @@ export default function AuthPage() {
         </Box>
         <Box>
           <Typography variant="h5" fontWeight="bold" sx={{ fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' } }}>
-            Secure Cloud-Native Media Upload Pipeline
+            Serverless Media Upload Pipeline
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Upload media securely with server-side validation on AWS

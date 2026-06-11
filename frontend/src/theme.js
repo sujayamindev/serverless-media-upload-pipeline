@@ -1,6 +1,6 @@
 import { createTheme } from '@mui/material/styles';
 
-// Centralized theme configuration for the Smart Media Upload Pipeline
+// Centralized theme configuration for the Serverless Media Upload Pipeline
 // Modify these colors to change the entire application's appearance
 
 const theme = createTheme({

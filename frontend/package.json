@@ -1,5 +1,5 @@
 {
-  "name": "smart-media-upload-frontend",
+  "name": "serverless-media-upload-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
