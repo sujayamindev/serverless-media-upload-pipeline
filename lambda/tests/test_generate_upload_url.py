@@ -6,7 +6,7 @@ import boto3
 from moto import mock_aws
 
 TEST_USER_SUB = "test-user-sub-123"
-BUCKET_NAME = "secure-cloud-native-media-upload-pipeline"
+BUCKET_NAME = "serverless-media-upload-pipeline"
 TABLE_NAME = "MediaUploads"
 
 

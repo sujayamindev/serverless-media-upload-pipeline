@@ -7,7 +7,7 @@ from moto import mock_aws
 
 TEST_USER_SUB = "test-user-sub-123"
 OTHER_USER_SUB = "other-user-sub-456"
-BUCKET_NAME = "secure-cloud-native-media-upload-pipeline"
+BUCKET_NAME = "serverless-media-upload-pipeline"
 TABLE_NAME = "MediaUploads"
 
 

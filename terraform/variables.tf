@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "project_name" {
   description = "Base name used for all resources"
   type        = string
-  default     = "secure-cloud-native-media-upload-pipeline"
+  default     = "serverless-media-upload-pipeline"
 }
 
 variable "validator_layer_arns" {

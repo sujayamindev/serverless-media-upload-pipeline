@@ -302,7 +302,7 @@ export default function UploadPage() {
           </Box>
           <Box>
             <Typography variant="h5" fontWeight="bold" sx={{ fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' } }}>
-              Secure Cloud-Native Media Upload Pipeline
+              Serverless Media Upload Pipeline
             </Typography>
 
             <Typography variant="body2" color="text.secondary" sx={{ mb: 0 }}>
@@ -885,7 +885,7 @@ export default function UploadPage() {
       {/* GitHub Repository Link */}
       <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1000, display: { xs: 'none', md: 'block' } }}>
         <a 
-          href="https://github.com/sujayamindev/secure-cloud-native-media-upload-pipeline" 
+          href="https://github.com/sujayamindev/serverless-media-upload-pipeline"
           target="_blank" 
           rel="noopener noreferrer"
           style={{ 

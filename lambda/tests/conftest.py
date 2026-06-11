@@ -10,9 +10,9 @@ os.environ.setdefault("AWS_SECRET_ACCESS_KEY", "testing")
 os.environ.setdefault("AWS_SECURITY_TOKEN", "testing")
 os.environ.setdefault("AWS_SESSION_TOKEN", "testing")
 os.environ.setdefault("TABLE_NAME", "MediaUploads")
-os.environ.setdefault("BUCKET_NAME", "secure-cloud-native-media-upload-pipeline")
+os.environ.setdefault("BUCKET_NAME", "serverless-media-upload-pipeline")
 
-BUCKET_NAME = "secure-cloud-native-media-upload-pipeline"
+BUCKET_NAME = "serverless-media-upload-pipeline"
 TABLE_NAME = "MediaUploads"
 
 
