@@ -362,7 +362,7 @@ Presigned PUT allows size enforcement only at the IAM/bucket policy level. Presi
 <details>
 <summary><strong>Why poll instead of push for validation status?</strong></summary>
 
-Push notifications (SNS → WebSocket or FCM) would require additional infrastructure. For a single-user demo, polling every 3 seconds with graceful 404 handling achieves the same result with no extra components. The frontend handles 404 responses silently — they mean the validator hasn't finished yet, not that an error occurred.
+Push notifications (SNS → WebSocket or FCM) would require additional infrastructure. For a single-user demo, polling every 3 seconds (up to 30 attempts) achieves the same result with no extra components. `generateUploadUrl` writes a `pending` record up front, so until `imageValidator` finishes, `getMediaStatus` returns `pending` and the frontend keeps polling. A 404 is also treated as "not ready yet" rather than an error.
 
 </details>
 
@@ -404,9 +404,9 @@ Each function is scoped to exactly the permissions it needs. `generateUploadUrl`
 </details>
 
 <details>
-<summary><strong>Status check returns 404 immediately after upload</strong></summary>
+<summary><strong>Status stays <code>pending</code> after upload</strong></summary>
 
-This is expected — `imageValidator` is still running. The frontend handles 404s silently and keeps polling. If it persists beyond 30 seconds, check `imageValidator` logs.
+This is expected for a few seconds — `imageValidator` is still running, and the frontend keeps polling (a 404 is also treated as "not ready yet"). If it persists beyond 90 seconds (30 polls, 3s apart), the frontend gives up with a timeout; check `imageValidator` logs and the DLQ.
 
 </details>
 
