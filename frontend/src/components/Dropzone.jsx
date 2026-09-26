@@ -27,8 +27,8 @@ const hiddenInput = {
 };
 
 /**
- * File picker in a large bracket frame (DESIGN.md §9). Drag-over turns the
- * dashed border solid ink with a 6% ink fill. While `scanning` is true a
+ * File picker marked by bracket corner ticks, with no outline (DESIGN.md §9).
+ * Drag-over shows a solid ink outline with a 6% ink fill. While `scanning` is true a
  * hairline sweeps over the preview, matching the server-side content check.
  * `children` are rendered as extra actions when a file is selected.
  */
@@ -89,6 +89,10 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
       onDrop={handleDrop}
       sx={{
         p: { xs: 2.5, sm: 4 },
+        // No dashed outline here, just the corner ticks; a solid ink outline appears
+        // while dragging. The border stays (transparent) so nothing shifts.
+        borderStyle: 'solid',
+        borderColor: dragging ? t.ink : 'transparent',
         bgcolor: dragging ? t.ink6 : t.card,
         '&:focus-within': { outline: `1px solid ${t.ink}`, outlineOffset: 4 },
       }}
