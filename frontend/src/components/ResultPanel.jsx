@@ -2,7 +2,7 @@ import { Box, Button, Stack, Typography } from '@mui/material';
 import { CloudArrowDownIcon } from '@phosphor-icons/react';
 import Eyebrow from './Eyebrow';
 import { formatBytes } from '../lib/format';
-import { t } from '../lib/tokens';
+import { bracketTicks, t } from '../lib/tokens';
 
 const canPlayQuicktime = document.createElement('video').canPlayType('video/quicktime') !== '';
 
@@ -44,8 +44,15 @@ const CHIP = {
   rejected: { tone: 'orange', dot: t.chartOrange },
 };
 
-// Same padding as the dropzone so the two columns line up.
-const panel = { border: `1px solid ${t.border}`, bgcolor: t.card, p: { xs: 2.5, sm: 4 } };
+// Matches the dropzone beside it: same padding, corner ticks and no visible outline
+// (the transparent border keeps the ticks in the same place).
+const panel = {
+  position: 'relative',
+  border: '1px solid transparent',
+  bgcolor: t.card,
+  p: { xs: 2.5, sm: 4 },
+  '&::before': bracketTicks(),
+};
 
 // Output column next to the dropzone: a placeholder until the check finishes.
 export default function ResultPanel({ mediaStatus, checking }) {
