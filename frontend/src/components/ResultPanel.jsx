@@ -98,8 +98,8 @@ export default function ResultPanel({ mediaStatus, checking }) {
           <Preview url={mediaStatus.preview_url} contentType={mediaStatus.content_type} />
         </Box>
       )}
-      <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" useFlexGap>
-        {/* Same title as the placeholder; the coloured tag carries the status. */}
+      <Stack spacing={1} alignItems="flex-start">
+        {/* Same title as the placeholder; the coloured tag below it carries the status. */}
         <Typography variant="h4" component="h2">
           Result
         </Typography>
