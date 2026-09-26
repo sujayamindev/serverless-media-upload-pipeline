@@ -1,7 +1,9 @@
-import { Box, Chip, Container, Stack, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Box, ButtonBase, Chip, Container, Stack, Typography } from '@mui/material';
 import TopBar from '../components/TopBar';
 import BracketFrame from '../components/BracketFrame';
 import Eyebrow from '../components/Eyebrow';
+import DiagramViewer from '../components/DiagramViewer';
 import diagram from '../assets/aws-architecture.svg';
 import { t } from '../lib/tokens';
 
@@ -209,7 +211,12 @@ function Section({ section }) {
   );
 }
 
+const DIAGRAM_ALT =
+  'AWS architecture: CloudFront, Cognito, API Gateway, three Lambda functions, S3, DynamoDB and SQS, with the numbered request and processing flow';
+
 export default function HowItWorksPage() {
+  const [viewerOpen, setViewerOpen] = useState(false);
+
   return (
     <Box sx={{ minHeight: '100vh' }}>
       <TopBar />
@@ -227,16 +234,20 @@ export default function HowItWorksPage() {
 
         {/* The diagram has dark text on its own light background, so it keeps a light
             surface in dark mode too. Its text is small at page width, so it opens full
-            size in a new tab. */}
+            size in an in-page viewer. */}
         <Box sx={{ mb: { xs: 3, md: 5 } }}>
           <BracketFrame sx={{ bgcolor: t.diagramBg, p: { xs: 1, sm: 2 } }}>
-            <a href={diagram} target="_blank" rel="noopener noreferrer" aria-label="Open the architecture diagram full size in a new tab">
+            <ButtonBase
+              onClick={() => setViewerOpen(true)}
+              aria-label="Open the architecture diagram full size"
+              sx={{ display: 'block', width: '100%', cursor: 'zoom-in' }}
+            >
               <img
                 src={diagram}
-                alt="AWS architecture: CloudFront, Cognito, API Gateway, three Lambda functions, S3, DynamoDB and SQS, with the numbered request and processing flow"
-                style={{ display: 'block', maxWidth: '100%', height: 'auto', margin: '0 auto', cursor: 'zoom-in' }}
+                alt={DIAGRAM_ALT}
+                style={{ display: 'block', maxWidth: '100%', height: 'auto', margin: '0 auto' }}
               />
-            </a>
+            </ButtonBase>
           </BracketFrame>
           <Typography variant="meta" component="p" sx={{ mt: 1 }}>
             Click the diagram to open it full size
@@ -247,6 +258,7 @@ export default function HowItWorksPage() {
           <Section key={section.id} section={section} />
         ))}
       </Container>
+      <DiagramViewer open={viewerOpen} onClose={() => setViewerOpen(false)} src={diagram} alt={DIAGRAM_ALT} />
     </Box>
   );
 }
