@@ -38,58 +38,50 @@ export default function UploadPage() {
         </Box>
 
         <Box
+          component="section"
+          aria-labelledby="progress-heading"
           sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1.15fr) minmax(0, 0.85fr)' },
-            gap: { xs: 3, md: 5 },
-            alignItems: 'start',
+            border: `1px solid ${t.border}`,
+            bgcolor: t.card,
+            p: { xs: 2.5, sm: 3.5 },
+            mb: { xs: 3, md: 5 },
           }}
         >
-          <Stack spacing={2}>
-            {notification && (
-              <Alert severity={notification.type} onClose={upload.dismissNotification}>
-                {notification.message}
-              </Alert>
-            )}
-
-            <Dropzone
-              file={file}
-              disabled={upload.busy}
-              scanning={activeStep === STEP.CHECKING && statusLoading}
-              onSelect={upload.selectFile}
-              onClear={upload.clearFile}
-              onReject={upload.rejectFile}
-            >
-              {upload.canUpload && (
-                <Button variant="contained" onClick={upload.upload}>
-                  Upload
-                </Button>
-              )}
-            </Dropzone>
-          </Stack>
-
-          <Box
-            component="section"
-            aria-labelledby="progress-heading"
-            sx={{
-              border: `1px solid ${t.border}`,
-              bgcolor: t.card,
-              p: { xs: 2.5, sm: 3.5 },
-            }}
-          >
-            <Typography id="progress-heading" variant="h4" component="h2" sx={{ mb: 3 }}>
-              Progress
-            </Typography>
-            <PipelineStatus
-              activeStep={activeStep}
-              failedAt={failedAt}
-              uploading={uploading}
-              uploadProgress={uploadProgress}
-              statusLoading={statusLoading}
-              mediaStatus={mediaStatus}
-            />
-          </Box>
+          <Typography id="progress-heading" variant="h4" component="h2" sx={{ mb: 3 }}>
+            Progress
+          </Typography>
+          <PipelineStatus
+            activeStep={activeStep}
+            failedAt={failedAt}
+            uploading={uploading}
+            uploadProgress={uploadProgress}
+            statusLoading={statusLoading}
+            mediaStatus={mediaStatus}
+          />
         </Box>
+
+        <Stack spacing={2}>
+          {notification && (
+            <Alert severity={notification.type} onClose={upload.dismissNotification}>
+              {notification.message}
+            </Alert>
+          )}
+
+          <Dropzone
+            file={file}
+            disabled={upload.busy}
+            scanning={activeStep === STEP.CHECKING && statusLoading}
+            onSelect={upload.selectFile}
+            onClear={upload.clearFile}
+            onReject={upload.rejectFile}
+          >
+            {upload.canUpload && (
+              <Button variant="contained" onClick={upload.upload}>
+                Upload
+              </Button>
+            )}
+          </Dropzone>
+        </Stack>
 
         <Stack spacing={3} sx={{ mt: { xs: 3, md: 5 } }}>
           <ResultPanel mediaStatus={mediaStatus} />

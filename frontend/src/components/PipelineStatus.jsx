@@ -1,4 +1,4 @@
-import { Box, LinearProgress, Typography } from '@mui/material';
+import { Box, LinearProgress, Typography, useMediaQuery } from '@mui/material';
 import { STEP } from '../hooks/useMediaUpload';
 import StatusDot from './StatusDot';
 import { t } from '../lib/tokens';
@@ -66,92 +66,127 @@ function resultNote(mediaStatus) {
 }
 
 // Status dots in the chart palette (DESIGN.md §2.3).
-function Node({ status, working, success }) {
-  const color = { active: t.chartAmber, failed: t.chartOrange, done: success ? t.chartOlive : t.chartInk }[status];
+function Node({ stage, status, working }) {
+  const color = { active: t.chartAmber, failed: t.chartOrange, done: stage.key === 'result' ? t.chartOlive : t.chartInk }[status];
   return (
     <Box
       role="img"
-      aria-label={STATUS_LABEL[status]}
-      sx={{ position: 'relative', zIndex: 1, width: 28, height: 28, display: 'grid', placeItems: 'center' }}
+      aria-label={`${stage.title}: ${STATUS_LABEL[status]}`}
+      sx={{ position: 'relative', zIndex: 1, width: 28, height: 28, mx: 'auto', display: 'grid', placeItems: 'center' }}
     >
       <StatusDot size={11} color={color} hollow={status === 'idle'} pulse={status === 'active' && working} />
     </Box>
   );
 }
 
+function UploadBar({ value }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+      <LinearProgress variant="determinate" value={value} aria-label="Upload progress" sx={{ flex: 1 }} />
+      <Typography variant="meta" sx={{ minWidth: '4ch' }}>
+        {value}%
+      </Typography>
+    </Box>
+  );
+}
+
+// The stage to describe under the compact dots: a failure, else the one in progress,
+// else the furthest one reached.
+function currentIndex(stages) {
+  const failed = stages.findIndex((s) => s.status === 'failed');
+  if (failed !== -1) return failed;
+  const active = stages.findIndex((s) => s.status === 'active');
+  if (active !== -1) return active;
+  const reached = stages.findLastIndex((s) => s.status !== 'idle');
+  return Math.max(reached, 0);
+}
+
+// Horizontal stepper like the original: centred dots joined by a rail, labels below.
+// Below md the labels are dropped and only the current stage is described.
 export default function PipelineStatus({ activeStep, failedAt, uploading, uploadProgress, statusLoading, mediaStatus }) {
+  const compact = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const context = { activeStep, failedAt, mediaStatus };
 
-  return (
-    <Box
-      component="ol"
-      aria-label="Upload progress"
-      sx={{ listStyle: 'none', m: 0, p: 0 }}
-    >
-      {STAGES.map((stage, index) => {
-        const status = stageStatus(stage, context);
-        const isLast = index === STAGES.length - 1;
-        const working =
-          (stage.key === 'permission' && uploading && activeStep === STEP.PERMISSION) ||
-          (stage.key === 'upload' && uploading && activeStep === STEP.UPLOADING) ||
-          (stage.key === 'check' && statusLoading);
-        const showProgress = stage.key === 'upload' && (status === 'active' || uploadProgress > 0) && status !== 'failed';
-        const note = stage.key === 'result' ? resultNote(mediaStatus) : stage.note;
+  const stages = STAGES.map((stage) => {
+    const status = stageStatus(stage, context);
+    return {
+      ...stage,
+      status,
+      working:
+        (stage.key === 'permission' && uploading && activeStep === STEP.PERMISSION) ||
+        (stage.key === 'upload' && uploading && activeStep === STEP.UPLOADING) ||
+        (stage.key === 'check' && statusLoading),
+      showProgress: stage.key === 'upload' && (status === 'active' || uploadProgress > 0) && status !== 'failed',
+      note: stage.key === 'result' ? resultNote(mediaStatus) : stage.note,
+    };
+  });
+  const currentAt = currentIndex(stages);
+  const current = stages[currentAt];
 
-        return (
+  return (
+    <>
+      <Box
+        component="ol"
+        aria-label="Upload progress"
+        sx={{ listStyle: 'none', m: 0, p: 0, display: 'grid', gridTemplateColumns: `repeat(${stages.length}, minmax(0, 1fr))` }}
+      >
+        {stages.map((stage, index) => (
           <Box
             component="li"
             key={stage.key}
-            aria-current={status === 'active' ? 'step' : undefined}
+            aria-current={stage.status === 'active' ? 'step' : undefined}
             sx={{
               position: 'relative',
-              display: 'grid',
-              gridTemplateColumns: '28px 1fr',
-              columnGap: 1.5,
-              pb: isLast ? 0 : 3,
-              // Rail between nodes; filled once the stage is done.
-              '&::before': isLast
-                ? undefined
-                : {
-                    content: '""',
-                    position: 'absolute',
-                    left: 13.5,
-                    top: 24,
-                    bottom: 4,
-                    borderLeft: `1px ${status === 'done' ? 'solid' : 'dotted'} ${status === 'done' ? t.ink : t.rule}`,
-                  },
+              textAlign: 'center',
+              px: 1.5,
+              // Rail to the next dot; solid once this stage is done.
+              '&::after':
+                index === stages.length - 1
+                  ? undefined
+                  : {
+                      content: '""',
+                      position: 'absolute',
+                      top: 13.5,
+                      left: 'calc(50% + 14px)',
+                      right: 'calc(-50% + 14px)',
+                      borderTop: `1px ${stage.status === 'done' ? `solid ${t.ink}` : `dotted ${t.rule}`}`,
+                    },
             }}
           >
-            <Node status={status} working={working} success={stage.key === 'result'} />
-            <Box sx={{ minWidth: 0, opacity: status === 'idle' ? 0.6 : 1 }}>
-              <Typography variant="subtitle1" sx={{ lineHeight: '28px' }}>
-                {stage.title}
-              </Typography>
-              <Typography variant="body2" sx={{ color: t.ink60 }}>
-                {note}
-              </Typography>
-              {stage.services && (
-                <Typography variant="meta" component="p" sx={{ mt: 0.5 }}>
-                  {stage.services}
+            <Node stage={stage} status={stage.status} working={stage.working} />
+            {!compact && (
+              <Box sx={{ mt: 1.5, opacity: stage.status === 'idle' ? 0.6 : 1 }}>
+                <Typography variant="subtitle1">{stage.title}</Typography>
+                <Typography variant="body2" sx={{ color: t.ink60, mt: 0.5 }}>
+                  {stage.note}
                 </Typography>
-              )}
-              {showProgress && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 1 }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={uploadProgress}
-                    aria-label="Upload progress"
-                    sx={{ flex: 1 }}
-                  />
-                  <Typography variant="meta" sx={{ minWidth: '4ch' }}>
-                    {uploadProgress}%
+                {stage.services && (
+                  <Typography variant="meta" component="p" sx={{ mt: 0.75 }}>
+                    {stage.services}
                   </Typography>
-                </Box>
-              )}
-            </Box>
+                )}
+                {stage.showProgress && <UploadBar value={uploadProgress} />}
+              </Box>
+            )}
           </Box>
-        );
-      })}
-    </Box>
+        ))}
+      </Box>
+
+      {compact && (
+        <Box aria-live="polite" sx={{ mt: 2, textAlign: 'center' }}>
+          <Typography variant="meta" component="p">
+            Step {currentAt + 1} of {stages.length} ·{' '}
+            {STATUS_LABEL[current.status]}
+          </Typography>
+          <Typography variant="subtitle1" sx={{ mt: 0.5 }}>
+            {current.title}
+          </Typography>
+          <Typography variant="body2" sx={{ color: t.ink60, mt: 0.5 }}>
+            {current.note}
+          </Typography>
+          {current.showProgress && <UploadBar value={uploadProgress} />}
+        </Box>
+      )}
+    </>
   );
 }

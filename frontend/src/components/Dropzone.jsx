@@ -108,6 +108,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
             sx={{
               position: 'relative',
               aspectRatio: '16 / 10',
+              maxHeight: 360,
               overflow: 'hidden',
               bgcolor: t.ink6,
               display: 'grid',
@@ -119,7 +120,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
                 component="img"
                 src={previewUrl}
                 alt={`Preview of ${file.name}`}
-                sx={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }}
               />
             ) : (
               <FileIcon sx={{ fontSize: 48, color: t.ink42 }} />
