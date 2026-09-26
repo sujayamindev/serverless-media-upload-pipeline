@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import { eyebrowType, t } from '../lib/tokens';
 import StatusDot from './StatusDot';
 
-const TONE = { ink: t.ink60, orange: t.orange, success: t.success };
+const TONE = { ink: t.ink60, orange: t.orange, success: t.successText };
 
 /**
  * Mono uppercase eyebrow chip (DESIGN.md §6). `dot` prepends a coloured status

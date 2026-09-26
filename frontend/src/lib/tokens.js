@@ -41,6 +41,7 @@ export const SCHEME_VARS = {
     '--nav-capsule': 'rgba(232,232,232,.67)',
     '--nav-rim': '#fdfcfa8c', // card at 55%
     '--orange': '#bd4a28',
+    '--success-text': '#3d8378',
     '--chart-ink': INK,
     '--chip-bg': CREAM,
     '--primary-bg': INK,
@@ -62,6 +63,9 @@ export const SCHEME_VARS = {
     '--nav-capsule': '#1f1f1fbd',
     '--nav-rim': '#f4f4e71f', // = --color-border; the capsule fill matches the page in dark
     '--orange': '#e0714f',
+    // Lighter tint of --success so the small APPROVED chip text stays readable
+    // on the dark chip (4.6:1); fills and dots keep #3d8378.
+    '--success-text': '#81aea7',
     '--chart-ink': CREAM,
     '--chip-bg': '#f4f4e71a',
     '--primary-bg': CREAM,
@@ -123,6 +127,7 @@ export const t = {
   shadowNav: v('--shadow-nav'),
   orange: v('--orange'),
   success: v('--success'),
+  successText: v('--success-text'),
   accent: v('--color-accent'),
   chartOrange: v('--chart-orange'),
   chartAmber: v('--chart-amber'),

@@ -74,7 +74,7 @@ Keep Antimetal's token names as CSS variables through MUI `cssVariables`.
 | token | value | use |
 |---|---|---|
 | `--orange` | `#bd4a28` | primary accent **text**: eyebrow labels, links on hover, the REJECTED state. In dark mode use `#e0714f` *(derived; lifted for contrast)* |
-| `--success` (teal) | `#3d8378` | **this app's choice, not from antimetal.com.** Everything approved/success: the approved result step fill, the APPROVED chip dot and text, the success alert icon. Same value in light and dark |
+| `--success` (teal) | `#3d8378` | **this app's choice, not from antimetal.com.** Everything approved/success: the approved result step fill, the APPROVED chip dot and text, the success alert icon. Same value in light and dark, except the chip **text** in dark mode, which uses the lighter tint `--success-text` `#81aea7` (4.6:1 on the dark chip; `#3d8378` would be 2.5:1) |
 | `--color-accent` (lime) | `#e2e67d` | highlight only: text-selection background, a marker underline behind one key word, the focus ring on dark ink. Never body text |
 | chart orange | `#ff7733` | data dots / progress fill |
 | chart amber | `#e5a700` | data dots, the PENDING state marker |
@@ -87,7 +87,7 @@ Status is shown as an eyebrow chip plus a small filled dot, like the "● 47 EBS
 | state | dot | chip text | chip fill |
 |---|---|---|---|
 | **PENDING** | `#e5a700` amber (pulsing) | ink 70% / cream 70% | `--color-cream` (light) · `#f4f4e71a` (dark) |
-| **APPROVED** | `--success` `#3d8378` | `--success` `#3d8378` | `--color-cream` · `#f4f4e71a` |
+| **APPROVED** | `--success` `#3d8378` | `--success-text`: `#3d8378` / dark `#81aea7` | `--color-cream` · `#f4f4e71a` |
 | **REJECTED** | `#ff7733` orange | `--orange` `#bd4a28` / dark `#e0714f` | `--color-cream` · `#f4f4e71a` |
 | error text (form validation) | none | `--orange` | none |
 
