@@ -79,7 +79,6 @@
 <path d="M1277.5 878L1475 878V988H1610M1602.33 983.296L1610 988L1602.33 992.704" stroke="#414750" stroke-width="2"/>
 <path d="M1277.5 1118H1475V1013H1515H1610M1602.33 1008.3L1610 1013L1602.33 1017.7" stroke="#414750" stroke-width="2"/>
 <text fill="#232F3E" style="white-space: pre" xml:space="preserve" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" letter-spacing="0em"><tspan x="1292" y="1102.95">GetItem &#xb7; owner check</tspan></text>
-<rect width="194" height="29" transform="translate(580 348)" fill="white"/>
 <text fill="#232F3E" style="white-space: pre" xml:space="preserve" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" letter-spacing="0em"><tspan x="580" y="367.955">OAC &#xb7; signed origin request</tspan></text>
 <g clip-path="url(#clip11_0_1)">
 <g clip-path="url(#clip12_0_1)">
