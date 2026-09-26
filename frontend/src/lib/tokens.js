@@ -1,7 +1,7 @@
 // Antimetal design tokens (see frontend/DESIGN.md). This is the only file that
 // holds colour literals; components reference the CSS variables through `t`.
 
-export const SANS = '"Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, sans-serif';
+export const SANS = '"Geist Variable", Geist, ui-sans-serif, system-ui, sans-serif';
 export const MONO = '"Geist Mono Variable", "Geist Mono", ui-monospace, Menlo, monospace';
 
 export const EASE = 'cubic-bezier(.22, 1, .36, 1)';

@@ -93,12 +93,12 @@ Status is shown as an eyebrow chip plus a small filled dot, like the "● 47 EBS
 
 ## 3. Typography
 
-**Override for this app: no serif.** Headlines, ledes and UI text use Space Grotesk (Newsreader and then Geist were removed). Where the rest of this document says "serif", read "Space Grotesk 400". Antimetal itself uses these fonts:
+**Override for this app: no serif.** Headlines and ledes use Geist at weight 400 (Newsreader was removed). Where the rest of this document says "serif", read "Geist 400". Antimetal itself uses these fonts:
 
 | role | Antimetal font | licence | substitute to self-host via Fontsource |
 |---|---|---|---|
-| display serif | **Signifier** (Klim; served as "Test Signifier") | commercial | not used in this app; headlines use Space Grotesk 400 |
-| UI sans | **Geist** 400/500 on antimetal.com | OFL | replaced here by **Space Grotesk** 400/500: `@fontsource-variable/space-grotesk`. Stack: `"Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, sans-serif` |
+| display serif | **Signifier** (Klim; served as "Test Signifier") | commercial | not used in this app; headlines use Geist 400 |
+| UI sans | **Geist** 400/500 | OFL | `@fontsource-variable/geist`. Stack: `"Geist Variable", Geist, ui-sans-serif, system-ui, sans-serif` |
 | mono | **Geist Mono** | OFL | `@fontsource-variable/geist-mono`. Stack: `"Geist Mono Variable", "Geist Mono", ui-monospace, Menlo, monospace` |
 
 - Signifier is commercial and is not used here. Geist and Geist Mono are open-source, so they're the actual fonts.
@@ -108,16 +108,16 @@ Status is shown as an eyebrow chip plus a small filled dot, like the "● 47 EBS
 
 | role | font | size / line-height | tracking | weight | colour |
 |---|---|---|---|---|---|
-| display (h1) | Space Grotesk | 54 / 59.4px (1.1); `clamp(38px, 5vw, 54px)` | -0.037em (-2px) | 400 | ink |
-| h2 | Space Grotesk | 48 / 52.8px | -0.021em (-1px) | 400 | ink |
-| h3 / card title | Space Grotesk | 36 / 39.6px | -0.01em | 400 | ink (cream on inverse panel) |
-| lede / subheadline | Space Grotesk | 24 / 31px (1.3) | 0 | 400 | ink 70% |
+| display (h1) | Geist | 54 / 59.4px (1.1); `clamp(38px, 5vw, 54px)` | -0.037em (-2px) | 400 | ink |
+| h2 | Geist | 48 / 52.8px | -0.021em (-1px) | 400 | ink |
+| h3 / card title | Geist | 36 / 39.6px | -0.01em | 400 | ink (cream on inverse panel) |
+| lede / subheadline | Geist | 24 / 31px (1.3) | 0 | 400 | ink 70% |
 | body | sans | 16 / 24px | 0 | 400 | ink (card body copy: ink 60–70%) |
 | small / UI | sans | 14 / 21px | 0 | 500 | ink 60% (nav), ink (buttons) |
 | eyebrow | mono | 10px, line-height normal | 0.1em (1px) | 400 | UPPERCASE; ink 60% or accent (orange/olive) |
 | meta label | mono | 11 / 16.5px | 0.06em (0.66px) | 400 | UPPERCASE; ink 42% |
 
-Space Grotesk 400 at large sizes carries the voice: headlines and ledes. Sans is for UI and explanations. Mono is for labels, values and IDs only.
+Geist 400 at large sizes carries the voice: headlines and ledes. Sans is for UI and explanations. Mono is for labels, values and IDs only.
 
 ## 4. Shape, lines and elevation
 
