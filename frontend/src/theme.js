@@ -51,7 +51,7 @@ const theme = createTheme({
   cssVariables: { colorSchemeSelector: 'data-mui-color-scheme' },
   colorSchemes: { light: scheme(PALETTE.light), dark: scheme(PALETTE.dark) },
   shape: { borderRadius: 0 },
-  shadows: ['none', ...Array(24).fill('0 10px 24px rgba(0,0,0,.18)')],
+  shadows: Array(25).fill('none'),
   transitions: {
     easing: { easeInOut: EASE, easeOut: EASE, easeIn: EASE, sharp: EASE },
   },
@@ -112,7 +112,7 @@ const theme = createTheme({
           WebkitFontSmoothing: 'antialiased',
           fontOpticalSizing: 'auto',
         },
-        '::selection': { background: '#e2e67d', color: '#1a1614' },
+        '::selection': { background: t.accent, color: '#1a1614' },
         'a:focus-visible, button:focus-visible, [tabindex]:focus-visible, summary:focus-visible': focusRing,
         code: {
           fontFamily: MONO,
@@ -120,7 +120,7 @@ const theme = createTheme({
           padding: '1px 4px',
           backgroundColor: t.ink6,
         },
-        strong: { fontWeight: 500, color: t.ink },
+        strong: { fontWeight: 500 },
       },
     },
     MuiTypography: {
@@ -262,16 +262,6 @@ const theme = createTheme({
         },
       },
     },
-    MuiOutlinedInput: {
-      styleOverrides: {
-        root: {
-          borderRadius: 0,
-          '& .MuiOutlinedInput-notchedOutline': { borderColor: t.border },
-          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: t.rule },
-          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: t.ink, borderWidth: 1 },
-        },
-      },
-    },
     MuiFormHelperText: {
       styleOverrides: {
         root: {
@@ -304,97 +294,15 @@ const theme = createTheme({
         root: { backgroundImage: 'none', backgroundColor: t.card, color: t.ink, borderRadius: 0 },
       },
     },
-    MuiCard: {
-      defaultProps: { elevation: 0 },
-      styleOverrides: {
-        root: {
-          position: 'relative',
-          backgroundColor: 'transparent',
-          border: `1px dashed ${t.rule}`,
-          padding: 32,
-          '&::before': bracketTicks(),
-        },
-      },
-    },
-    MuiMenu: {
-      styleOverrides: {
-        paper: { borderRadius: 4, boxShadow: t.shadowFloat, border: `1px solid ${t.border}` },
-      },
-    },
-    MuiTooltip: {
-      styleOverrides: {
-        tooltip: {
-          ...eyebrowType,
-          backgroundColor: t.card,
-          color: t.ink,
-          borderRadius: 4,
-          boxShadow: t.shadowFloat,
-          padding: '6px 9px',
-        },
-      },
-    },
-    // Two-pill segmented control.
-    MuiToggleButtonGroup: {
-      styleOverrides: {
-        root: {
-          gap: 2,
-          padding: 3,
-          borderRadius: 9999,
-          backgroundColor: t.ink6,
-          boxShadow: t.shadowNav,
-        },
-        grouped: {
-          border: 0,
-          borderRadius: '9999px !important',
-          margin: '0 !important',
-        },
-      },
-    },
-    MuiToggleButton: {
-      styleOverrides: {
-        root: {
-          flex: 1,
-          minHeight: 32,
-          padding: '0 14px',
-          border: 0,
-          borderRadius: 9999,
-          fontFamily: SANS,
-          fontWeight: 500,
-          fontSize: 14,
-          textTransform: 'none',
-          color: t.ink60,
-          transition: transition('background-color', 'color'),
-          '&:hover': { backgroundColor: 'transparent', color: t.ink },
-          '&.Mui-selected, &.Mui-selected:hover': { backgroundColor: t.primaryBg, color: t.primaryFg },
-          '&.Mui-focusVisible': focusRing,
-        },
-      },
-    },
-    MuiTabs: {
-      styleOverrides: {
-        root: { minHeight: 32, borderBottom: `1px solid ${t.border}` },
-        indicator: { height: 1, backgroundColor: t.ink },
-      },
-    },
-    MuiTab: {
-      styleOverrides: {
-        root: {
-          ...metaType,
-          minHeight: 32,
-          color: t.ink60,
-          '&.Mui-selected': { color: t.ink },
-        },
-      },
-    },
-    // Accordion rows: full width, hairline dividers, serif question, +/− marker.
+    // Collapsible rows: hairline dividers, no card chrome.
     MuiAccordion: {
       defaultProps: { disableGutters: true, elevation: 0, square: true },
       styleOverrides: {
         root: {
           backgroundColor: 'transparent',
+          borderTop: `1px solid ${t.border}`,
           borderBottom: `1px solid ${t.border}`,
           '&::before': { display: 'none' },
-          '&:first-of-type': { borderTop: `1px solid ${t.border}` },
         },
       },
     },
@@ -402,29 +310,14 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           padding: 0,
-          minHeight: 0,
           '&.Mui-focusVisible': { backgroundColor: 'transparent', ...focusRing },
-          '&:hover .MuiAccordionSummary-content > :first-of-type': { color: t.ink },
         },
-        content: {
-          margin: 0,
-          padding: '24px 0',
-          ...serif,
-          fontSize: 24,
-          lineHeight: 1.2,
-          color: t.ink92,
-        },
-        expandIconWrapper: {
-          color: t.ink60,
-          marginLeft: 16,
-          '&.Mui-expanded': { transform: 'none' },
-        },
+        content: { margin: '16px 0', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' },
+        expandIconWrapper: { color: t.ink60 },
       },
     },
     MuiAccordionDetails: {
-      styleOverrides: {
-        root: { padding: '0 0 24px', color: t.ink70 },
-      },
+      styleOverrides: { root: { padding: '0 0 24px' } },
     },
     MuiAlert: {
       styleOverrides: {
@@ -452,9 +345,6 @@ const theme = createTheme({
         root: { height: 2, borderRadius: 0, backgroundColor: t.ink10 },
         bar: { backgroundColor: t.chartOrange, borderRadius: 0 },
       },
-    },
-    MuiCircularProgress: {
-      defaultProps: { color: 'inherit' },
     },
     MuiDivider: {
       styleOverrides: { root: { borderColor: t.border } },

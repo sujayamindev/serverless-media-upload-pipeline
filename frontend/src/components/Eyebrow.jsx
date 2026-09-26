@@ -2,32 +2,26 @@ import { Box } from '@mui/material';
 import { eyebrowType, t } from '../lib/tokens';
 import StatusDot from './StatusDot';
 
-const TONE = {
-  ink: t.ink60,
-  strong: t.ink70,
-  orange: t.orange,
-  olive: t.green,
-  inverse: 'color-mix(in srgb, var(--inverse-fg) 60%, transparent)',
-};
+const TONE = { ink: t.ink60, orange: t.orange, olive: t.green };
 
 /**
- * Mono uppercase label (DESIGN.md §6 "Eyebrow chip"). `chip` gives it the cream
- * fill; `dot` prepends a coloured data dot (optionally pulsing).
+ * Mono uppercase eyebrow chip (DESIGN.md §6). `dot` prepends a coloured status
+ * dot, optionally pulsing.
  */
-export default function Eyebrow({ tone = 'ink', chip = true, dot, pulse = false, component = 'span', sx, children, ...props }) {
+export default function Eyebrow({ tone = 'ink', dot, pulse = false, sx, children }) {
   return (
     <Box
-      component={component}
-      {...props}
+      component="span"
       sx={[
         {
           ...eyebrowType,
           display: 'inline-flex',
           alignItems: 'center',
           gap: '7px',
-          m: 0,
-          color: TONE[tone] ?? tone,
-          ...(chip ? { bgcolor: t.chipBg, px: '9px', py: '5px' } : null),
+          px: '9px',
+          py: '5px',
+          bgcolor: t.chipBg,
+          color: TONE[tone],
         },
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}

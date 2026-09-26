@@ -17,7 +17,7 @@ function LoadingScreen() {
       role="status"
       sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', bgcolor: t.bg }}
     >
-      <Eyebrow tone="strong" dot={t.chartAmber} pulse>
+      <Eyebrow dot={t.chartAmber} pulse>
         Loading
       </Eyebrow>
     </Box>
