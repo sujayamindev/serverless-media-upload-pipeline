@@ -50,7 +50,9 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
     };
   }, [file]);
 
-  const previewUrl = preview?.file === file ? preview.url : null;
+  // `failed` is set when the browser can't decode the file as an image (e.g. a renamed
+  // text file); the file-type icon is shown instead of a broken image.
+  const previewUrl = preview?.file === file && !preview.failed ? preview.url : null;
 
   const accept = (candidate) => {
     if (!candidate) return;
@@ -118,6 +120,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
                 component="img"
                 src={previewUrl}
                 alt={`Preview of ${file.name}`}
+                onError={() => setPreview((current) => (current?.file === file ? { ...current, failed: true } : current))}
                 sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }}
               />
             ) : (
