@@ -28,7 +28,7 @@ const hiddenInput = {
 
 /**
  * File picker marked by bracket corner ticks, with no outline (DESIGN.md §9).
- * Drag-over shows a solid ink outline with a 6% ink fill. While `scanning` is true a
+ * Drag-over tints the fill 6% ink. While `scanning` is true a
  * hairline sweeps over the preview, matching the server-side content check.
  * `children` are rendered as extra actions when a file is selected.
  */
@@ -89,12 +89,14 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
       onDrop={handleDrop}
       sx={{
         p: { xs: 2.5, sm: 4 },
-        // No dashed outline here, just the corner ticks; a solid ink outline appears
-        // while dragging. The border stays (transparent) so nothing shifts.
+        // No outline, just the corner ticks; dragging only tints the fill. The border
+        // stays (transparent) so the ticks keep their place.
         borderStyle: 'solid',
-        borderColor: dragging ? t.ink : 'transparent',
+        borderColor: 'transparent',
         bgcolor: dragging ? t.ink6 : t.card,
-        '&:focus-within': { outline: `1px solid ${t.ink}`, outlineOffset: 4 },
+        // Keyboard focus only: clicking to open the file picker also focuses the hidden
+        // input, which made :focus-within show an outline to mouse users.
+        '&:has(input:focus-visible)': { outline: `1px solid ${t.ink}`, outlineOffset: 4 },
       }}
     >
       <input
