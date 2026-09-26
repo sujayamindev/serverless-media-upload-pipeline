@@ -1,31 +1,22 @@
 import { useEffect, useId, useState } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { keyframes } from '@mui/material/styles';
-import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import MovieOutlinedIcon from '@mui/icons-material/MovieOutlined';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
-import { ACCEPTED_FORMATS, MAX_SIZE_LABEL, formatBytes } from '../lib/format';
+import BracketFrame from './BracketFrame';
+import Eyebrow from './Eyebrow';
+import { ACCEPTED_FORMATS, ACCEPTED_FORMATS_META, MAX_SIZE_LABEL, formatBytes } from '../lib/format';
+import { MONO, metaType, reducedMotion, t } from '../lib/tokens';
+import { srOnly } from '../lib/layout';
 
 // The CloudFront CSP allows data: images but not blob:, so local previews are
 // read as data URLs. Skip anything big enough to make that slow.
 const MAX_PREVIEW_BYTES = 8 * 1024 * 1024;
 
-// theme.palette.* is the light scheme only; go through the CSS variable so dark mode works.
-const PRIMARY_TINT = 'color-mix(in srgb, var(--mui-palette-primary-main) 8%, transparent)';
-const PRIMARY_GLOW = 'color-mix(in srgb, var(--mui-palette-primary-main) 60%, transparent)';
-
 const scan = keyframes`
   from { top: 0%; }
   to { top: 100%; }
 `;
-
-const CORNER = 22;
-const CORNERS = [
-  { top: 0, left: 0, borderTopWidth: 2, borderLeftWidth: 2 },
-  { top: 0, right: 0, borderTopWidth: 2, borderRightWidth: 2 },
-  { bottom: 0, left: 0, borderBottomWidth: 2, borderLeftWidth: 2 },
-  { bottom: 0, right: 0, borderBottomWidth: 2, borderRightWidth: 2 },
-];
 
 const hiddenInput = {
   position: 'absolute',
@@ -39,12 +30,14 @@ const hiddenInput = {
 };
 
 /**
- * File picker framed by viewfinder corner marks. While `scanning` is true a
- * line sweeps over the preview, matching the server-side content check.
+ * File picker in a large bracket frame (DESIGN.md §9). Drag-over turns the
+ * dashed border solid ink with a 6% ink fill. While `scanning` is true a
+ * hairline sweeps over the preview, matching the server-side content check.
  * `children` are rendered as extra actions when a file is selected.
  */
 export default function Dropzone({ file, disabled, scanning, onSelect, onClear, onReject, children }) {
   const inputId = useId();
+  const hintId = useId();
   const [dragging, setDragging] = useState(false);
   const [preview, setPreview] = useState(null);
 
@@ -85,11 +78,12 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
     event.target.value = '';
   };
 
-  const markColor = dragging || file ? 'primary.main' : 'text.secondary';
   const FileIcon = file?.type.startsWith('video/') ? MovieOutlinedIcon : ImageOutlinedIcon;
 
   return (
-    <Box
+    <BracketFrame
+      active={dragging}
+      data-dragging={dragging || undefined}
       onDragOver={(event) => {
         event.preventDefault();
         if (!disabled) setDragging(true);
@@ -97,15 +91,9 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
       sx={{
-        position: 'relative',
-        p: { xs: 2.5, sm: 4 },
-        bgcolor: dragging ? PRIMARY_TINT : 'background.paper',
-        transition: 'background-color 120ms',
-        '&:focus-within': {
-          outline: '2px solid',
-          outlineColor: 'primary.main',
-          outlineOffset: 4,
-        },
+        p: { xs: 2, sm: 3 },
+        bgcolor: dragging ? t.ink6 : 'transparent',
+        '&:focus-within': { outline: `1px solid ${t.ink}`, outlineOffset: 4 },
       }}
     >
       <input
@@ -114,35 +102,19 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
         accept="image/*,video/*"
         disabled={disabled}
         onChange={handleInput}
+        aria-describedby={hintId}
         style={hiddenInput}
       />
 
-      {CORNERS.map((corner, index) => (
-        <Box
-          key={index}
-          aria-hidden
-          sx={{
-            position: 'absolute',
-            width: CORNER,
-            height: CORNER,
-            borderStyle: 'solid',
-            borderWidth: 0,
-            borderColor: markColor,
-            transition: 'border-color 120ms',
-            ...corner,
-          }}
-        />
-      ))}
-
       {file ? (
-        <Stack spacing={2.5}>
+        <Stack spacing={3}>
           <Box
             sx={{
               position: 'relative',
               aspectRatio: '16 / 10',
               overflow: 'hidden',
-              borderRadius: 0.5,
-              bgcolor: 'action.hover',
+              bgcolor: t.windowBody,
+              border: `1px solid ${t.border}`,
               display: 'grid',
               placeItems: 'center',
             }}
@@ -155,7 +127,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
                 sx={{ width: '100%', height: '100%', objectFit: 'contain' }}
               />
             ) : (
-              <FileIcon sx={{ fontSize: 56, color: 'text.secondary' }} />
+              <FileIcon sx={{ fontSize: 48, color: t.ink42 }} />
             )}
             {scanning && (
               <Box
@@ -164,33 +136,34 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
                   position: 'absolute',
                   left: 0,
                   right: 0,
-                  height: 2,
-                  bgcolor: 'primary.main',
-                  boxShadow: `0 0 12px 2px ${PRIMARY_GLOW}`,
+                  height: '1px',
+                  bgcolor: t.chartOrange,
                   top: '50%',
-                  '@media (prefers-reduced-motion: no-preference)': {
-                    animation: `${scan} 1.6s ease-in-out infinite alternate`,
-                  },
+                  animation: `${scan} 2.4s var(--ease) infinite alternate`,
+                  [reducedMotion]: { animation: 'none' },
                 }}
               />
             )}
           </Box>
 
-          <Box>
-            <Typography variant="subtitle1" sx={{ wordBreak: 'break-all' }}>
+          <Box sx={{ minWidth: 0 }}>
+            <Eyebrow tone="ink" sx={{ mb: 1.5 }}>
+              Selected file
+            </Eyebrow>
+            <Typography sx={{ fontFamily: MONO, fontSize: 14, lineHeight: '21px', wordBreak: 'break-all' }}>
               {file.name}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography id={hintId} variant="meta" component="p" sx={{ mt: 0.5 }}>
               {formatBytes(file.size)} · {file.type}
             </Typography>
           </Box>
 
-          <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+          <Stack direction="row" spacing={1.5} useFlexGap flexWrap="wrap" alignItems="center">
             {children}
-            <Button component="label" htmlFor={inputId} variant="outlined" color="inherit" disabled={disabled}>
+            <Button component="label" htmlFor={inputId} variant="outlined" disabled={disabled}>
               Choose another
             </Button>
-            <Button onClick={onClear} color="inherit" disabled={disabled} sx={{ color: 'text.secondary' }}>
+            <Button onClick={onClear} variant="text" disabled={disabled}>
               Remove
             </Button>
           </Stack>
@@ -200,28 +173,38 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
           component="label"
           htmlFor={inputId}
           sx={{
-            minHeight: 240,
+            minHeight: { xs: 260, md: 340 },
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 1,
+            gap: 2,
+            px: 2,
             textAlign: 'center',
             cursor: disabled ? 'default' : 'pointer',
           }}
         >
-          <CloudUploadOutlinedIcon sx={{ fontSize: 36, color: markColor }} />
-          <Typography variant="h4" component="span">
-            Drop an image or video here
+          <Eyebrow tone={dragging ? 'orange' : 'ink'} dot={dragging ? t.chartOrange : t.chartInk}>
+            {dragging ? 'Release to select' : 'Step 01 · Choose'}
+          </Eyebrow>
+          <Typography variant="h3" component="span" sx={{ maxWidth: 420 }}>
+            Drop a photo or video
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            or click to choose a file
+          <Typography variant="body1" component="span" sx={{ color: t.ink60 }}>
+            or{' '}
+            <Box component="span" sx={{ color: t.ink, textDecoration: 'underline', textDecorationColor: t.rule, textUnderlineOffset: 3 }}>
+              choose a file
+            </Box>{' '}
+            from this device
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            {ACCEPTED_FORMATS}, up to {MAX_SIZE_LABEL}
-          </Typography>
+          <Box component="span" id={hintId} sx={{ ...metaType, color: t.ink42, mt: 1 }}>
+            {ACCEPTED_FORMATS_META} — max {MAX_SIZE_LABEL}
+            <Box component="span" sx={srOnly}>
+              Accepted: {ACCEPTED_FORMATS}.
+            </Box>
+          </Box>
         </Box>
       )}
-    </Box>
+    </BracketFrame>
   );
 }
