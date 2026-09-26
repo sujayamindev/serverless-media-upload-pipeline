@@ -106,7 +106,7 @@ function currentIndex(stages) {
 export default function PipelineStatus({ activeStep, failedAt, uploading, uploadProgress, statusLoading, mediaStatus }) {
   const compact = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const context = { activeStep, failedAt, mediaStatus };
-  const size = compact ? 36 : 44;
+  const size = compact ? 28 : 32;
 
   const stages = STAGES.map((stage) => {
     const status = stageStatus(stage, context);
@@ -155,8 +155,8 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
           >
             <StepIcon stage={stage} size={size} />
             {!compact && (
-              <Box sx={{ mt: 1.5, opacity: stage.status === 'idle' ? 0.6 : 1 }}>
-                <Typography variant="subtitle1">{stage.title}</Typography>
+              <Box sx={{ mt: 1, opacity: stage.status === 'idle' ? 0.6 : 1 }}>
+                <Typography variant="subtitle2">{stage.title}</Typography>
                 {stage.showProgress && <UploadBar value={uploadProgress} />}
               </Box>
             )}
@@ -165,11 +165,11 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
       </Box>
 
       {compact && (
-        <Box aria-live="polite" sx={{ mt: 2, textAlign: 'center' }}>
+        <Box aria-live="polite" sx={{ mt: 1.5, textAlign: 'center' }}>
           <Typography variant="meta" component="p">
             Step {currentAt + 1} of {stages.length} · {STATUS_LABEL[current.status]}
           </Typography>
-          <Typography variant="subtitle1" sx={{ mt: 0.5 }}>
+          <Typography variant="subtitle2" sx={{ mt: 0.25 }}>
             {current.title}
           </Typography>
           {current.showProgress && <UploadBar value={uploadProgress} />}

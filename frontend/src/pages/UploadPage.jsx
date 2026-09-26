@@ -43,11 +43,11 @@ export default function UploadPage() {
           sx={{
             border: `1px solid ${t.border}`,
             bgcolor: t.card,
-            p: { xs: 2.5, sm: 3.5 },
-            mb: { xs: 3, md: 5 },
+            p: { xs: 2, sm: 2.5 },
+            mb: { xs: 2.5, md: 3 },
           }}
         >
-          <Typography id="progress-heading" variant="h4" component="h2" sx={{ mb: 3 }}>
+          <Typography id="progress-heading" variant="meta" component="h2" sx={{ display: 'block', mb: 2 }}>
             Progress
           </Typography>
           <PipelineStatus
