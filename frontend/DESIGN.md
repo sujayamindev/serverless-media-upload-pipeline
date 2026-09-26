@@ -10,6 +10,18 @@ Both the light and dark columns are Antimetal's own values. Where the site doesn
 
 If a value isn't in this file, derive it from a token here. Don't introduce new colours, radii or fonts.
 
+## Scope & simplicity
+
+This is a personal AWS learning and portfolio project, not a marketing site. **The original UI's layout, copy and density are the baseline; Antimetal is the skin.** Where this rule conflicts with §5, §6 or §9 below, this rule wins.
+
+- **Keep:** paper/ink tokens, a serif for headlines with Geist and Geist Mono for everything else, pill buttons, dashed hairlines and bracket corners, mono eyebrow chips, the earthy status colours, and light/dark with the toggle.
+- **Structure:** each page keeps the original's sections, copy and amount of content. Don't add sections, extra copy or marketing flourishes.
+- **Nav:** one simple top bar in translucent paper with a hairline under it. The logo goes on the left; how-it-works, the email, GitHub, an icon-only theme toggle and sign out go on the right. No floating capsules.
+- **Sign-in:** the original split layout. The left side has the logo, headline, three short paragraphs and a footer line; the right side has the plain form in a bracket frame.
+- **Upload:** title plus a one-line subtitle, the dropzone (bracket frame) on the left, and the vertical progress stepper with status dots on the right. The result is one simple card holding a status chip, two or three key facts and the preview. Technical details go in a plain collapsible.
+- **How it works:** the original sections and the original architecture diagram, shown on a light panel in both schemes because it has black strokes.
+- **Not used:** hero burst illustrations, annotation chips with leader lines, window-frame chrome, inverse cards, horizontal pipeline strips and redrawn diagrams.
+
 ## 1. Character
 
 Editorial, warm and quiet: a research paper crossed with an instrument panel. The page is a warm grey "paper" (`#d7d7d0`) with near-black ink. Big headlines use a sharp editorial **serif**, UI text uses a neutral grotesk, and small **uppercase mono** labels annotate everything.
