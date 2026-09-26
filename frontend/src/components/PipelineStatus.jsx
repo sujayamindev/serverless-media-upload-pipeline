@@ -55,7 +55,6 @@ function StepIcon({ stage, size }) {
         zIndex: 1,
         width: size,
         height: size,
-        mx: 'auto',
         borderRadius: '50%',
         display: 'grid',
         placeItems: 'center',
@@ -125,43 +124,62 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
 
   return (
     <>
+      {/* One flex row: the first icon sits flush left, each later step is a rail plus its
+          icon, so the last icon sits flush right and the icons stay evenly spaced.
+          Titles hang below their icon; the end ones align to the card edges. */}
       <Box
         component="ol"
         aria-label="Upload progress"
-        sx={{ listStyle: 'none', m: 0, p: 0, display: 'grid', gridTemplateColumns: `repeat(${stages.length}, minmax(0, 1fr))` }}
+        sx={{
+          listStyle: 'none',
+          m: 0,
+          p: 0,
+          display: 'flex',
+          pb: compact ? 0 : stages.some((s) => s.showProgress) ? '58px' : '30px',
+        }}
       >
-        {stages.map((stage, index) => (
-          <Box
-            component="li"
-            key={stage.key}
-            aria-current={stage.status === 'active' ? 'step' : undefined}
-            sx={{
-              position: 'relative',
-              textAlign: 'center',
-              px: 1.5,
-              // Rail to the next icon; solid once this stage is done.
-              '&::after':
-                index === stages.length - 1
-                  ? undefined
-                  : {
-                      content: '""',
+        {stages.map((stage, index) => {
+          const first = index === 0;
+          const last = index === stages.length - 1;
+          const prevDone = !first && stages[index - 1].status === 'done';
+          return (
+            <Box
+              component="li"
+              key={stage.key}
+              aria-current={stage.status === 'active' ? 'step' : undefined}
+              sx={{ display: 'flex', alignItems: 'center', flex: first ? 'none' : 1, minWidth: 0 }}
+            >
+              {!first && (
+                <Box
+                  aria-hidden
+                  sx={{ flex: 1, mx: 0.75, borderTop: `1px ${prevDone ? `solid ${t.ink}` : `dotted ${t.rule}`}` }}
+                />
+              )}
+              <Box sx={{ position: 'relative', flex: 'none' }}>
+                <StepIcon stage={stage} size={size} />
+                {!compact && (
+                  <Box
+                    sx={{
                       position: 'absolute',
-                      top: size / 2,
-                      left: `calc(50% + ${size / 2 + 6}px)`,
-                      right: `calc(-50% + ${size / 2 + 6}px)`,
-                      borderTop: `1px ${stage.status === 'done' ? `solid ${t.ink}` : `dotted ${t.rule}`}`,
-                    },
-            }}
-          >
-            <StepIcon stage={stage} size={size} />
-            {!compact && (
-              <Box sx={{ mt: 1, opacity: stage.status === 'idle' ? 0.6 : 1 }}>
-                <Typography variant="subtitle2">{stage.title}</Typography>
-                {stage.showProgress && <UploadBar value={uploadProgress} />}
+                      top: size + 8,
+                      ...(first ? { left: 0 } : last ? { right: 0 } : { left: '50%', transform: 'translateX(-50%)' }),
+                      textAlign: first ? 'left' : last ? 'right' : 'center',
+                      whiteSpace: 'nowrap',
+                      opacity: stage.status === 'idle' ? 0.6 : 1,
+                    }}
+                  >
+                    <Typography variant="subtitle2">{stage.title}</Typography>
+                    {stage.showProgress && (
+                      <Box sx={{ width: 140 }}>
+                        <UploadBar value={uploadProgress} />
+                      </Box>
+                    )}
+                  </Box>
+                )}
               </Box>
-            )}
-          </Box>
-        ))}
+            </Box>
+          );
+        })}
       </Box>
 
       {compact && (
