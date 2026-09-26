@@ -6,6 +6,9 @@ import { t } from '../lib/tokens';
 
 const canPlayQuicktime = document.createElement('video').canPlayType('video/quicktime') !== '';
 
+// Fills the 16:10 frame without cropping, like the dropzone preview.
+const fill = { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' };
+
 function Preview({ url, contentType }) {
   if (contentType?.startsWith('video/')) {
     if (contentType === 'video/quicktime' && !canPlayQuicktime) {
@@ -25,14 +28,14 @@ function Preview({ url, contentType }) {
         controls
         crossOrigin="anonymous"
         preload="metadata"
-        style={{ maxWidth: '100%', maxHeight: 360, display: 'block' }}
+        style={fill}
       >
         <source src={url} type={contentType} />
         Your browser does not support the video tag.
       </video>
     );
   }
-  return <Box component="img" src={url} alt="Approved upload" sx={{ maxWidth: '100%', maxHeight: 360, display: 'block' }} />;
+  return <Box component="img" src={url} alt="Approved upload" sx={fill} />;
 }
 
 // Status chip tone and dot (DESIGN.md §2.3).
@@ -41,7 +44,8 @@ const CHIP = {
   rejected: { tone: 'orange', dot: t.chartOrange },
 };
 
-const panel = { border: `1px solid ${t.border}`, bgcolor: t.card, p: { xs: 2, sm: 3 } };
+// Same padding as the dropzone so the two columns line up.
+const panel = { border: `1px solid ${t.border}`, bgcolor: t.card, p: { xs: 2.5, sm: 4 } };
 
 // Output column next to the dropzone: a placeholder until the check finishes.
 export default function ResultPanel({ mediaStatus, checking }) {
@@ -69,6 +73,24 @@ export default function ResultPanel({ mediaStatus, checking }) {
 
   return (
     <Box sx={panel}>
+      {/* Preview first, mirroring the dropzone's file card on the left. */}
+      {approved && mediaStatus.preview_url && (
+        // Same 16:10 frame as the dropzone preview.
+        <Box
+          sx={{
+            position: 'relative',
+            mb: 2.5,
+            aspectRatio: '16 / 10',
+            maxHeight: 360,
+            display: 'grid',
+            placeItems: 'center',
+            bgcolor: t.ink6,
+            overflow: 'hidden',
+          }}
+        >
+          <Preview url={mediaStatus.preview_url} contentType={mediaStatus.content_type} />
+        </Box>
+      )}
       <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" useFlexGap>
         <Typography variant="h3" component="h2">
           {approved ? 'Approved' : rejected ? 'Rejected' : 'Result'}
@@ -87,11 +109,6 @@ export default function ResultPanel({ mediaStatus, checking }) {
         </Typography>
       )}
 
-      {approved && mediaStatus.preview_url && (
-        <Box sx={{ mt: 2.5, display: 'flex', justifyContent: 'center', bgcolor: t.ink6, overflow: 'hidden' }}>
-          <Preview url={mediaStatus.preview_url} contentType={mediaStatus.content_type} />
-        </Box>
-      )}
     </Box>
   );
 }
