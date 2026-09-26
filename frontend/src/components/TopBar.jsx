@@ -1,6 +1,6 @@
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Box, Button, Typography } from '@mui/material';
-import GitHubIcon from '@mui/icons-material/GitHub';
+import { GithubLogoIcon } from '@phosphor-icons/react';
 import BrandMark from './BrandMark';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../auth/useAuth';
@@ -105,7 +105,7 @@ export default function TopBar() {
           sx={navLink}
           aria-label="Source on GitHub (opens in a new tab)"
         >
-          <GitHubIcon sx={{ fontSize: 15 }} />
+          <GithubLogoIcon size={16} weight="regular" />
           <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
             GitHub
           </Box>

@@ -1,4 +1,6 @@
+import { createElement } from 'react';
 import { createTheme } from '@mui/material/styles';
+import { CheckCircleIcon, InfoIcon, WarningCircleIcon, WarningIcon } from '@phosphor-icons/react';
 import {
   EASE,
   MONO,
@@ -319,6 +321,15 @@ const theme = createTheme({
       styleOverrides: { root: { padding: '0 0 24px' } },
     },
     MuiAlert: {
+      // Phosphor icons in place of MUI's built-in Material ones.
+      defaultProps: {
+        iconMapping: {
+          success: createElement(CheckCircleIcon),
+          info: createElement(InfoIcon),
+          warning: createElement(WarningIcon),
+          error: createElement(WarningCircleIcon),
+        },
+      },
       styleOverrides: {
         root: {
           borderRadius: 0,

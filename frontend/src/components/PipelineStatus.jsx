@@ -1,21 +1,23 @@
 import { Box, LinearProgress, Typography, useMediaQuery } from '@mui/material';
 import { keyframes } from '@mui/material/styles';
-import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
-import KeyOutlinedIcon from '@mui/icons-material/KeyOutlined';
-import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
-import FactCheckOutlinedIcon from '@mui/icons-material/FactCheckOutlined';
-import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined';
-import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import {
+  CheckCircleIcon,
+  CloudArrowUpIcon,
+  FileIcon,
+  KeyIcon,
+  MagnifyingGlassIcon,
+  WarningCircleIcon,
+} from '@phosphor-icons/react';
 import { STEP } from '../hooks/useMediaUpload';
 import { reducedMotion, t } from '../lib/tokens';
 
 // `start`/`doneAt` are activeStep thresholds from useMediaUpload.
 const STAGES = [
-  { key: 'select', title: 'File chosen', Icon: InsertDriveFileOutlinedIcon, start: STEP.SELECTED, doneAt: STEP.SELECTED },
-  { key: 'permission', title: 'Upload permission', Icon: KeyOutlinedIcon, start: STEP.PERMISSION, doneAt: STEP.UPLOADING },
-  { key: 'upload', title: 'Upload to storage', Icon: CloudUploadOutlinedIcon, start: STEP.UPLOADING, doneAt: STEP.UPLOADED },
-  { key: 'check', title: 'Content check', Icon: FactCheckOutlinedIcon, start: STEP.CHECKING, doneAt: STEP.DONE },
-  { key: 'result', title: 'Result', Icon: TaskAltOutlinedIcon, start: STEP.DONE, doneAt: STEP.DONE },
+  { key: 'select', title: 'File chosen', Icon: FileIcon, start: STEP.SELECTED, doneAt: STEP.SELECTED },
+  { key: 'permission', title: 'Upload permission', Icon: KeyIcon, start: STEP.PERMISSION, doneAt: STEP.UPLOADING },
+  { key: 'upload', title: 'Upload to storage', Icon: CloudArrowUpIcon, start: STEP.UPLOADING, doneAt: STEP.UPLOADED },
+  { key: 'check', title: 'Content check', Icon: MagnifyingGlassIcon, start: STEP.CHECKING, doneAt: STEP.DONE },
+  { key: 'result', title: 'Result', Icon: CheckCircleIcon, start: STEP.DONE, doneAt: STEP.DONE },
 ];
 
 const STATUS_LABEL = { idle: 'Not started', active: 'In progress', done: 'Done', failed: 'Failed' };
@@ -41,7 +43,7 @@ const ring = keyframes`
 // hollow when not started, amber outline in progress, filled when done or failed.
 function StepIcon({ stage, size }) {
   const { status, working } = stage;
-  const Icon = status === 'failed' ? ErrorOutlineOutlinedIcon : stage.Icon;
+  const Icon = status === 'failed' ? WarningCircleIcon : stage.Icon;
   const fill = { done: stage.key === 'result' ? t.chartOlive : t.chartInk, failed: t.chartOrange }[status];
   const line = fill ?? (status === 'active' ? t.chartAmber : t.rule);
   return (
@@ -73,7 +75,7 @@ function StepIcon({ stage, size }) {
         }),
       }}
     >
-      <Icon sx={{ fontSize: size * 0.5 }} />
+      <Icon size={size * 0.5} weight={status === 'idle' ? 'light' : 'regular'} />
     </Box>
   );
 }

@@ -14,6 +14,7 @@ If a value isn't in this file, derive it from a token here. Don't introduce new 
 
 This is a personal AWS learning and portfolio project, not a marketing site. **The original UI's layout, copy and density are the baseline; Antimetal is the skin.** Where this rule conflicts with §5, §6 or §9 below, this rule wins.
 
+- **Icons:** Phosphor (`@phosphor-icons/react`), set to Light weight app-wide in `main.jsx` to match the 1px lines. Use Regular for small (≤16px) icons and on filled circles, where Light gets too faint. Import the `…Icon` names (`ImageIcon`, not `Image`). MUI Alert icons are mapped to Phosphor in `theme.js`. Don't mix in another icon set.
 - **Keep:** paper/ink tokens, Geist for headlines and UI (no serif) with Geist Mono for labels, pill buttons, dashed hairlines and bracket corners, mono eyebrow chips, the earthy status colours, and light/dark with the toggle.
 - **Structure:** each page keeps the original's sections, copy and amount of content. Don't add sections, extra copy or marketing flourishes.
 - **Nav:** one simple top bar in translucent paper with a hairline under it. The logo goes on the left; how-it-works, the email, GitHub, an icon-only theme toggle and sign out go on the right. No floating capsules.

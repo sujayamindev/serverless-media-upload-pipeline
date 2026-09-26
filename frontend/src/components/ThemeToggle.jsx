@@ -1,11 +1,10 @@
 import { IconButton, Tooltip } from '@mui/material';
 import { useColorScheme } from '@mui/material/styles';
-import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
-import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
+import { MoonIcon, SunIcon } from '@phosphor-icons/react';
 import { t } from '../lib/tokens';
 
 const LABEL = { light: 'Light', dark: 'Dark' };
-const ICON = { light: LightModeOutlinedIcon, dark: DarkModeOutlinedIcon };
+const ICON = { light: SunIcon, dark: MoonIcon };
 
 /** Round capsule-style button switching between light and dark (DESIGN.md §8). */
 export default function ThemeToggle() {
@@ -32,7 +31,7 @@ export default function ThemeToggle() {
           '&:hover': { bgcolor: t.ink10, color: t.ink },
         }}
       >
-        <Icon sx={{ fontSize: 15 }} />
+        <Icon size={16} weight="regular" />
       </IconButton>
     </Tooltip>
   );

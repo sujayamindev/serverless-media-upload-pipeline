@@ -1,5 +1,5 @@
 import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { CaretDownIcon } from '@phosphor-icons/react';
 import { MONO_FONT } from '../theme';
 import { t } from '../lib/tokens';
 
@@ -48,7 +48,7 @@ export default function TechnicalDetails({ presignResponse, uploadResponse, medi
 
   return (
     <Accordion>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <AccordionSummary expandIcon={<CaretDownIcon size={18} />}>
         <Typography variant="h4" component="span">
           Technical details
         </Typography>

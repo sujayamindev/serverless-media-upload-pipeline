@@ -1,5 +1,5 @@
 import { Box, Button, Stack, Typography } from '@mui/material';
-import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined';
+import { CloudArrowDownIcon } from '@phosphor-icons/react';
 import Eyebrow from './Eyebrow';
 import { formatBytes } from '../lib/format';
 import { t } from '../lib/tokens';
@@ -14,7 +14,7 @@ function Preview({ url, contentType }) {
           <Typography variant="body2" sx={{ color: t.ink60 }}>
             This browser can't play MOV files. Download the file to view it.
           </Typography>
-          <Button variant="outlined" href={url} download startIcon={<CloudDownloadOutlinedIcon />}>
+          <Button variant="outlined" href={url} download startIcon={<CloudArrowDownIcon />}>
             Download file
           </Button>
         </Stack>

@@ -1,9 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { keyframes } from '@mui/material/styles';
-import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
-import MovieOutlinedIcon from '@mui/icons-material/MovieOutlined';
-import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
+import { CloudArrowUpIcon, FilmStripIcon, ImageIcon } from '@phosphor-icons/react';
 import BracketFrame from './BracketFrame';
 import { ACCEPTED_FORMATS, MAX_SIZE_LABEL, formatBytes } from '../lib/format';
 import { metaType, reducedMotion, t } from '../lib/tokens';
@@ -76,7 +74,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
     event.target.value = '';
   };
 
-  const FileIcon = file?.type.startsWith('video/') ? MovieOutlinedIcon : ImageOutlinedIcon;
+  const FileIcon = file?.type.startsWith('video/') ? FilmStripIcon : ImageIcon;
 
   return (
     <BracketFrame
@@ -123,7 +121,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
                 sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }}
               />
             ) : (
-              <FileIcon sx={{ fontSize: 48, color: t.ink42 }} />
+              <FileIcon size={48} color={t.ink42} />
             )}
             {scanning && (
               <Box
@@ -176,7 +174,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
             cursor: disabled ? 'default' : 'pointer',
           }}
         >
-          <CloudUploadOutlinedIcon sx={{ fontSize: 32, color: dragging ? t.ink : t.ink42 }} />
+          <CloudArrowUpIcon size={36} color={dragging ? t.ink : t.ink42} />
           <Typography variant="h4" component="span">
             Drop an image or video here
           </Typography>
