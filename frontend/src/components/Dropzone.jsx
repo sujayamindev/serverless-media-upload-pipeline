@@ -10,9 +10,12 @@ import { metaType, reducedMotion, t } from '../lib/tokens';
 // read as data URLs. Skip anything big enough to make that slow.
 const MAX_PREVIEW_BYTES = 8 * 1024 * 1024;
 
+// Moves a full-size overlay (its top edge is the scan line) from the top of the
+// preview to the bottom. Animating transform, not `top`, keeps it on the
+// compositor, so it glides instead of stepping pixel by pixel.
 const scan = keyframes`
-  from { top: 0%; }
-  to { top: 100%; }
+  from { transform: translateY(0); }
+  to { transform: translateY(calc(100% - 1px)); }
 `;
 
 const hiddenInput = {
@@ -137,13 +140,13 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
                 aria-hidden
                 sx={{
                   position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  height: '1px',
-                  bgcolor: t.chartOrange,
-                  top: '50%',
-                  animation: `${scan} 2.4s var(--ease) infinite alternate`,
-                  [reducedMotion]: { animation: 'none' },
+                  inset: 0,
+                  pointerEvents: 'none',
+                  borderTop: `1px solid ${t.chartOrange}`,
+                  willChange: 'transform',
+                  animation: `${scan} 2s ease-in-out infinite alternate`,
+                  // Without motion, park the line in the middle.
+                  [reducedMotion]: { animation: 'none', transform: 'translateY(50%)' },
                 }}
               />
             )}
