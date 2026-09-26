@@ -24,7 +24,7 @@ This is a personal AWS learning and portfolio project, not a marketing site. **T
 
 ## 1. Character
 
-Editorial, warm and quiet: a research paper crossed with an instrument panel. The page is a warm grey "paper" (`#d7d7d0`) with near-black ink. Big headlines use a sharp editorial **serif**, UI text uses a neutral grotesk, and small **uppercase mono** labels annotate everything.
+Editorial, warm and quiet: a research paper crossed with an instrument panel. The page is a neutral light-grey "paper" (`#f1f1f1`) with near-black ink. Big headlines use a sharp editorial **serif**, UI text uses a neutral grotesk, and small **uppercase mono** labels annotate everything.
 
 Structure comes from **dashed and dotted hairlines** and **corner-bracket ticks** (the ⌜ ⌝ ⌞ ⌟ corners on cards and the secondary button), not from filled boxes. Primary actions are solid ink **pills**. Colour is rare and earthy: burnt orange, olive and amber. It only appears in data (charts, status) and in eyebrow labels.
 
@@ -44,7 +44,7 @@ Keep Antimetal's token names as CSS variables through MUI `cssVariables`.
 
 | token | light | dark | use |
 |---|---|---|---|
-| `--color-bg` | `#d7d7d0` | `#1a1614` | page background ("paper") |
+| `--color-bg` | `#f1f1f1` | `#1f1f1f` | page background (neutral override of the original Antimetal `#d7d7d0` / `#1a1614`) |
 | `--color-fg` / `--ink` | `#1a1614` | `#f4f4e7` | primary text, primary button fill (light) |
 | `--color-cream` | `#f4f4e7` | `#1a1614` | inverted text on ink surfaces; eyebrow-chip fill (light) |
 | `--color-card` | `#fdfcfa` | `#211c19` | raised surfaces: form panel, preview window, menus (MUI `paper`) |

@@ -32,7 +32,7 @@ const shared = {
 export const SCHEME_VARS = {
   light: {
     ...shared,
-    '--color-bg': '#d7d7d0',
+    '--color-bg': '#f1f1f1',
     '--ink': INK,
     '--color-card': '#fdfcfa',
     '--color-border': '#1a16141a',
@@ -54,13 +54,13 @@ export const SCHEME_VARS = {
   },
   dark: {
     ...shared,
-    '--color-bg': INK,
+    '--color-bg': '#1f1f1f',
     '--ink': CREAM,
     '--color-card': '#211c19',
     '--color-border': '#f4f4e71f',
     '--rule': '#f4f4e757',
     '--mute': '#f4f4e78c',
-    '--nav-capsule': '#1a1614bd',
+    '--nav-capsule': '#1f1f1fbd',
     '--nav-rim': '#f4f4e71f', // = --color-border; the capsule fill matches the page in dark
     '--orange': '#e0714f',
     '--green': '#a8b560',
@@ -81,7 +81,7 @@ export const PALETTE = {
   light: {
     ink: INK,
     cream: CREAM,
-    bg: '#d7d7d0',
+    bg: '#f1f1f1',
     card: '#fdfcfa',
     border: '#1a16141a',
     mute: '#1a16148c',
@@ -96,7 +96,7 @@ export const PALETTE = {
   dark: {
     ink: CREAM,
     cream: INK,
-    bg: INK,
+    bg: '#1f1f1f',
     card: '#211c19',
     border: '#f4f4e71f',
     mute: '#f4f4e78c',
