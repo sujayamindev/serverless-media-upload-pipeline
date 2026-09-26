@@ -99,8 +99,9 @@ export default function ResultPanel({ mediaStatus, checking }) {
         </Box>
       )}
       <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" useFlexGap>
-        <Typography variant="h3" component="h2">
-          {approved ? 'Approved' : rejected ? 'Rejected' : 'Result'}
+        {/* Same title as the placeholder; the coloured tag carries the status. */}
+        <Typography variant="h4" component="h2">
+          Result
         </Typography>
         <Eyebrow tone={chip.tone} dot={chip.dot}>
           {mediaStatus.status}
