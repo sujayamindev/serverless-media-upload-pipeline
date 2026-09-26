@@ -25,14 +25,14 @@ function Preview({ url, contentType }) {
         controls
         crossOrigin="anonymous"
         preload="metadata"
-        style={{ maxWidth: '100%', maxHeight: 480, display: 'block' }}
+        style={{ maxWidth: '100%', maxHeight: 360, display: 'block' }}
       >
         <source src={url} type={contentType} />
         Your browser does not support the video tag.
       </video>
     );
   }
-  return <Box component="img" src={url} alt="Approved upload" sx={{ maxWidth: '100%', maxHeight: 480, display: 'block' }} />;
+  return <Box component="img" src={url} alt="Approved upload" sx={{ maxWidth: '100%', maxHeight: 360, display: 'block' }} />;
 }
 
 // Status chip tone and dot (DESIGN.md §2.3).
@@ -41,8 +41,22 @@ const CHIP = {
   rejected: { tone: 'orange', dot: t.chartOrange },
 };
 
-export default function ResultPanel({ mediaStatus }) {
-  if (!mediaStatus) return null;
+const panel = { border: `1px solid ${t.border}`, bgcolor: t.card, p: { xs: 2, sm: 3 } };
+
+// Output column next to the dropzone: a placeholder until the check finishes.
+export default function ResultPanel({ mediaStatus, checking }) {
+  if (!mediaStatus) {
+    return (
+      <Box sx={{ ...panel, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+        <Typography variant="h4" component="h2">
+          Result
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 1, color: t.ink60 }}>
+          {checking ? 'Checking the file…' : 'The result and a private preview appear here after the check.'}
+        </Typography>
+      </Box>
+    );
+  }
 
   const approved = mediaStatus.status === 'approved';
   const rejected = mediaStatus.status === 'rejected';
@@ -54,7 +68,7 @@ export default function ResultPanel({ mediaStatus }) {
   ].filter(Boolean);
 
   return (
-    <Box sx={{ border: `1px solid ${t.border}`, bgcolor: t.card, p: { xs: 2, sm: 3 } }}>
+    <Box sx={panel}>
       <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" useFlexGap>
         <Typography variant="h3" component="h2">
           {approved ? 'Approved' : rejected ? 'Rejected' : 'Result'}

@@ -60,13 +60,22 @@ export default function UploadPage() {
           />
         </Box>
 
-        <Stack spacing={2}>
-          {notification && (
-            <Alert severity={notification.type} onClose={upload.dismissNotification}>
-              {notification.message}
-            </Alert>
-          )}
+        {notification && (
+          <Alert severity={notification.type} onClose={upload.dismissNotification} sx={{ mb: 2 }}>
+            {notification.message}
+          </Alert>
+        )}
 
+        {/* Input and output side by side from md up, stacked below; both columns
+            stretch to the taller one. */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' },
+            gap: { xs: 2, md: 3 },
+            '& > *': { minHeight: { md: 320 } },
+          }}
+        >
           <Dropzone
             file={file}
             disabled={upload.busy}
@@ -81,10 +90,10 @@ export default function UploadPage() {
               </Button>
             )}
           </Dropzone>
-        </Stack>
+          <ResultPanel mediaStatus={mediaStatus} checking={activeStep === STEP.CHECKING} />
+        </Box>
 
-        <Stack spacing={3} sx={{ mt: { xs: 3, md: 5 } }}>
-          <ResultPanel mediaStatus={mediaStatus} />
+        <Stack spacing={3} sx={{ mt: { xs: 3, md: 4 } }}>
           <TechnicalDetails
             presignResponse={presignResponse}
             uploadResponse={uploadResponse}
