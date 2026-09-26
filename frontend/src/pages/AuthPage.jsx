@@ -7,9 +7,15 @@ import {
   Alert,
   Link,
   Box,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
-import BrandMark from '../components/BrandMark';
+import PageShell from '../components/PageShell';
+import BracketFrame from '../components/BracketFrame';
+import Eyebrow from '../components/Eyebrow';
 import { useAuth } from '../auth/useAuth';
+import { inset } from '../lib/layout';
+import { MONO, t } from '../lib/tokens';
 
 const VIEW_LOGIN = 'login';
 const VIEW_REGISTER = 'register';
@@ -19,6 +25,12 @@ const HEADINGS = {
   [VIEW_LOGIN]: 'Sign in',
   [VIEW_REGISTER]: 'Create an account',
   [VIEW_CONFIRM]: 'Confirm your email',
+};
+
+const EYEBROWS = {
+  [VIEW_LOGIN]: 'Account · Sign in',
+  [VIEW_REGISTER]: 'Account · New',
+  [VIEW_CONFIRM]: 'Account · Verify',
 };
 
 const FACTS = [
@@ -138,79 +150,113 @@ export default function AuthPage() {
       required
       fullWidth
       autoComplete="email"
+      placeholder="you@example.com"
     />
   );
 
+  const navAction =
+    view === VIEW_LOGIN ? (
+      <Button variant="contained" size="small" onClick={() => switchView(VIEW_REGISTER)}>
+        Create account
+      </Button>
+    ) : (
+      <Button variant="contained" size="small" onClick={() => switchView(VIEW_LOGIN)}>
+        Sign in
+      </Button>
+    );
+
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'grid',
-        gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) minmax(0, 1fr)' },
-        bgcolor: 'background.default',
-      }}
-    >
-      {/* Brand panel */}
+    <PageShell navAction={navAction}>
       <Box
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          gap: { xs: 3, md: 8 },
-          p: { xs: 3, md: 7 },
-          bgcolor: 'background.paper',
-          borderRight: { md: 1 },
-          borderBottom: { xs: 1, md: 0 },
-          borderColor: 'divider',
+          ...inset,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) minmax(360px, 460px)' },
+          gridTemplateAreas: { xs: '"intro" "form" "facts"', md: '"intro form" "facts form"' },
+          columnGap: { md: 8, lg: 15 },
+          rowGap: { xs: 6, md: 6 },
+          alignItems: 'start',
+          pt: { xs: 6, md: 12 },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, color: 'primary.main' }}>
-          <BrandMark size={32} />
-          <Typography variant="h5" component="span" sx={{ color: 'text.primary' }}>
-            Media Upload Pipeline
+        {/* Intro */}
+        <Box sx={{ gridArea: 'intro', maxWidth: 620 }}>
+          <Eyebrow tone="orange" sx={{ mb: 3 }}>
+            Serverless · AWS
+          </Eyebrow>
+          <Typography variant="h1">Uploads that check themselves.</Typography>
+          <Typography variant="lede" sx={{ mt: 3, maxWidth: 560 }}>
+            Sign in, drop a photo or video, and watch it get opened and inspected on the server
+            before anyone can see it.
+          </Typography>
+          <Typography variant="meta" component="p" sx={{ mt: 4 }}>
+            CloudFront · API Gateway · Lambda · S3 · DynamoDB
           </Typography>
         </Box>
 
-        <Box sx={{ maxWidth: 480 }}>
-          <Typography variant="h1" sx={{ mb: { xs: 0, md: 4 } }}>
-            Upload it. We check what&rsquo;s inside.
-          </Typography>
-          <Stack component="ul" spacing={2} sx={{ display: { xs: 'none', md: 'flex' }, listStyle: 'none', m: 0, p: 0 }}>
-            {FACTS.map((fact) => (
-              <Typography key={fact} component="li" variant="body1" color="text.secondary">
+        {/* Facts */}
+        <Box component="ul" sx={{ gridArea: 'facts', listStyle: 'none', m: 0, p: 0, maxWidth: 620 }}>
+          {FACTS.map((fact, index) => (
+            <Box
+              component="li"
+              key={fact}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: '40px minmax(0, 1fr)',
+                py: 2.5,
+                borderTop: index === 0 ? 0 : `1px dotted ${t.rule}`,
+              }}
+            >
+              <Box component="span" sx={{ fontFamily: MONO, fontSize: 11, lineHeight: '24px', color: t.orange, letterSpacing: '0.06em' }}>
+                {String(index + 1).padStart(2, '0')}
+              </Box>
+              <Typography variant="body1" sx={{ color: t.ink70 }}>
                 {fact}
               </Typography>
-            ))}
-          </Stack>
+            </Box>
+          ))}
         </Box>
 
-        <Typography variant="body2" color="text.secondary" sx={{ display: { xs: 'none', md: 'block' } }}>
-          Serverless on AWS: CloudFront, API Gateway, Lambda, S3 and DynamoDB.
-        </Typography>
-      </Box>
+        {/* Form panel */}
+        <BracketFrame filled sx={{ gridArea: 'form', p: { xs: 3, sm: 5 } }}>
+          {view !== VIEW_CONFIRM && (
+            <ToggleButtonGroup
+              exclusive
+              fullWidth
+              value={view}
+              onChange={(_, next) => next && switchView(next)}
+              aria-label="Account"
+              sx={{ mb: 4 }}
+            >
+              <ToggleButton value={VIEW_LOGIN}>Sign in</ToggleButton>
+              <ToggleButton value={VIEW_REGISTER}>Create account</ToggleButton>
+            </ToggleButtonGroup>
+          )}
 
-      {/* Form */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: { xs: 3, md: 7 } }}>
-        <Box sx={{ width: '100%', maxWidth: 400 }}>
-          <Typography variant="h2" sx={{ mb: 3 }}>
+          <Eyebrow tone="ink" chip={false}>
+            {EYEBROWS[view]}
+          </Eyebrow>
+          <Typography variant="h3" component="h2" sx={{ mt: 1.5, mb: 3 }}>
             {HEADINGS[view]}
           </Typography>
 
           {view !== VIEW_CONFIRM && (
-            <Alert severity="info" sx={{ mb: 2.5 }}>
-              {DEMO_HINT}
-            </Alert>
+            <Box sx={{ mb: 3, pl: 1.5, borderLeft: `1px dashed ${t.rule}` }}>
+              <Typography variant="body2" sx={{ color: t.ink60, fontSize: 13, lineHeight: '19px' }}>
+                {DEMO_HINT}
+              </Typography>
+            </Box>
           )}
 
           {error && (
-            <Alert severity="error" sx={{ mb: 2.5 }}>
+            <Alert severity="error" sx={{ mb: 3 }}>
               {error}
             </Alert>
           )}
 
           {view === VIEW_LOGIN && (
             <Box component="form" onSubmit={handleLogin}>
-              <Stack spacing={2}>
+              <Stack spacing={3}>
                 {emailField}
                 <TextField
                   label="Password"
@@ -221,22 +267,16 @@ export default function AuthPage() {
                   fullWidth
                   autoComplete="current-password"
                 />
-                <Button type="submit" variant="contained" size="large" disabled={submitting}>
+                <Button type="submit" variant="contained" fullWidth disabled={submitting} sx={{ mt: 1 }}>
                   {submitting ? 'Signing in…' : 'Sign in'}
                 </Button>
-                <Typography variant="body2" color="text.secondary">
-                  No account?{' '}
-                  <Link component="button" type="button" onClick={() => switchView(VIEW_REGISTER)}>
-                    Create one
-                  </Link>
-                </Typography>
               </Stack>
             </Box>
           )}
 
           {view === VIEW_REGISTER && (
             <Box component="form" onSubmit={handleRegister}>
-              <Stack spacing={2}>
+              <Stack spacing={3}>
                 {emailField}
                 <TextField
                   label="Password"
@@ -257,23 +297,17 @@ export default function AuthPage() {
                   fullWidth
                   autoComplete="new-password"
                 />
-                <Button type="submit" variant="contained" size="large" disabled={submitting}>
+                <Button type="submit" variant="contained" fullWidth disabled={submitting} sx={{ mt: 1 }}>
                   {submitting ? 'Creating account…' : 'Create account'}
                 </Button>
-                <Typography variant="body2" color="text.secondary">
-                  Already have an account?{' '}
-                  <Link component="button" type="button" onClick={() => switchView(VIEW_LOGIN)}>
-                    Sign in
-                  </Link>
-                </Typography>
               </Stack>
             </Box>
           )}
 
           {view === VIEW_CONFIRM && (
             <Box component="form" onSubmit={handleConfirm}>
-              <Stack spacing={2}>
-                <Typography variant="body2" color="text.secondary">
+              <Stack spacing={3}>
+                <Typography variant="body2" sx={{ color: t.ink60 }}>
                   Check your email for a verification code, then enter it below.
                 </Typography>
                 {emailField}
@@ -285,7 +319,7 @@ export default function AuthPage() {
                   fullWidth
                   slotProps={{ htmlInput: { inputMode: 'numeric', autoComplete: 'one-time-code' } }}
                 />
-                <Button type="submit" variant="contained" size="large" disabled={submitting}>
+                <Button type="submit" variant="contained" fullWidth disabled={submitting} sx={{ mt: 1 }}>
                   {submitting ? 'Confirming…' : 'Confirm'}
                 </Button>
                 <Typography variant="body2">
@@ -296,8 +330,8 @@ export default function AuthPage() {
               </Stack>
             </Box>
           )}
-        </Box>
+        </BracketFrame>
       </Box>
-    </Box>
+    </PageShell>
   );
 }

@@ -1,10 +1,16 @@
-import { Box, Chip, Container, Stack, Typography } from '@mui/material';
-import TopBar from '../components/TopBar';
-import diagram from '../assets/diagram.svg';
+import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography } from '@mui/material';
+import PageShell from '../components/PageShell';
+import Eyebrow from '../components/Eyebrow';
+import BracketFrame from '../components/BracketFrame';
+import PipelineDiagram from '../components/PipelineDiagram';
+import PlusMinus from '../components/PlusMinus';
+import { dottedRule, inset } from '../lib/layout';
+import { metaType, t } from '../lib/tokens';
 
 const SECTIONS = [
   {
     id: 'hosting',
+    kicker: 'Delivery',
     title: 'Frontend hosting and delivery',
     services: ['Amazon S3 (private static hosting)', 'Amazon CloudFront (CDN + HTTPS)', 'Origin Access Control (OAC)'],
     body: [
@@ -18,7 +24,7 @@ const SECTIONS = [
   },
   {
     id: 'permission',
-    step: 1,
+    step: '01',
     title: 'Requesting a secure upload policy',
     services: ['Amazon Cognito', 'Amazon API Gateway', 'AWS Lambda (generateUploadUrl)', 'Amazon S3 (pre-signed POST)'],
     body: [
@@ -40,7 +46,7 @@ const SECTIONS = [
   },
   {
     id: 'upload',
-    step: 2,
+    step: '02',
     title: 'Direct upload to Amazon S3',
     services: ['Amazon S3'],
     body: [
@@ -56,7 +62,7 @@ const SECTIONS = [
   },
   {
     id: 'validation',
-    step: 3,
+    step: '03',
     title: 'Automatic server-side validation',
     services: [
       'Amazon S3 (event trigger)',
@@ -79,17 +85,11 @@ const SECTIONS = [
         This stops attackers from bypassing client-side checks by renaming files or forging MIME
         types: the binary content is inspected, not the filename or Content-Type header.
       </>,
-      <>
-        If the Lambda fails repeatedly, for example because of a cold-start error or a
-        misconfigured layer, the invocation is retried twice before giving up. A dead-letter queue
-        (Amazon SQS) then captures the original S3 event payload, so a failed validation leaves a
-        recoverable record that can be inspected and replayed once the underlying issue is fixed.
-      </>,
     ],
   },
   {
     id: 'status',
-    step: 4,
+    step: '04',
     title: 'Checking status and previewing media',
     services: [
       'Amazon API Gateway',
@@ -115,15 +115,23 @@ const SECTIONS = [
       </>,
     ],
   },
+];
+
+// Security notes and failure handling, as accordion rows.
+const DETAILS = [
   {
-    id: 'security',
-    title: 'Security notes',
-    body: [
+    q: 'Why is the browser treated as untrusted?',
+    a: [
       <>
         The system follows a <strong>zero-trust client model</strong>. The frontend is treated as
         untrusted, and all critical validation and enforcement happens on the server or at the AWS
         service level.
       </>,
+    ],
+  },
+  {
+    q: 'How are API calls authorised?',
+    a: [
       <>
         All API Gateway endpoints are protected by a Cognito JWT authorizer. Requests must include
         an <code>Authorization: Bearer &lt;access_token&gt;</code> header issued by the Cognito
@@ -131,11 +139,21 @@ const SECTIONS = [
         function. Per-record ownership is then enforced inside the Lambda by comparing the JWT{' '}
         <code>sub</code> claim against the stored <code>user_sub</code>.
       </>,
+    ],
+  },
+  {
+    q: 'What does S3 enforce on its own?',
+    a: [
       <>
         File size, content type, upload location, and expiration are enforced by Amazon S3 through
         the pre-signed POST policy. Even if a user tampers with browser requests, S3 rejects
         uploads that violate these constraints.
       </>,
+    ],
+  },
+  {
+    q: 'How is the blast radius kept small?',
+    a: [
       <>
         Temporary credentials, short-lived URLs, IAM least-privilege roles, and automatic cleanup
         rules together reduce the blast radius of misuse or abuse.
@@ -144,6 +162,22 @@ const SECTIONS = [
         No AWS credentials are ever exposed to the client, and all access is scoped, temporary, and
         auditable.
       </>,
+    ],
+  },
+  {
+    q: 'What happens if validation keeps failing?',
+    a: [
+      <>
+        If the Lambda fails repeatedly, for example because of a cold-start error or a
+        misconfigured layer, the invocation is retried twice before giving up. A dead-letter queue
+        (Amazon SQS) then captures the original S3 event payload, so a failed validation leaves a
+        recoverable record that can be inspected and replayed once the underlying issue is fixed.
+      </>,
+    ],
+  },
+  {
+    q: 'Which security headers does CloudFront add?',
+    a: [
       <>
         Every response from CloudFront passes through a viewer-response function that injects HTTP
         security headers: HSTS (1 year, includeSubDomains), X-Frame-Options: DENY,
@@ -162,44 +196,43 @@ function Section({ section }) {
       aria-labelledby={`${section.id}-title`}
       sx={{
         display: 'grid',
-        gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: '240px minmax(0, 1fr)' },
-        columnGap: 6,
-        rowGap: 1.5,
-        py: { xs: 3, md: 5 },
-        borderTop: 1,
-        borderColor: 'divider',
+        gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 5fr) minmax(0, 6fr)' },
+        columnGap: 8,
+        rowGap: 3,
+        py: { xs: 6, md: 8 },
+        borderTop: `1px dotted ${t.rule}`,
       }}
     >
-      <Box sx={{ alignSelf: 'start', position: { md: 'sticky' }, top: { md: 24 } }}>
-        {section.step && (
-          <Typography variant="body2" color="primary" sx={{ fontWeight: 600, mb: 0.5 }}>
-            Step {section.step}
-          </Typography>
-        )}
-        <Typography id={`${section.id}-title`} variant="h3" component="h2">
+      <Box sx={{ alignSelf: 'start', position: { md: 'sticky' }, top: { md: 110 } }}>
+        <Eyebrow tone={section.step ? 'orange' : 'olive'} chip={false} sx={{ mb: 2 }}>
+          {section.step ? `${section.step} · Step` : section.kicker}
+        </Eyebrow>
+        <Typography id={`${section.id}-title`} variant="h2">
           {section.title}
         </Typography>
       </Box>
 
-      <Box sx={{ maxWidth: 680 }}>
+      <Box sx={{ maxWidth: 620, pt: { md: 4 } }}>
         <Stack spacing={2}>
           {section.body.map((paragraph, index) => (
-            <Typography key={index} variant="body1" sx={{ lineHeight: 1.7 }}>
+            <Typography key={index} variant="body1" sx={{ color: t.ink70 }}>
               {paragraph}
             </Typography>
           ))}
         </Stack>
 
         {section.services && (
-          <Box sx={{ mt: 3 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="meta" component="h3" sx={{ m: 0, mb: 1.5 }}>
               AWS services involved
             </Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               {section.services.map((service) => (
-                <Chip key={service} label={service} variant="outlined" size="small" />
+                <Eyebrow key={service} component="li" tone="ink">
+                  {service}
+                </Eyebrow>
               ))}
-            </Stack>
+            </Box>
           </Box>
         )}
       </Box>
@@ -207,44 +240,127 @@ function Section({ section }) {
   );
 }
 
+const band = { py: { xs: 8, md: 15 } };
+
 export default function HowItWorksPage() {
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <TopBar />
-
-      <Container maxWidth="lg" sx={{ py: { xs: 3, md: 6 } }}>
-        <Box sx={{ maxWidth: 640, mb: { xs: 3, md: 5 } }}>
-          <Typography variant="h1" sx={{ mb: 1.5 }}>
+    <PageShell>
+      {/* Hero + diagram */}
+      <Box component="section" aria-labelledby="how-title" sx={{ ...inset, pt: { xs: 6, md: 10 }, pb: { xs: 6, md: 10 } }}>
+        <Box sx={{ maxWidth: 760 }}>
+          <Eyebrow tone="orange" sx={{ mb: 3 }}>
             How it works
+          </Eyebrow>
+          <Typography id="how-title" variant="h1">
+            How an upload moves through the pipeline.
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant="lede" sx={{ mt: 3, maxWidth: 640 }}>
             What happens behind the scenes when you upload a file, and how the AWS services work
             together.
           </Typography>
         </Box>
 
-        <Box
-          sx={{
-            bgcolor: 'background.paper',
-            border: 1,
-            borderColor: 'divider',
-            borderRadius: 2,
-            overflowX: 'auto',
-            p: { xs: 1, sm: 2 },
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <img
-            src={diagram}
-            alt="System architecture diagram"
-            style={{ display: 'block', maxWidth: '100%', height: 'auto', margin: '0 auto' }}
-          />
+        <Box sx={{ mt: { xs: 6, md: 10 } }}>
+          <PipelineDiagram />
+          <Typography variant="meta" component="p" sx={{ mt: 2 }}>
+            Fig. 1 — Architecture · Numbers match the steps below
+          </Typography>
         </Box>
+      </Box>
 
+      <Box component="hr" sx={dottedRule} />
+
+      {/* Key idea */}
+      <Box
+        component="section"
+        aria-label="Key ideas"
+        sx={{
+          ...inset,
+          ...band,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' },
+          gap: { xs: 3, md: 4 },
+        }}
+      >
+        <BracketFrame>
+          <Eyebrow tone="ink" chip={false}>
+            The client
+          </Eyebrow>
+          <Typography variant="h3" component="h2" sx={{ mt: 2 }}>
+            The browser asks. The cloud decides.
+          </Typography>
+          <Typography variant="body1" sx={{ color: t.ink70, mt: 3 }}>
+            Every rule that matters, from who may upload to how big a file can be and what it
+            really contains, is enforced by API Gateway, S3 or a Lambda function. Nothing in the
+            browser is trusted.
+          </Typography>
+        </BracketFrame>
+        <BracketFrame inverse>
+          <Eyebrow tone="inverse" chip={false}>
+            The key idea
+          </Eyebrow>
+          <Typography variant="h3" component="h2" sx={{ mt: 2, color: 'inherit' }}>
+            The backend never touches your file bytes.
+          </Typography>
+          <Typography variant="body1" sx={{ mt: 3, color: 'color-mix(in srgb, var(--inverse-fg) 70%, transparent)' }}>
+            The API only signs a five-minute upload policy. Your browser sends the file straight to
+            S3, and the validator reads it there. No server in the request path ever buffers an
+            upload.
+          </Typography>
+        </BracketFrame>
+      </Box>
+
+      {/* Steps */}
+      <Box sx={{ ...inset }}>
         {SECTIONS.map((section) => (
           <Section key={section.id} section={section} />
         ))}
-      </Container>
-    </Box>
+      </Box>
+
+      {/* Technical details */}
+      <Box
+        component="section"
+        aria-labelledby="details-title"
+        sx={{
+          ...inset,
+          pt: { xs: 8, md: 15 },
+          display: 'grid',
+          gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 5fr) minmax(0, 6fr)' },
+          columnGap: 8,
+          rowGap: 4,
+        }}
+      >
+        <Box>
+          <Eyebrow tone="olive" chip={false} sx={{ mb: 2 }}>
+            Technical details
+          </Eyebrow>
+          <Typography id="details-title" variant="h2">
+            Security notes
+          </Typography>
+          <Typography variant="body1" sx={{ color: t.ink70, mt: 3, maxWidth: 420 }}>
+            How the pieces are locked down, and what happens when something fails.
+          </Typography>
+        </Box>
+        <Box>
+          {DETAILS.map((item) => (
+            <Accordion key={item.q}>
+              <AccordionSummary expandIcon={<PlusMinus />}>{item.q}</AccordionSummary>
+              <AccordionDetails>
+                <Stack spacing={2}>
+                  {item.a.map((paragraph, index) => (
+                    <Typography key={index} variant="body1" sx={{ color: t.ink70 }}>
+                      {paragraph}
+                    </Typography>
+                  ))}
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
+          ))}
+          <Typography variant="meta" component="p" sx={{ ...metaType, color: t.ink42, mt: 3 }}>
+            Zero-trust client · Least-privilege IAM · Short-lived URLs
+          </Typography>
+        </Box>
+      </Box>
+    </PageShell>
   );
 }
