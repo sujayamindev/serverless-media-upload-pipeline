@@ -47,7 +47,7 @@ Keep Antimetal's token names as CSS variables through MUI `cssVariables`.
 | `--color-bg` | `#f1f1f1` | `#1f1f1f` | page background (neutral override of the original Antimetal `#d7d7d0` / `#1a1614`) |
 | `--color-fg` / `--ink` | `#1a1614` | `#f4f4e7` | primary text, primary button fill (light) |
 | `--color-cream` | `#f4f4e7` | `#1a1614` | inverted text on ink surfaces; eyebrow-chip fill (light) |
-| `--color-card` | `#fdfcfa` | `#211c19` | raised surfaces: form panel, preview window, menus (MUI `paper`) |
+| `--color-card` | `#fdfcfa` | `#262626` | raised surfaces: form panel, preview window, menus (MUI `paper`) |
 | `--color-border` | `#1a16141a` (ink 10%) | `#f4f4e71f` (cream 12%) | solid hairlines, dividers |
 | `--rule` | `#1a161457` (ink 34%) | `#f4f4e757` *(derived)* | dashed card borders, corner ticks |
 | `--mute` | `#1a16148c` (ink 55%) | `#f4f4e78c` *(derived)* | muted text |
@@ -190,7 +190,7 @@ Focus: a 2px `--color-accent` (lime) ring with a 2px offset on ink buttons, and 
 ### Window frame (for previews)
 
 - A `--color-card` panel with a 28px title bar showing 3 tiny grey dots on the left and a mono 11px uppercase centred title at ink 42% (e.g. `PIPELINE · PREVIEW`).
-- The body is `#f7f6f3` in light and `#211c19` in dark.
+- The body is `#f7f6f3` in light and `#262626` in dark.
 
 ### Data annotation
 
