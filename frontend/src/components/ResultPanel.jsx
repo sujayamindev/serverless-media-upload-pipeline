@@ -41,7 +41,7 @@ function Preview({ url, contentType }) {
 // Status chip tone and dot (DESIGN.md §2.3).
 const CHIP = {
   approved: { tone: 'success', dot: t.success },
-  rejected: { tone: 'orange', dot: t.chartOrange },
+  rejected: { tone: 'orange', dot: t.error },
 };
 
 // Matches the dropzone beside it: same padding, corner ticks and no visible outline

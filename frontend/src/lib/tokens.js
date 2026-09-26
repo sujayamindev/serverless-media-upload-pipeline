@@ -21,7 +21,9 @@ const ladder = (hex) => ({
 
 const shared = {
   '--color-accent': '#e2e67d',
-  '--chart-orange': '#ff7733',
+  // Failed / rejected, in both schemes (fills, dots, icons). Text uses --orange,
+  // which is lighter in dark mode.
+  '--error': '#bd4a28',
   '--chart-amber': '#e5a700',
   // Approved / success, in both schemes (fills, dots, icons and the APPROVED tag).
   '--success': '#3d8378',
@@ -129,7 +131,7 @@ export const t = {
   success: v('--success'),
   successText: v('--success-text'),
   accent: v('--color-accent'),
-  chartOrange: v('--chart-orange'),
+  error: v('--error'),
   chartAmber: v('--chart-amber'),
   chartInk: v('--chart-ink'),
   chipBg: v('--chip-bg'),

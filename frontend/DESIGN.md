@@ -27,7 +27,7 @@ This is a personal AWS learning and portfolio project, not a marketing site. **T
 
 Editorial, warm and quiet: a research paper crossed with an instrument panel. The page is a neutral light-grey "paper" (`#f1f1f1`) with near-black ink. Big headlines use a sharp editorial **serif**, UI text uses a neutral grotesk, and small **uppercase mono** labels annotate everything.
 
-Structure comes from **dashed and dotted hairlines** and **corner-bracket ticks** (the ⌜ ⌝ ⌞ ⌟ corners on cards; the secondary button is a plain dashed pill with no ticks), not from filled boxes. Primary actions are solid ink **pills**. Colour is rare: burnt orange, amber and a teal success green (`#3d8378`). It only appears in data (charts, status) and in eyebrow labels.
+Structure comes from **dashed and dotted hairlines** and **corner-bracket ticks** (the ⌜ ⌝ ⌞ ⌟ corners on cards; the secondary button is a plain dashed pill with no ticks), not from filled boxes. Primary actions are solid ink **pills**. Colour is rare, and each status has exactly one colour: amber = in progress, burnt orange = failed/rejected, teal (`#3d8378`) = approved. It only appears in data (charts, status) and in eyebrow labels.
 
 **Avoid:**
 - Pure white or pure black page backgrounds.
@@ -76,8 +76,8 @@ Keep Antimetal's token names as CSS variables through MUI `cssVariables`.
 | `--orange` | `#bd4a28` | primary accent **text**: eyebrow labels, links on hover, the REJECTED state. In dark mode use `#e0714f` *(derived; lifted for contrast)* |
 | `--success` (teal) | `#3d8378` | **this app's choice, not from antimetal.com.** Everything approved/success: the approved result step fill, the APPROVED chip dot and text, the success alert icon. Same value in light and dark, except the chip **text** in dark mode, which uses the lighter tint `--success-text` `#81aea7` (4.6:1 on the dark chip; `#3d8378` would be 2.5:1) |
 | `--color-accent` (lime) | `#e2e67d` | highlight only: text-selection background, a marker underline behind one key word, the focus ring on dark ink. Never body text |
-| chart orange | `#ff7733` | data dots / progress fill |
-| chart amber | `#e5a700` | data dots, the PENDING state marker |
+| `--error` | `#bd4a28` | failed/rejected **fills, dots and icons** in both schemes: the failed step, the REJECTED chip dot, the error alert icon (3.0:1 on the dark card, enough for non-text). Text uses `--orange` |
+| chart amber | `#e5a700` | everything in progress: the active step, its pulse, the upload progress ring, the dropzone scan line, the warning alert icon |
 | chart ink | `#1a1614` (light) / `#f4f4e7` (dark) | data dots |
 
 ### 2.3 Status mapping (pipeline states)
@@ -88,7 +88,7 @@ Status is shown as an eyebrow chip plus a small filled dot, like the "● 47 EBS
 |---|---|---|---|
 | **PENDING** | `#e5a700` amber (pulsing) | ink 70% / cream 70% | `--color-cream` (light) · `#f4f4e71a` (dark) |
 | **APPROVED** | `--success` `#3d8378` | `--success-text`: `#3d8378` / dark `#81aea7` | `--color-cream` · `#f4f4e71a` |
-| **REJECTED** | `#ff7733` orange | `--orange` `#bd4a28` / dark `#e0714f` | `--color-cream` · `#f4f4e71a` |
+| **REJECTED** | `--error` `#bd4a28` | `--orange` `#bd4a28` / dark `#e0714f` | `--color-cream` · `#f4f4e71a` |
 | error text (form validation) | none | `--orange` | none |
 
 ## 3. Typography

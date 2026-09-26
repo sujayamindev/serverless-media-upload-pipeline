@@ -142,7 +142,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
                   position: 'absolute',
                   inset: 0,
                   pointerEvents: 'none',
-                  borderTop: `1px solid ${t.chartOrange}`,
+                  borderTop: `1px solid ${t.chartAmber}`,
                   willChange: 'transform',
                   animation: `${scan} 2s ease-in-out infinite alternate`,
                   // Without motion, park the line in the middle.

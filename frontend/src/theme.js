@@ -341,7 +341,7 @@ const theme = createTheme({
         icon: { opacity: 1, padding: '9px 0', marginRight: 12, fontSize: 18 },
         message: { padding: '8px 0' },
         action: { paddingTop: 2, marginRight: -6 },
-        standardError: { '& .MuiAlert-icon': { color: t.orange } },
+        standardError: { '& .MuiAlert-icon': { color: t.error } },
         standardSuccess: { '& .MuiAlert-icon': { color: t.success } },
         standardWarning: { '& .MuiAlert-icon': { color: t.chartAmber } },
         standardInfo: { '& .MuiAlert-icon': { color: t.ink60 } },
@@ -350,7 +350,7 @@ const theme = createTheme({
     MuiLinearProgress: {
       styleOverrides: {
         root: { height: 2, borderRadius: 0, backgroundColor: t.ink10 },
-        bar: { backgroundColor: t.chartOrange, borderRadius: 0 },
+        bar: { backgroundColor: t.chartAmber, borderRadius: 0 },
       },
     },
     MuiDivider: {
