@@ -5,6 +5,10 @@
     <link rel="icon" type="image/svg+xml" href="/fav.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#d7d7d0" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1614" media="(prefers-color-scheme: dark)" />
+    <!-- Sets data-mui-color-scheme before the bundle runs (no inline scripts under the CSP). -->
+    <script src="/color-scheme-init.js"></script>
     <title>Serverless Media Upload Pipeline</title>
   </head>
   <body>

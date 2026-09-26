@@ -1,8 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { CircularProgress, Box } from '@mui/material';
+import { Box } from '@mui/material';
 import theme from './theme';
+import Eyebrow from './components/Eyebrow';
+import { t } from './lib/tokens';
 import UploadPage from './pages/UploadPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import AuthPage from './pages/AuthPage';
@@ -11,8 +13,13 @@ import { useAuth } from './auth/useAuth';
 
 function LoadingScreen() {
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-      <CircularProgress />
+    <Box
+      role="status"
+      sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', bgcolor: t.bg }}
+    >
+      <Eyebrow tone="strong" dot={t.chartAmber} pulse>
+        Loading
+      </Eyebrow>
     </Box>
   );
 }
@@ -34,7 +41,7 @@ function LoginRoute() {
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
+      <CssBaseline enableColorScheme />
       <AuthProvider>
         <Router>
           <Routes>
