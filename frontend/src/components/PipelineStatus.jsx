@@ -79,6 +79,14 @@ function StepIcon({ stage, size }) {
   );
 }
 
+// Gap between an icon and the rail touching it.
+const GAP = 6;
+
+// Rail style for the segment after a stage: solid once that stage is done.
+function rail(status) {
+  return `1px ${status === 'done' ? `solid ${t.ink}` : `dotted ${t.rule}`}`;
+}
+
 function UploadBar({ value }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
@@ -124,9 +132,10 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
 
   return (
     <>
-      {/* One flex row: the first icon sits flush left, each later step is a rail plus its
-          icon, so the last icon sits flush right and the icons stay evenly spaced.
-          Titles hang below their icon; the end ones align to the card edges. */}
+      {/* One flex row. Each step is a block as wide as its title with the icon centred
+          above it; the first block starts at the card's left edge and the last ends at
+          its right edge. The rail runs icon to icon: half-rails inside each block reach
+          the block edges, and a flexible rail fills the gap between blocks. */}
       <Box
         component="ol"
         aria-label="Upload progress"
@@ -135,42 +144,45 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
           m: 0,
           p: 0,
           display: 'flex',
-          pb: compact ? 0 : stages.some((s) => s.showProgress) ? '58px' : '30px',
+          pb: !compact && stages.some((s) => s.showProgress) ? '28px' : 0,
         }}
       >
         {stages.map((stage, index) => {
           const first = index === 0;
           const last = index === stages.length - 1;
-          const prevDone = !first && stages[index - 1].status === 'done';
+          const railIn = !first && rail(stages[index - 1].status);
+          const railOut = !last && rail(stage.status);
+          const halfRail = { content: '""', position: 'absolute', top: size / 2 };
           return (
             <Box
               component="li"
               key={stage.key}
               aria-current={stage.status === 'active' ? 'step' : undefined}
-              sx={{ display: 'flex', alignItems: 'center', flex: first ? 'none' : 1, minWidth: 0 }}
+              sx={{ display: 'flex', alignItems: 'flex-start', flex: first ? 'none' : 1, minWidth: 0 }}
             >
               {!first && (
-                <Box
-                  aria-hidden
-                  sx={{ flex: 1, mx: 0.75, borderTop: `1px ${prevDone ? `solid ${t.ink}` : `dotted ${t.rule}`}` }}
-                />
+                // Without titles the blocks are icon-width, so the gap comes from this rail's margin.
+                <Box aria-hidden sx={{ flex: 1, mt: `${size / 2}px`, mx: compact ? `${GAP}px` : 0, borderTop: railIn }} />
               )}
-              <Box sx={{ position: 'relative', flex: 'none' }}>
+              <Box
+                sx={{
+                  position: 'relative',
+                  flex: 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  '&::before': railIn ? { ...halfRail, left: 0, right: `calc(50% + ${size / 2 + GAP}px)`, borderTop: railIn } : undefined,
+                  '&::after': railOut ? { ...halfRail, right: 0, left: `calc(50% + ${size / 2 + GAP}px)`, borderTop: railOut } : undefined,
+                }}
+              >
                 <StepIcon stage={stage} size={size} />
                 {!compact && (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: size + 8,
-                      ...(first ? { left: 0 } : last ? { right: 0 } : { left: '50%', transform: 'translateX(-50%)' }),
-                      textAlign: first ? 'left' : last ? 'right' : 'center',
-                      whiteSpace: 'nowrap',
-                      opacity: stage.status === 'idle' ? 0.6 : 1,
-                    }}
-                  >
-                    <Typography variant="subtitle2">{stage.title}</Typography>
+                  <Box sx={{ position: 'relative', mt: 1, opacity: stage.status === 'idle' ? 0.6 : 1 }}>
+                    <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap' }}>
+                      {stage.title}
+                    </Typography>
                     {stage.showProgress && (
-                      <Box sx={{ width: 140 }}>
+                      <Box sx={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', width: 140 }}>
                         <UploadBar value={uploadProgress} />
                       </Box>
                     )}
