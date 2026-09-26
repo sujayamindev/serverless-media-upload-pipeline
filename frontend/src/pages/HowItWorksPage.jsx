@@ -2,7 +2,7 @@ import { Box, Chip, Container, Stack, Typography } from '@mui/material';
 import TopBar from '../components/TopBar';
 import BracketFrame from '../components/BracketFrame';
 import Eyebrow from '../components/Eyebrow';
-import diagram from '../assets/diagram.svg';
+import diagram from '../assets/aws-architecture.svg';
 import { t } from '../lib/tokens';
 
 const SECTIONS = [
@@ -225,14 +225,23 @@ export default function HowItWorksPage() {
           </Typography>
         </Box>
 
-        {/* The draw.io export has black strokes, so it keeps a light surface in dark mode too. */}
-        <BracketFrame sx={{ bgcolor: t.diagramBg, p: { xs: 1, sm: 2 }, mb: { xs: 3, md: 5 } }}>
-          <img
-            src={diagram}
-            alt="System architecture diagram"
-            style={{ display: 'block', maxWidth: '100%', height: 'auto', margin: '0 auto' }}
-          />
-        </BracketFrame>
+        {/* The diagram has dark text on its own light background, so it keeps a light
+            surface in dark mode too. Its text is small at page width, so it opens full
+            size in a new tab. */}
+        <Box sx={{ mb: { xs: 3, md: 5 } }}>
+          <BracketFrame sx={{ bgcolor: t.diagramBg, p: { xs: 1, sm: 2 } }}>
+            <a href={diagram} target="_blank" rel="noopener noreferrer" aria-label="Open the architecture diagram full size in a new tab">
+              <img
+                src={diagram}
+                alt="AWS architecture: CloudFront, Cognito, API Gateway, three Lambda functions, S3, DynamoDB and SQS, with the numbered request and processing flow"
+                style={{ display: 'block', maxWidth: '100%', height: 'auto', margin: '0 auto', cursor: 'zoom-in' }}
+              />
+            </a>
+          </BracketFrame>
+          <Typography variant="meta" component="p" sx={{ mt: 1 }}>
+            Click the diagram to open it full size
+          </Typography>
+        </Box>
 
         {SECTIONS.map((section) => (
           <Section key={section.id} section={section} />

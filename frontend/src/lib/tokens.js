@@ -49,7 +49,7 @@ export const SCHEME_VARS = {
     '--primary-bg': INK,
     '--primary-fg': CREAM,
     '--primary-hover': '#2a2724',
-    // The architecture diagram is a draw.io export with black strokes, so it
+    // The architecture diagram has dark text on a light background, so it
     // always sits on a light surface.
     '--diagram-bg': '#fdfcfa',
     ...ladder(INK),
