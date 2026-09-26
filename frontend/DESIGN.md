@@ -109,16 +109,19 @@ Status is shown as an eyebrow chip plus a small filled dot, like the "● 47 EBS
 
 | role | font | size / line-height | tracking | weight | colour |
 |---|---|---|---|---|---|
-| display (h1) | Geist | 54 / 59.4px (1.1); `clamp(38px, 5vw, 54px)` | -0.037em (-2px) | 400 | ink |
-| h2 | Geist | 48 / 52.8px | -0.021em (-1px) | 400 | ink |
-| h3 / card title | Geist | 36 / 39.6px | -0.01em | 400 | ink (cream on inverse panel) |
-| lede / subheadline | Geist | 24 / 31px (1.3) | 0 | 400 | ink 70% |
+| display (h1) | Geist | 40px max (1.15); `clamp(30px, 3.5vw, 40px)` | -0.03em | 400 | ink |
+| h2 | Geist | 32px max (1.15); `clamp(26px, 3vw, 32px)` | -0.02em | 400 | ink |
+| h3 / card title | Geist | 26px max (1.2); `clamp(22px, 2.2vw, 26px)` | -0.01em | 400 | ink (cream on inverse panel) |
+| h4 / panel title | Geist | 20 / 26px | 0 | 400 | ink |
+| lede / subheadline | Geist | 18px max (1.5); `clamp(16px, 1.4vw, 18px)` | 0 | 400 | ink 70% |
 | body | sans | 16 / 24px | 0 | 400 | ink (card body copy: ink 60–70%) |
 | small / UI | sans | 14 / 21px | 0 | 500 | ink 60% (nav), ink (buttons) |
 | eyebrow | mono | 10px, line-height normal | 0.1em (1px) | 400 | UPPERCASE; ink 60% or accent (orange/olive) |
 | meta label | mono | 11 / 16.5px | 0.06em (0.66px) | 400 | UPPERCASE; ink 42% |
 
 Geist 400 at large sizes carries the voice: headlines and ledes. Sans is for UI and explanations. Mono is for labels, values and IDs only.
+
+These sizes are scaled down from antimetal.com (54 / 48 / 36 / 24px) to suit a small app rather than a marketing site.
 
 ## 4. Shape, lines and elevation
 
