@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { keyframes } from '@mui/material/styles';
-import { CloudArrowUpIcon, FilmStripIcon, ImageIcon } from '@phosphor-icons/react';
+import { ArrowsClockwiseIcon, CloudArrowUpIcon, FilmStripIcon, ImageIcon, XIcon } from '@phosphor-icons/react';
 import BracketFrame from './BracketFrame';
 import { ACCEPTED_FORMATS, MAX_SIZE_LABEL, formatBytes } from '../lib/format';
 import { metaType, reducedMotion, t } from '../lib/tokens';
@@ -160,10 +160,16 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
 
           <Stack direction="row" spacing={1.5} useFlexGap flexWrap="wrap" alignItems="center">
             {children}
-            <Button component="label" htmlFor={inputId} variant="outlined" disabled={disabled}>
+            <Button
+              component="label"
+              htmlFor={inputId}
+              variant="outlined"
+              disabled={disabled}
+              startIcon={<ArrowsClockwiseIcon />}
+            >
               Choose another
             </Button>
-            <Button onClick={onClear} variant="text" disabled={disabled}>
+            <Button onClick={onClear} variant="text" disabled={disabled} startIcon={<XIcon />}>
               Remove
             </Button>
           </Stack>

@@ -1,4 +1,5 @@
 import { Alert, Box, Button, Container, Stack, Typography } from '@mui/material';
+import { CloudArrowUpIcon } from '@phosphor-icons/react';
 import TopBar from '../components/TopBar';
 import Dropzone from '../components/Dropzone';
 import PipelineStatus from '../components/PipelineStatus';
@@ -85,7 +86,7 @@ export default function UploadPage() {
             onReject={upload.rejectFile}
           >
             {upload.canUpload && (
-              <Button variant="contained" onClick={upload.upload}>
+              <Button variant="contained" onClick={upload.upload} startIcon={<CloudArrowUpIcon />}>
                 Upload
               </Button>
             )}
