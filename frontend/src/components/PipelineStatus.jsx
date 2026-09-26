@@ -1,4 +1,4 @@
-import { Box, LinearProgress, Typography, useMediaQuery } from '@mui/material';
+import { Box, Typography, useMediaQuery } from '@mui/material';
 import { keyframes } from '@mui/material/styles';
 import {
   CheckCircleIcon,
@@ -39,17 +39,52 @@ const ring = keyframes`
   to { transform: scale(1.6); opacity: 0; }
 `;
 
+// Upload progress drawn as the icon's outline: a faint full track with an amber arc
+// filling clockwise from 12 o'clock.
+function ProgressRing({ size, value }) {
+  const stroke = 2;
+  const r = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * r;
+  return (
+    <Box
+      component="svg"
+      aria-hidden
+      viewBox={`0 0 ${size} ${size}`}
+      sx={{ position: 'absolute', inset: -1, width: size, height: size, transform: 'rotate(-90deg)' }}
+    >
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={t.rule} strokeWidth={1} />
+      <Box
+        component="circle"
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke={t.chartAmber}
+        strokeWidth={stroke}
+        strokeDasharray={circumference}
+        strokeDashoffset={circumference * (1 - value / 100)}
+        sx={{ transition: 'stroke-dashoffset 200ms linear', [reducedMotion]: { transition: 'none' } }}
+      />
+    </Box>
+  );
+}
+
 // Step icon in a circle, coloured by status with the chart palette (DESIGN.md §2.3):
 // hollow when not started, amber outline in progress, filled when done or failed.
-function StepIcon({ stage, size }) {
-  const { status, working } = stage;
+// With `progress` set, the outline becomes a progress ring.
+function StepIcon({ stage, size, progress }) {
+  const { status } = stage;
+  const showRing = progress != null;
+  const working = stage.working && !showRing;
   const Icon = status === 'failed' ? WarningCircleIcon : stage.Icon;
   const fill = { done: stage.key === 'result' ? t.chartOlive : t.chartInk, failed: t.chartOrange }[status];
   const line = fill ?? (status === 'active' ? t.chartAmber : t.rule);
   return (
     <Box
-      role="img"
-      aria-label={`${stage.title}: ${STATUS_LABEL[status]}`}
+      {...(showRing
+        ? { role: 'progressbar', 'aria-valuenow': progress, 'aria-valuemin': 0, 'aria-valuemax': 100 }
+        : { role: 'img' })}
+      aria-label={`${stage.title}: ${showRing ? `${progress}%` : STATUS_LABEL[status]}`}
       sx={{
         position: 'relative',
         zIndex: 1,
@@ -58,7 +93,7 @@ function StepIcon({ stage, size }) {
         borderRadius: '50%',
         display: 'grid',
         placeItems: 'center',
-        border: `1px solid ${line}`,
+        border: `1px solid ${showRing ? 'transparent' : line}`,
         bgcolor: fill ?? t.card,
         color: fill ? t.card : status === 'active' ? t.chartAmber : t.ink42,
         ...(working && {
@@ -74,6 +109,7 @@ function StepIcon({ stage, size }) {
         }),
       }}
     >
+      {showRing && <ProgressRing size={size} value={progress} />}
       <Icon size={size * 0.5} />
     </Box>
   );
@@ -87,16 +123,6 @@ function rail(status) {
   return `1px ${status === 'done' ? `solid ${t.ink}` : `dotted ${t.rule}`}`;
 }
 
-function UploadBar({ value }) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-      <LinearProgress variant="determinate" value={value} aria-label="Upload progress" sx={{ flex: 1 }} />
-      <Typography variant="meta" sx={{ minWidth: '4ch' }}>
-        {value}%
-      </Typography>
-    </Box>
-  );
-}
 
 // The stage to name under the compact row: a failure, else the one in progress,
 // else the furthest one reached.
@@ -144,7 +170,6 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
           m: 0,
           p: 0,
           display: 'flex',
-          pb: !compact && stages.some((s) => s.showProgress) ? '28px' : 0,
         }}
       >
         {stages.map((stage, index) => {
@@ -175,18 +200,11 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
                   '&::after': railOut ? { ...halfRail, right: 0, left: `calc(50% + ${size / 2 + GAP}px)`, borderTop: railOut } : undefined,
                 }}
               >
-                <StepIcon stage={stage} size={size} />
+                <StepIcon stage={stage} size={size} progress={stage.showProgress ? uploadProgress : undefined} />
                 {!compact && (
-                  <Box sx={{ position: 'relative', mt: 1, opacity: stage.status === 'idle' ? 0.6 : 1 }}>
-                    <Typography variant="subtitle2" sx={{ whiteSpace: 'nowrap' }}>
-                      {stage.title}
-                    </Typography>
-                    {stage.showProgress && (
-                      <Box sx={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', width: 140 }}>
-                        <UploadBar value={uploadProgress} />
-                      </Box>
-                    )}
-                  </Box>
+                  <Typography variant="subtitle2" sx={{ mt: 1, whiteSpace: 'nowrap', opacity: stage.status === 'idle' ? 0.6 : 1 }}>
+                    {stage.title}
+                  </Typography>
                 )}
               </Box>
             </Box>
@@ -197,12 +215,11 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
       {compact && (
         <Box aria-live="polite" sx={{ mt: 1.5, textAlign: 'center' }}>
           <Typography variant="meta" component="p">
-            Step {currentAt + 1} of {stages.length} · {STATUS_LABEL[current.status]}
+            Step {currentAt + 1} of {stages.length} · {current.showProgress ? `${uploadProgress}%` : STATUS_LABEL[current.status]}
           </Typography>
           <Typography variant="subtitle2" sx={{ mt: 0.25 }}>
             {current.title}
           </Typography>
-          {current.showProgress && <UploadBar value={uploadProgress} />}
         </Box>
       )}
     </>
