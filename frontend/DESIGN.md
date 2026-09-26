@@ -209,7 +209,7 @@ Focus: a 2px `--color-accent` (lime) ring with a 2px offset on ink buttons, and 
 ## 8. Theme switching
 
 - Default to the OS setting (`prefers-color-scheme`).
-- Add a manual override: a round icon button in the right nav capsule that cycles system → light → dark.
+- Add a manual override: a round icon button in the right nav capsule that switches between light and dark. The first visit follows the OS; the choice is then remembered.
 - Use MUI `colorSchemeSelector: 'data-mui-color-scheme'` with `useColorScheme()`.
 - The CloudFront CSP is `script-src 'self'`, so **no inline scripts**.
   - To avoid a flash of the wrong theme, set the attribute early from a static file, `public/color-scheme-init.js`, loaded with `<script src="/color-scheme-init.js"></script>` in `<head>` before the app bundle.

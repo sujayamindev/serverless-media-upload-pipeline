@@ -1,23 +1,18 @@
 import { IconButton, Tooltip } from '@mui/material';
 import { useColorScheme } from '@mui/material/styles';
-import SettingsBrightnessOutlinedIcon from '@mui/icons-material/SettingsBrightnessOutlined';
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import { t } from '../lib/tokens';
 
-const ORDER = ['system', 'light', 'dark'];
-const LABEL = { system: 'System', light: 'Light', dark: 'Dark' };
-const ICON = {
-  system: SettingsBrightnessOutlinedIcon,
-  light: LightModeOutlinedIcon,
-  dark: DarkModeOutlinedIcon,
-};
+const LABEL = { light: 'Light', dark: 'Dark' };
+const ICON = { light: LightModeOutlinedIcon, dark: DarkModeOutlinedIcon };
 
-/** Round capsule-style button cycling system → light → dark (DESIGN.md §8). */
+/** Round capsule-style button switching between light and dark (DESIGN.md §8). */
 export default function ThemeToggle() {
-  const { mode, setMode } = useColorScheme();
-  const current = ORDER.includes(mode) ? mode : 'system';
-  const next = ORDER[(ORDER.indexOf(current) + 1) % ORDER.length];
+  const { mode, systemMode, setMode } = useColorScheme();
+  // Until the user picks one, MUI reports 'system'; show what the OS resolved to.
+  const current = (mode === 'system' ? systemMode : mode) === 'dark' ? 'dark' : 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
   const Icon = ICON[current];
   const label = `Theme: ${LABEL[current]}. Switch to ${LABEL[next].toLowerCase()}.`;
 
