@@ -5,7 +5,6 @@ import {
   PALETTE,
   SANS,
   SCHEME_VARS,
-  SERIF,
   bracketTicks,
   eyebrowType,
   metaType,
@@ -19,7 +18,7 @@ import {
 
 export { MONO as MONO_FONT };
 
-const serif = { fontFamily: SERIF, fontWeight: 400 };
+const display = { fontFamily: SANS, fontWeight: 400 };
 
 function scheme(p) {
   return {
@@ -62,30 +61,30 @@ const theme = createTheme({
     fontWeightMedium: 500,
     fontWeightBold: 500,
     h1: {
-      ...serif,
+      ...display,
       fontSize: 'clamp(38px, 5vw, 54px)',
       lineHeight: 1.1,
       letterSpacing: '-0.037em',
     },
     h2: {
-      ...serif,
+      ...display,
       fontSize: 'clamp(34px, 4vw, 48px)',
       lineHeight: 1.1,
       letterSpacing: '-0.021em',
     },
     h3: {
-      ...serif,
+      ...display,
       fontSize: 'clamp(28px, 3vw, 36px)',
       lineHeight: 1.1,
       letterSpacing: '-0.01em',
     },
-    h4: { ...serif, fontSize: 24, lineHeight: 1.2, letterSpacing: 0 },
+    h4: { ...display, fontSize: 24, lineHeight: 1.2, letterSpacing: 0 },
     h5: { fontFamily: SANS, fontWeight: 500, fontSize: 16, lineHeight: '24px' },
     h6: { fontFamily: SANS, fontWeight: 500, fontSize: 14, lineHeight: '21px' },
     lede: {
-      ...serif,
+      ...display,
       fontSize: 'clamp(20px, 2vw, 24px)',
-      lineHeight: 1.2,
+      lineHeight: 1.3,
       color: t.ink70,
     },
     body1: { fontSize: 16, lineHeight: '24px' },

@@ -14,7 +14,7 @@ If a value isn't in this file, derive it from a token here. Don't introduce new 
 
 This is a personal AWS learning and portfolio project, not a marketing site. **The original UI's layout, copy and density are the baseline; Antimetal is the skin.** Where this rule conflicts with §5, §6 or §9 below, this rule wins.
 
-- **Keep:** paper/ink tokens, a serif for headlines with Geist and Geist Mono for everything else, pill buttons, dashed hairlines and bracket corners, mono eyebrow chips, the earthy status colours, and light/dark with the toggle.
+- **Keep:** paper/ink tokens, Geist for headlines and UI (no serif) with Geist Mono for labels, pill buttons, dashed hairlines and bracket corners, mono eyebrow chips, the earthy status colours, and light/dark with the toggle.
 - **Structure:** each page keeps the original's sections, copy and amount of content. Don't add sections, extra copy or marketing flourishes.
 - **Nav:** one simple top bar in translucent paper with a hairline under it. The logo goes on the left; how-it-works, the email, GitHub, an icon-only theme toggle and sign out go on the right. No floating capsules.
 - **Sign-in:** the original split layout. The left side has the logo, headline, three short paragraphs and a footer line; the right side has the plain form in a bracket frame.
@@ -93,31 +93,31 @@ Status is shown as an eyebrow chip plus a small filled dot, like the "● 47 EBS
 
 ## 3. Typography
 
-Antimetal uses these fonts:
+**Override for this app: no serif.** Headlines and ledes use Geist at weight 400 (Newsreader was removed). Where the rest of this document says "serif", read "Geist 400". Antimetal itself uses these fonts:
 
 | role | Antimetal font | licence | substitute to self-host via Fontsource |
 |---|---|---|---|
-| display serif | **Signifier** (Klim; served as "Test Signifier") | commercial | `Newsreader Variable` (`@fontsource-variable/newsreader`). Stack: `"Newsreader Variable", "Signifier", "Noto Serif", Georgia, serif` |
+| display serif | **Signifier** (Klim; served as "Test Signifier") | commercial | not used in this app; headlines use Geist 400 |
 | UI sans | **Geist** 400/500 | OFL | `@fontsource-variable/geist`. Stack: `"Geist Variable", Geist, ui-sans-serif, system-ui, sans-serif` |
 | mono | **Geist Mono** | OFL | `@fontsource-variable/geist-mono`. Stack: `"Geist Mono Variable", "Geist Mono", ui-monospace, Menlo, monospace` |
 
-- Signifier is commercial, so use Newsreader. Geist and Geist Mono are open-source, so they're the actual fonts.
+- Signifier is commercial and is not used here. Geist and Geist Mono are open-source, so they're the actual fonts.
 - The CSP only allows self-hosted fonts.
 - Remove Bricolage Grotesque, IBM Plex Sans and IBM Plex Mono.
 - If the Fontsource package names differ, check them on npm.
 
 | role | font | size / line-height | tracking | weight | colour |
 |---|---|---|---|---|---|
-| display (h1) | serif | 54 / 59.4px (1.1); `clamp(38px, 5vw, 54px)` | -0.037em (-2px) | 400 | ink |
-| h2 | serif | 48 / 52.8px | -0.021em (-1px) | 400 | ink |
-| h3 / card title | serif | 36 / 39.6px | -0.01em | 400 | ink (cream on inverse panel) |
-| lede / subheadline | serif | 24 / 28.8px | 0 | 400 | ink 70% |
+| display (h1) | Geist | 54 / 59.4px (1.1); `clamp(38px, 5vw, 54px)` | -0.037em (-2px) | 400 | ink |
+| h2 | Geist | 48 / 52.8px | -0.021em (-1px) | 400 | ink |
+| h3 / card title | Geist | 36 / 39.6px | -0.01em | 400 | ink (cream on inverse panel) |
+| lede / subheadline | Geist | 24 / 31px (1.3) | 0 | 400 | ink 70% |
 | body | sans | 16 / 24px | 0 | 400 | ink (card body copy: ink 60–70%) |
 | small / UI | sans | 14 / 21px | 0 | 500 | ink 60% (nav), ink (buttons) |
 | eyebrow | mono | 10px, line-height normal | 0.1em (1px) | 400 | UPPERCASE; ink 60% or accent (orange/olive) |
 | meta label | mono | 11 / 16.5px | 0.06em (0.66px) | 400 | UPPERCASE; ink 42% |
 
-The serif carries the voice: headlines, ledes and questions. Sans is for UI and explanations. Mono is for labels, values and IDs only.
+Geist 400 at large sizes carries the voice: headlines and ledes. Sans is for UI and explanations. Mono is for labels, values and IDs only.
 
 ## 4. Shape, lines and elevation
 
