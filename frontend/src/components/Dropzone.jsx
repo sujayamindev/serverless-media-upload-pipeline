@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
-import { alpha, keyframes } from '@mui/material/styles';
+import { keyframes } from '@mui/material/styles';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import MovieOutlinedIcon from '@mui/icons-material/MovieOutlined';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
@@ -9,6 +9,10 @@ import { ACCEPTED_FORMATS, MAX_SIZE_LABEL, formatBytes } from '../lib/format';
 // The CloudFront CSP allows data: images but not blob:, so local previews are
 // read as data URLs. Skip anything big enough to make that slow.
 const MAX_PREVIEW_BYTES = 8 * 1024 * 1024;
+
+// theme.palette.* is the light scheme only; go through the CSS variable so dark mode works.
+const PRIMARY_TINT = 'color-mix(in srgb, var(--mui-palette-primary-main) 8%, transparent)';
+const PRIMARY_GLOW = 'color-mix(in srgb, var(--mui-palette-primary-main) 60%, transparent)';
 
 const scan = keyframes`
   from { top: 0%; }
@@ -95,8 +99,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
       sx={{
         position: 'relative',
         p: { xs: 2.5, sm: 4 },
-        bgcolor: (theme) =>
-          dragging ? alpha(theme.palette.primary.main, 0.08) : theme.palette.background.paper,
+        bgcolor: dragging ? PRIMARY_TINT : 'background.paper',
         transition: 'background-color 120ms',
         '&:focus-within': {
           outline: '2px solid',
@@ -163,7 +166,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
                   right: 0,
                   height: 2,
                   bgcolor: 'primary.main',
-                  boxShadow: (theme) => `0 0 12px 2px ${alpha(theme.palette.primary.main, 0.6)}`,
+                  boxShadow: `0 0 12px 2px ${PRIMARY_GLOW}`,
                   top: '50%',
                   '@media (prefers-reduced-motion: no-preference)': {
                     animation: `${scan} 1.6s ease-in-out infinite alternate`,
