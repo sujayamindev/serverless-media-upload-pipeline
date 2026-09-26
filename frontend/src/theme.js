@@ -7,7 +7,6 @@ import {
   PALETTE,
   SANS,
   SCHEME_VARS,
-  bracketTicks,
   eyebrowType,
   metaType,
   t,
@@ -161,17 +160,15 @@ const theme = createTheme({
               },
             },
             {
-              // "Bracket" secondary: dashed rounded outline with square corner ticks.
+              // Secondary: dashed rounded outline (no corner ticks).
               props: { variant: 'outlined' },
               style: {
                 border: `1px dashed ${t.rule}`,
                 borderRadius: 24,
                 backgroundColor: 'transparent',
                 color: t.ink,
-                '&::after': bracketTicks(),
                 '&:hover': { backgroundColor: t.ink6, border: `1px dashed ${t.rule}` },
                 '&.Mui-disabled': { color: t.ink42, border: `1px dashed ${t.ink20}` },
-                '&.Mui-disabled::after': { opacity: 0.4 },
               },
             },
             {

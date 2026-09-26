@@ -27,7 +27,7 @@ This is a personal AWS learning and portfolio project, not a marketing site. **T
 
 Editorial, warm and quiet: a research paper crossed with an instrument panel. The page is a neutral light-grey "paper" (`#f1f1f1`) with near-black ink. Big headlines use a sharp editorial **serif**, UI text uses a neutral grotesk, and small **uppercase mono** labels annotate everything.
 
-Structure comes from **dashed and dotted hairlines** and **corner-bracket ticks** (the ⌜ ⌝ ⌞ ⌟ corners on cards and the secondary button), not from filled boxes. Primary actions are solid ink **pills**. Colour is rare and earthy: burnt orange, olive and amber. It only appears in data (charts, status) and in eyebrow labels.
+Structure comes from **dashed and dotted hairlines** and **corner-bracket ticks** (the ⌜ ⌝ ⌞ ⌟ corners on cards; the secondary button is a plain dashed pill with no ticks), not from filled boxes. Primary actions are solid ink **pills**. Colour is rare and earthy: burnt orange, olive and amber. It only appears in data (charts, status) and in eyebrow labels.
 
 **Avoid:**
 - Pure white or pure black page backgrounds.
@@ -155,7 +155,7 @@ These sizes are scaled down from antimetal.com (54 / 48 / 36 / 24px) to suit a s
 | variant | spec |
 |---|---|
 | primary | pill, `--ink` fill, `--color-cream` text, sans 14px/500, height 46px, padding 0 24px; hover lifts to `#2a2724`. Dark mode inverts: cream fill, ink text |
-| secondary ("bracket") | transparent, 1px dashed `--rule` border, **corner ticks** as on cards, radius ~24px (the dashed outline is rounded but the ticks are square), ink text; hover fills with ink 6% |
+| secondary | transparent, 1px dashed `--rule` border, radius ~24px, no corner ticks, ink text; hover fills with ink 6% |
 | nav pill (small) | height 32px, padding 0 14px, pill; the active item is ink fill with cream text (`Book a demo` style, `#2a2724` fill in light) |
 | text | sans 14px/500 ink 60% → ink on hover |
 | icon (round) | 28px circle, translucent capsule style (the ↓ ↑ 🔍 controls, bottom-right) |
