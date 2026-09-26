@@ -105,7 +105,7 @@ export default function TopBar() {
           sx={navLink}
           aria-label="Source on GitHub (opens in a new tab)"
         >
-          <GithubLogoIcon size={16} weight="regular" />
+          <GithubLogoIcon size={16} />
           <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
             GitHub
           </Box>

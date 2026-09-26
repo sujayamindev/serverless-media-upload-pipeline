@@ -31,7 +31,7 @@ export default function ThemeToggle() {
           '&:hover': { bgcolor: t.ink10, color: t.ink },
         }}
       >
-        <Icon size={16} weight="regular" />
+        <Icon size={16} />
       </IconButton>
     </Tooltip>
   );

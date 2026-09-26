@@ -75,7 +75,7 @@ function StepIcon({ stage, size }) {
         }),
       }}
     >
-      <Icon size={size * 0.5} weight={status === 'idle' ? 'light' : 'regular'} />
+      <Icon size={size * 0.5} />
     </Box>
   );
 }

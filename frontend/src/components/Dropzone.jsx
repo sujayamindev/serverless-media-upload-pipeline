@@ -121,7 +121,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
                 sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }}
               />
             ) : (
-              <FileIcon size={48} color={t.ink42} />
+              <FileIcon size={48} weight="thin" color={t.ink42} />
             )}
             {scanning && (
               <Box
@@ -174,7 +174,7 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
             cursor: disabled ? 'default' : 'pointer',
           }}
         >
-          <CloudArrowUpIcon size={36} color={dragging ? t.ink : t.ink42} />
+          <CloudArrowUpIcon size={36} weight="thin" color={dragging ? t.ink : t.ink42} />
           <Typography variant="h4" component="span">
             Drop an image or video here
           </Typography>
