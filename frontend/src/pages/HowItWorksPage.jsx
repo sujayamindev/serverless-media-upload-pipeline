@@ -65,14 +65,15 @@ const SECTIONS = [
     title: 'Automatic server-side validation',
     services: [
       'Amazon S3 (event trigger)',
-      'AWS Lambda (media validation)',
+      'AWS Lambda (imageValidator)',
       'Amazon DynamoDB (status storage)',
       'Amazon SQS (dead-letter queue)',
     ],
     body: [
       <>
-        When a file appears in S3, an event triggers a Lambda function that validates it on the
-        server. It inspects the actual file content rather than trusting client-provided metadata.
+        When a file appears in S3, an event triggers the <code>imageValidator</code> Lambda, which
+        validates it on the server. It inspects the actual file content rather than trusting
+        client-provided metadata.
       </>,
       <>
         Validation uses three libraries in sequence: <code>filetype</code> inspects binary magic
@@ -85,7 +86,7 @@ const SECTIONS = [
         types: the binary content is inspected, not the filename or Content-Type header.
       </>,
       <>
-        If the Lambda fails repeatedly, for example because of a cold-start error or a
+        If <code>imageValidator</code> fails repeatedly, for example because of a cold-start error or a
         misconfigured layer, the invocation is retried twice before giving up. A dead-letter queue
         (Amazon SQS) then captures the original S3 event payload, so a failed validation leaves a
         recoverable record that can be inspected and replayed once the underlying issue is fixed.
@@ -133,7 +134,8 @@ const SECTIONS = [
         All API Gateway endpoints are protected by a Cognito JWT authorizer. Requests must include
         an <code>Authorization: Bearer &lt;access_token&gt;</code> header issued by the Cognito
         User Pool. Unauthenticated or expired tokens are rejected before they reach any Lambda
-        function. Per-record ownership is then enforced inside the Lambda by comparing the JWT{' '}
+        function. Per-record ownership is then enforced inside the <code>getMediaStatus</code>{' '}
+        Lambda by comparing the JWT{' '}
         <code>sub</code> claim against the stored <code>user_sub</code>.
       </>,
       <>
@@ -201,13 +203,25 @@ function Section({ section }) {
             </Typography>
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
               {section.services.map((service) => (
-                <Chip key={service} label={service} size="small" />
+                <Chip key={service} label={serviceLabel(service)} size="small" />
               ))}
             </Stack>
           </Box>
         )}
       </Box>
     </Box>
+  );
+}
+
+// Chips are uppercase, but Lambda function names must keep their exact case
+// ("AWS LAMBDA (generateUploadUrl)"), so the name in brackets opts out.
+function serviceLabel(service) {
+  const match = /^(AWS Lambda) \((\w+)\)$/.exec(service);
+  if (!match) return service;
+  return (
+    <>
+      {match[1]} (<span style={{ textTransform: 'none' }}>{match[2]}</span>)
+    </>
   );
 }
 
