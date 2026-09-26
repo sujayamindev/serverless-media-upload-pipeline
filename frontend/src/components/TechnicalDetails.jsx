@@ -1,6 +1,7 @@
 import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography } from '@mui/material';
-import PlusMinus from './PlusMinus';
-import { MONO, metaType, t } from '../lib/tokens';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { MONO_FONT } from '../theme';
+import { t } from '../lib/tokens';
 
 function redactPresign(presignResponse) {
   if (!presignResponse?.upload?.fields) return presignResponse;
@@ -18,23 +19,21 @@ function redactPresign(presignResponse) {
 function JsonBlock({ title, value }) {
   return (
     <Box>
-      <Box component="h3" sx={{ ...metaType, color: t.ink42, m: 0, mb: 1 }}>
+      <Typography variant="meta" component="h3" sx={{ m: 0, mb: 0.75 }}>
         {title}
-      </Box>
+      </Typography>
       <Box
         component="pre"
         tabIndex={0}
-        aria-label={`${title} response`}
         sx={{
           m: 0,
-          p: 2,
+          p: 1.5,
           maxHeight: 280,
           overflow: 'auto',
-          bgcolor: t.windowBody,
-          border: `1px solid ${t.border}`,
+          bgcolor: t.ink6,
           color: t.ink70,
-          fontFamily: MONO,
-          fontSize: 12,
+          fontFamily: MONO_FONT,
+          fontSize: '0.75rem',
           lineHeight: 1.6,
         }}
       >
@@ -49,16 +48,14 @@ export default function TechnicalDetails({ presignResponse, uploadResponse, medi
 
   return (
     <Accordion>
-      <AccordionSummary expandIcon={<PlusMinus />}>
-        <Box component="span" sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 2, rowGap: 0.5 }}>
-          <span>Technical details</span>
-          <Typography component="span" variant="meta">
-            Raw responses from each service
-          </Typography>
-        </Box>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography variant="h4" component="span">
+          Technical details
+        </Typography>
+        <Typography variant="meta">Raw responses from each service</Typography>
       </AccordionSummary>
       <AccordionDetails>
-        <Stack spacing={3}>
+        <Stack spacing={2.5}>
           {presignResponse && <JsonBlock title="Upload permission" value={redactPresign(presignResponse)} />}
           {uploadResponse && <JsonBlock title="S3 upload" value={uploadResponse} />}
           {mediaStatus && <JsonBlock title="Validation result" value={mediaStatus} />}

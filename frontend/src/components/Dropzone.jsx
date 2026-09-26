@@ -1,13 +1,12 @@
 import { useEffect, useId, useState } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { keyframes } from '@mui/material/styles';
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import MovieOutlinedIcon from '@mui/icons-material/MovieOutlined';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import BracketFrame from './BracketFrame';
-import Eyebrow from './Eyebrow';
-import { ACCEPTED_FORMATS, ACCEPTED_FORMATS_META, MAX_SIZE_LABEL, formatBytes } from '../lib/format';
-import { MONO, metaType, reducedMotion, t } from '../lib/tokens';
-import { srOnly } from '../lib/layout';
+import { ACCEPTED_FORMATS, MAX_SIZE_LABEL, formatBytes } from '../lib/format';
+import { metaType, reducedMotion, t } from '../lib/tokens';
 
 // The CloudFront CSP allows data: images but not blob:, so local previews are
 // read as data URLs. Skip anything big enough to make that slow.
@@ -37,7 +36,6 @@ const hiddenInput = {
  */
 export default function Dropzone({ file, disabled, scanning, onSelect, onClear, onReject, children }) {
   const inputId = useId();
-  const hintId = useId();
   const [dragging, setDragging] = useState(false);
   const [preview, setPreview] = useState(null);
 
@@ -83,7 +81,6 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
   return (
     <BracketFrame
       active={dragging}
-      data-dragging={dragging || undefined}
       onDragOver={(event) => {
         event.preventDefault();
         if (!disabled) setDragging(true);
@@ -91,8 +88,8 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
       sx={{
-        p: { xs: 2, sm: 3 },
-        bgcolor: dragging ? t.ink6 : 'transparent',
+        p: { xs: 2.5, sm: 4 },
+        bgcolor: dragging ? t.ink6 : t.card,
         '&:focus-within': { outline: `1px solid ${t.ink}`, outlineOffset: 4 },
       }}
     >
@@ -102,19 +99,17 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
         accept="image/*,video/*"
         disabled={disabled}
         onChange={handleInput}
-        aria-describedby={hintId}
         style={hiddenInput}
       />
 
       {file ? (
-        <Stack spacing={3}>
+        <Stack spacing={2.5}>
           <Box
             sx={{
               position: 'relative',
               aspectRatio: '16 / 10',
               overflow: 'hidden',
-              bgcolor: t.windowBody,
-              border: `1px solid ${t.border}`,
+              bgcolor: t.ink6,
               display: 'grid',
               placeItems: 'center',
             }}
@@ -146,14 +141,11 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
             )}
           </Box>
 
-          <Box sx={{ minWidth: 0 }}>
-            <Eyebrow tone="ink" sx={{ mb: 1.5 }}>
-              Selected file
-            </Eyebrow>
-            <Typography sx={{ fontFamily: MONO, fontSize: 14, lineHeight: '21px', wordBreak: 'break-all' }}>
+          <Box>
+            <Typography variant="subtitle1" sx={{ wordBreak: 'break-all' }}>
               {file.name}
             </Typography>
-            <Typography id={hintId} variant="meta" component="p" sx={{ mt: 0.5 }}>
+            <Typography variant="meta">
               {formatBytes(file.size)} · {file.type}
             </Typography>
           </Box>
@@ -173,35 +165,25 @@ export default function Dropzone({ file, disabled, scanning, onSelect, onClear, 
           component="label"
           htmlFor={inputId}
           sx={{
-            minHeight: { xs: 260, md: 340 },
+            minHeight: 240,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 2,
-            px: 2,
+            gap: 1,
             textAlign: 'center',
             cursor: disabled ? 'default' : 'pointer',
           }}
         >
-          <Eyebrow tone={dragging ? 'orange' : 'ink'} dot={dragging ? t.chartOrange : t.chartInk}>
-            {dragging ? 'Release to select' : 'Step 01 · Choose'}
-          </Eyebrow>
-          <Typography variant="h3" component="span" sx={{ maxWidth: 420 }}>
-            Drop a photo or video
+          <CloudUploadOutlinedIcon sx={{ fontSize: 32, color: dragging ? t.ink : t.ink42 }} />
+          <Typography variant="h4" component="span">
+            Drop an image or video here
           </Typography>
-          <Typography variant="body1" component="span" sx={{ color: t.ink60 }}>
-            or{' '}
-            <Box component="span" sx={{ color: t.ink, textDecoration: 'underline', textDecorationColor: t.rule, textUnderlineOffset: 3 }}>
-              choose a file
-            </Box>{' '}
-            from this device
+          <Typography variant="body2" sx={{ color: t.ink60 }}>
+            or click to choose a file
           </Typography>
-          <Box component="span" id={hintId} sx={{ ...metaType, color: t.ink42, mt: 1 }}>
-            {ACCEPTED_FORMATS_META} — max {MAX_SIZE_LABEL}
-            <Box component="span" sx={srOnly}>
-              Accepted: {ACCEPTED_FORMATS}.
-            </Box>
+          <Box component="span" sx={{ ...metaType, color: t.ink42, mt: 1 }}>
+            {ACCEPTED_FORMATS}, up to {MAX_SIZE_LABEL}
           </Box>
         </Box>
       )}
