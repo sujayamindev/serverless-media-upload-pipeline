@@ -40,7 +40,7 @@ function Preview({ url, contentType }) {
 
 // Status chip tone and dot (DESIGN.md §2.3).
 const CHIP = {
-  approved: { tone: 'olive', dot: t.chartOlive },
+  approved: { tone: 'success', dot: t.success },
   rejected: { tone: 'orange', dot: t.chartOrange },
 };
 

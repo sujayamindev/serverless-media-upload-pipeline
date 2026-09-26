@@ -77,7 +77,7 @@ function StepIcon({ stage, size, progress }) {
   const showRing = progress != null;
   const working = stage.working && !showRing;
   const Icon = status === 'failed' ? WarningCircleIcon : stage.Icon;
-  const fill = { done: stage.key === 'result' ? t.chartOlive : t.chartInk, failed: t.chartOrange }[status];
+  const fill = { done: stage.key === 'result' ? t.success : t.chartInk, failed: t.chartOrange }[status];
   const line = fill ?? (status === 'active' ? t.chartAmber : t.rule);
   return (
     <Box

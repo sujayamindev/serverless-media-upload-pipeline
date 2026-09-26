@@ -2,7 +2,7 @@
 
 This is the design contract for the Antimetal-inspired frontend. It is based on https://antimetal.com. The values come from the live site's CSS:
 - the `:root` block, and the `.dark` block the site ships alongside it
-- the `--ink / --cream / --orange / --green / --rule / --mute` palette
+- the `--ink / --cream / --orange / --success / --rule / --mute` palette
 - `@font-face` rules
 - computed styles on rendered elements
 
@@ -27,7 +27,7 @@ This is a personal AWS learning and portfolio project, not a marketing site. **T
 
 Editorial, warm and quiet: a research paper crossed with an instrument panel. The page is a neutral light-grey "paper" (`#f1f1f1`) with near-black ink. Big headlines use a sharp editorial **serif**, UI text uses a neutral grotesk, and small **uppercase mono** labels annotate everything.
 
-Structure comes from **dashed and dotted hairlines** and **corner-bracket ticks** (the ⌜ ⌝ ⌞ ⌟ corners on cards; the secondary button is a plain dashed pill with no ticks), not from filled boxes. Primary actions are solid ink **pills**. Colour is rare and earthy: burnt orange, olive and amber. It only appears in data (charts, status) and in eyebrow labels.
+Structure comes from **dashed and dotted hairlines** and **corner-bracket ticks** (the ⌜ ⌝ ⌞ ⌟ corners on cards; the secondary button is a plain dashed pill with no ticks), not from filled boxes. Primary actions are solid ink **pills**. Colour is rare: burnt orange, amber and a teal success green (`#3d8378`). It only appears in data (charts, status) and in eyebrow labels.
 
 **Avoid:**
 - Pure white or pure black page backgrounds.
@@ -74,11 +74,10 @@ Keep Antimetal's token names as CSS variables through MUI `cssVariables`.
 | token | value | use |
 |---|---|---|
 | `--orange` | `#bd4a28` | primary accent **text**: eyebrow labels, links on hover, the REJECTED state. In dark mode use `#e0714f` *(derived; lifted for contrast)* |
-| `--green` (olive) | `#6e7a34` | secondary accent text: eyebrows, the APPROVED state. In dark mode use `#a8b560` *(derived)* |
+| `--success` (teal) | `#3d8378` | **this app's choice, not from antimetal.com.** Everything approved/success: the approved result step fill, the APPROVED chip dot and text, the success alert icon. Same value in light and dark |
 | `--color-accent` (lime) | `#e2e67d` | highlight only: text-selection background, a marker underline behind one key word, the focus ring on dark ink. Never body text |
 | chart orange | `#ff7733` | data dots / progress fill |
 | chart amber | `#e5a700` | data dots, the PENDING state marker |
-| chart olive | `#a89a1a` | data dots |
 | chart ink | `#1a1614` (light) / `#f4f4e7` (dark) | data dots |
 
 ### 2.3 Status mapping (pipeline states)
@@ -88,7 +87,7 @@ Status is shown as an eyebrow chip plus a small filled dot, like the "● 47 EBS
 | state | dot | chip text | chip fill |
 |---|---|---|---|
 | **PENDING** | `#e5a700` amber (pulsing) | ink 70% / cream 70% | `--color-cream` (light) · `#f4f4e71a` (dark) |
-| **APPROVED** | `#a89a1a` olive | `--green` `#6e7a34` / dark `#a8b560` | `--color-cream` · `#f4f4e71a` |
+| **APPROVED** | `--success` `#3d8378` | `--success` `#3d8378` | `--color-cream` · `#f4f4e71a` |
 | **REJECTED** | `#ff7733` orange | `--orange` `#bd4a28` / dark `#e0714f` | `--color-cream` · `#f4f4e71a` |
 | error text (form validation) | none | `--orange` | none |
 
@@ -116,7 +115,7 @@ Status is shown as an eyebrow chip plus a small filled dot, like the "● 47 EBS
 | lede / subheadline | Geist | 18px max (1.5); `clamp(16px, 1.4vw, 18px)` | 0 | 400 | ink 70% |
 | body | sans | 16 / 24px | 0 | 400 | ink (card body copy: ink 60–70%) |
 | small / UI | sans | 14 / 21px | 0 | 500 | ink 60% (nav), ink (buttons) |
-| eyebrow | mono | 10px, line-height normal | 0.1em (1px) | 400 | UPPERCASE; ink 60% or accent (orange/olive) |
+| eyebrow | mono | 10px, line-height normal | 0.1em (1px) | 400 | UPPERCASE; ink 60% or accent (orange/success) |
 | meta label | mono | 11 / 16.5px | 0.06em (0.66px) | 400 | UPPERCASE; ink 42% |
 
 Geist 400 at large sizes carries the voice: headlines and ledes. Sans is for UI and explanations. Mono is for labels, values and IDs only.
@@ -173,7 +172,7 @@ Focus: a 2px `--color-accent` (lime) ring with a 2px offset on ink buttons, and 
 ### Eyebrow chip
 
 - Mono 10px uppercase with 1px tracking and `5px 9px` padding, filled with `--color-cream` (light) or `#f4f4e71a` (dark), and no radius.
-- The text colour is orange, olive or ink 60%.
+- The text colour is orange, success teal or ink 60%.
 - It sits above card titles: "THE AUTONOMOUS LAYER", "THE VISION".
 
 ### Card (bracket frame)
