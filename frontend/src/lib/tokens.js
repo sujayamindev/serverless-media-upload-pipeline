@@ -25,6 +25,7 @@ const shared = {
   '--chart-orange': '#ff7733',
   '--chart-amber': '#e5a700',
   '--chart-olive': '#a89a1a',
+  '--shadow-nav': 'inset 0 0 10px rgba(0,0,0,.08)',
   '--ease': EASE,
 };
 
@@ -37,7 +38,8 @@ export const SCHEME_VARS = {
     '--color-border': '#1a16141a',
     '--rule': '#1a161457',
     '--mute': '#1a16148c',
-    '--color-nav-bg': '#cfcfc8bd',
+    '--nav-capsule': 'rgba(232,232,232,.67)',
+    '--nav-rim': '#fdfcfa8c', // card at 55%
     '--orange': '#bd4a28',
     '--green': '#6e7a34',
     '--chart-ink': INK,
@@ -58,7 +60,8 @@ export const SCHEME_VARS = {
     '--color-border': '#f4f4e71f',
     '--rule': '#f4f4e757',
     '--mute': '#f4f4e78c',
-    '--color-nav-bg': '#1a1614bd',
+    '--nav-capsule': '#1a1614bd',
+    '--nav-rim': '#f4f4e71f', // = --color-border; the capsule fill matches the page in dark
     '--orange': '#e0714f',
     '--green': '#a8b560',
     '--chart-ink': CREAM,
@@ -117,7 +120,9 @@ export const t = {
   border: v('--color-border'),
   rule: v('--rule'),
   mute: v('--mute'),
-  navBg: v('--color-nav-bg'),
+  navCapsule: v('--nav-capsule'),
+  navRim: v('--nav-rim'),
+  shadowNav: v('--shadow-nav'),
   orange: v('--orange'),
   green: v('--green'),
   accent: v('--color-accent'),

@@ -51,7 +51,8 @@ Keep Antimetal's token names as CSS variables through MUI `cssVariables`.
 | `--color-border` | `#1a16141a` (ink 10%) | `#f4f4e71f` (cream 12%) | solid hairlines, dividers |
 | `--rule` | `#1a161457` (ink 34%) | `#f4f4e757` *(derived)* | dashed card borders, corner ticks |
 | `--mute` | `#1a16148c` (ink 55%) | `#f4f4e78c` *(derived)* | muted text |
-| `--color-nav-bg` | `#cfcfc8bd` | `#1a1614bd` | translucent nav capsules (use with `backdrop-filter: blur(12px)`) |
+| `--nav-capsule` | `rgba(232,232,232,.67)` | `#1a1614bd` | translucent nav capsules (use with `backdrop-filter: blur(12px)`) |
+| `--nav-rim` | `#fdfcfa8c` | `#f4f4e71f` | 1px capsule border |
 | inverse panel | `#1a1614` bg / `#f4f4e7` text | `#f4f4e7` bg / `#1a1614` text *(derived)* | the one emphasised "vision" card per page |
 
 **Text opacity ladder.** Antimetal tints the ink with alpha instead of using separate greys. In dark mode apply the same alphas to cream (`#f4f4e7`).
@@ -130,7 +131,7 @@ The serif carries the voice: headlines, ledes and questions. Sans is for UI and 
 - **Solid hairline:** 1px `--color-border` for list/accordion row dividers.
 - **Elevation:** almost none.
   - Floating chip: `0 10px 24px rgba(0,0,0,.18)`.
-  - Nav capsule: `inset 0 0 10px rgba(0,0,0,.08)`, a translucent fill (`rgba(232,232,232,.67)` light; `--color-nav-bg` dark) and a backdrop blur.
+  - Nav capsule: `inset 0 0 10px rgba(0,0,0,.08)`, a translucent fill (`--nav-capsule`) and a backdrop blur.
   - Preview "window": `--color-card`, 1px `--color-border` and a soft `0 20px 40px -20px rgba(26,22,20,.25)`.
 
 ## 5. Layout and spacing
