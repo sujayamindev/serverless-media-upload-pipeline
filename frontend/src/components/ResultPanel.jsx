@@ -106,9 +106,13 @@ export default function ResultPanel({ mediaStatus, checking }) {
           {mediaStatus.status}
         </Eyebrow>
       </Stack>
-      <Typography variant="meta" component="p" sx={{ mt: 1, wordBreak: 'break-all' }}>
-        {facts.join(' · ')}
-      </Typography>
+      <Box sx={{ mt: 1 }}>
+        {facts.map((fact) => (
+          <Typography key={fact} variant="meta" component="p" sx={{ wordBreak: 'break-all' }}>
+            {fact}
+          </Typography>
+        ))}
+      </Box>
 
       {rejected && (
         <Typography variant="body1" sx={{ mt: 2 }}>
