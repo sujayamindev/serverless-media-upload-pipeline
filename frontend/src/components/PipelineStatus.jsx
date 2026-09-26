@@ -1,48 +1,21 @@
 import { Box, LinearProgress, Typography, useMediaQuery } from '@mui/material';
+import { keyframes } from '@mui/material/styles';
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
+import KeyOutlinedIcon from '@mui/icons-material/KeyOutlined';
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import FactCheckOutlinedIcon from '@mui/icons-material/FactCheckOutlined';
+import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import { STEP } from '../hooks/useMediaUpload';
-import StatusDot from './StatusDot';
-import { t } from '../lib/tokens';
+import { reducedMotion, t } from '../lib/tokens';
 
 // `start`/`doneAt` are activeStep thresholds from useMediaUpload.
 const STAGES = [
-  {
-    key: 'select',
-    title: 'File chosen',
-    note: 'Nothing leaves your browser yet.',
-    start: STEP.SELECTED,
-    doneAt: STEP.SELECTED,
-  },
-  {
-    key: 'permission',
-    title: 'Upload permission',
-    note: 'Your sign-in token is checked and a short-lived upload link is issued.',
-    services: 'API Gateway, Lambda',
-    start: STEP.PERMISSION,
-    doneAt: STEP.UPLOADING,
-  },
-  {
-    key: 'upload',
-    title: 'Upload to storage',
-    note: 'Your browser sends the file straight to S3.',
-    services: 'S3',
-    start: STEP.UPLOADING,
-    doneAt: STEP.UPLOADED,
-  },
-  {
-    key: 'check',
-    title: 'Content check',
-    note: 'The file is opened and inspected, not just its extension.',
-    services: 'S3 event, Lambda, DynamoDB',
-    start: STEP.CHECKING,
-    doneAt: STEP.DONE,
-  },
-  {
-    key: 'result',
-    title: 'Result',
-    services: 'API Gateway, Lambda',
-    start: STEP.DONE,
-    doneAt: STEP.DONE,
-  },
+  { key: 'select', title: 'File chosen', Icon: InsertDriveFileOutlinedIcon, start: STEP.SELECTED, doneAt: STEP.SELECTED },
+  { key: 'permission', title: 'Upload permission', Icon: KeyOutlinedIcon, start: STEP.PERMISSION, doneAt: STEP.UPLOADING },
+  { key: 'upload', title: 'Upload to storage', Icon: CloudUploadOutlinedIcon, start: STEP.UPLOADING, doneAt: STEP.UPLOADED },
+  { key: 'check', title: 'Content check', Icon: FactCheckOutlinedIcon, start: STEP.CHECKING, doneAt: STEP.DONE },
+  { key: 'result', title: 'Result', Icon: TaskAltOutlinedIcon, start: STEP.DONE, doneAt: STEP.DONE },
 ];
 
 const STATUS_LABEL = { idle: 'Not started', active: 'In progress', done: 'Done', failed: 'Failed' };
@@ -58,23 +31,49 @@ function stageStatus(stage, { activeStep, failedAt, mediaStatus }) {
   return 'idle';
 }
 
-function resultNote(mediaStatus) {
-  if (!mediaStatus) return 'Approved files get a private preview link.';
-  if (mediaStatus.status === 'approved') return 'Approved. The preview is below.';
-  if (mediaStatus.status === 'rejected') return `Rejected: ${mediaStatus.rejection_reason || 'no reason given'}.`;
-  return `Unexpected status: ${mediaStatus.status}.`;
-}
+// Same expanding ring as StatusDot's PENDING treatment (DESIGN.md §7).
+const ring = keyframes`
+  from { transform: scale(1); opacity: .9; }
+  to { transform: scale(1.6); opacity: 0; }
+`;
 
-// Status dots in the chart palette (DESIGN.md §2.3).
-function Node({ stage, status, working }) {
-  const color = { active: t.chartAmber, failed: t.chartOrange, done: stage.key === 'result' ? t.chartOlive : t.chartInk }[status];
+// Step icon in a circle, coloured by status with the chart palette (DESIGN.md §2.3):
+// hollow when not started, amber outline in progress, filled when done or failed.
+function StepIcon({ stage, size }) {
+  const { status, working } = stage;
+  const Icon = status === 'failed' ? ErrorOutlineOutlinedIcon : stage.Icon;
+  const fill = { done: stage.key === 'result' ? t.chartOlive : t.chartInk, failed: t.chartOrange }[status];
+  const line = fill ?? (status === 'active' ? t.chartAmber : t.rule);
   return (
     <Box
       role="img"
       aria-label={`${stage.title}: ${STATUS_LABEL[status]}`}
-      sx={{ position: 'relative', zIndex: 1, width: 28, height: 28, mx: 'auto', display: 'grid', placeItems: 'center' }}
+      sx={{
+        position: 'relative',
+        zIndex: 1,
+        width: size,
+        height: size,
+        mx: 'auto',
+        borderRadius: '50%',
+        display: 'grid',
+        placeItems: 'center',
+        border: `1px solid ${line}`,
+        bgcolor: fill ?? t.card,
+        color: fill ? t.card : status === 'active' ? t.chartAmber : t.ink42,
+        ...(working && {
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            inset: -1,
+            borderRadius: '50%',
+            border: `1px solid ${t.chartAmber}`,
+            animation: `${ring} 1.8s var(--ease) infinite`,
+          },
+          [reducedMotion]: { '&::after': { animation: 'none', opacity: 0 } },
+        }),
+      }}
     >
-      <StatusDot size={11} color={color} hollow={status === 'idle'} pulse={status === 'active' && working} />
+      <Icon sx={{ fontSize: size * 0.5 }} />
     </Box>
   );
 }
@@ -90,22 +89,22 @@ function UploadBar({ value }) {
   );
 }
 
-// The stage to describe under the compact dots: a failure, else the one in progress,
+// The stage to name under the compact row: a failure, else the one in progress,
 // else the furthest one reached.
 function currentIndex(stages) {
   const failed = stages.findIndex((s) => s.status === 'failed');
   if (failed !== -1) return failed;
   const active = stages.findIndex((s) => s.status === 'active');
   if (active !== -1) return active;
-  const reached = stages.findLastIndex((s) => s.status !== 'idle');
-  return Math.max(reached, 0);
+  return Math.max(stages.findLastIndex((s) => s.status !== 'idle'), 0);
 }
 
-// Horizontal stepper like the original: centred dots joined by a rail, labels below.
-// Below md the labels are dropped and only the current stage is described.
+// Horizontal stepper like the original: icons joined by a rail, titles below.
+// Below md the titles are dropped and only the current stage is named.
 export default function PipelineStatus({ activeStep, failedAt, uploading, uploadProgress, statusLoading, mediaStatus }) {
   const compact = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const context = { activeStep, failedAt, mediaStatus };
+  const size = compact ? 36 : 44;
 
   const stages = STAGES.map((stage) => {
     const status = stageStatus(stage, context);
@@ -116,8 +115,7 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
         (stage.key === 'permission' && uploading && activeStep === STEP.PERMISSION) ||
         (stage.key === 'upload' && uploading && activeStep === STEP.UPLOADING) ||
         (stage.key === 'check' && statusLoading),
-      showProgress: stage.key === 'upload' && (status === 'active' || uploadProgress > 0) && status !== 'failed',
-      note: stage.key === 'result' ? resultNote(mediaStatus) : stage.note,
+      showProgress: stage.key === 'upload' && status === 'active',
     };
   });
   const currentAt = currentIndex(stages);
@@ -139,32 +137,24 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
               position: 'relative',
               textAlign: 'center',
               px: 1.5,
-              // Rail to the next dot; solid once this stage is done.
+              // Rail to the next icon; solid once this stage is done.
               '&::after':
                 index === stages.length - 1
                   ? undefined
                   : {
                       content: '""',
                       position: 'absolute',
-                      top: 13.5,
-                      left: 'calc(50% + 14px)',
-                      right: 'calc(-50% + 14px)',
+                      top: size / 2,
+                      left: `calc(50% + ${size / 2 + 6}px)`,
+                      right: `calc(-50% + ${size / 2 + 6}px)`,
                       borderTop: `1px ${stage.status === 'done' ? `solid ${t.ink}` : `dotted ${t.rule}`}`,
                     },
             }}
           >
-            <Node stage={stage} status={stage.status} working={stage.working} />
+            <StepIcon stage={stage} size={size} />
             {!compact && (
               <Box sx={{ mt: 1.5, opacity: stage.status === 'idle' ? 0.6 : 1 }}>
                 <Typography variant="subtitle1">{stage.title}</Typography>
-                <Typography variant="body2" sx={{ color: t.ink60, mt: 0.5 }}>
-                  {stage.note}
-                </Typography>
-                {stage.services && (
-                  <Typography variant="meta" component="p" sx={{ mt: 0.75 }}>
-                    {stage.services}
-                  </Typography>
-                )}
                 {stage.showProgress && <UploadBar value={uploadProgress} />}
               </Box>
             )}
@@ -175,14 +165,10 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
       {compact && (
         <Box aria-live="polite" sx={{ mt: 2, textAlign: 'center' }}>
           <Typography variant="meta" component="p">
-            Step {currentAt + 1} of {stages.length} ·{' '}
-            {STATUS_LABEL[current.status]}
+            Step {currentAt + 1} of {stages.length} · {STATUS_LABEL[current.status]}
           </Typography>
           <Typography variant="subtitle1" sx={{ mt: 0.5 }}>
             {current.title}
-          </Typography>
-          <Typography variant="body2" sx={{ color: t.ink60, mt: 0.5 }}>
-            {current.note}
           </Typography>
           {current.showProgress && <UploadBar value={uploadProgress} />}
         </Box>
