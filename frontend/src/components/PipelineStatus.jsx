@@ -3,27 +3,34 @@ import { keyframes } from '@mui/material/styles';
 import {
   CheckCircleIcon,
   CloudArrowUpIcon,
+  DatabaseIcon,
   FileIcon,
-  KeyIcon,
-  MagnifyingGlassIcon,
+  LightningIcon,
+  ShareNetworkIcon,
   WarningCircleIcon,
 } from '@phosphor-icons/react';
 import { STEP } from '../hooks/useMediaUpload';
 import { reducedMotion, t } from '../lib/tokens';
 
 // `start`/`doneAt` are activeStep thresholds from useMediaUpload.
+// Named after the AWS service touched at each stage, matching the original stepper.
 const STAGES = [
-  { key: 'select', title: 'File chosen', Icon: FileIcon, start: STEP.SELECTED, doneAt: STEP.SELECTED },
-  { key: 'permission', title: 'Upload permission', Icon: KeyIcon, start: STEP.PERMISSION, doneAt: STEP.UPLOADING },
-  { key: 'upload', title: 'Upload to storage', Icon: CloudArrowUpIcon, start: STEP.UPLOADING, doneAt: STEP.UPLOADED },
-  { key: 'check', title: 'Content check', Icon: MagnifyingGlassIcon, start: STEP.CHECKING, doneAt: STEP.DONE },
-  { key: 'result', title: 'Result', Icon: CheckCircleIcon, start: STEP.DONE, doneAt: STEP.DONE },
+  { key: 'select', title: 'File Selected', Icon: FileIcon, start: STEP.SELECTED, doneAt: STEP.SELECTED },
+  { key: 'gateway', title: 'API Gateway', Icon: ShareNetworkIcon, start: STEP.PERMISSION, doneAt: STEP.PERMISSION },
+  { key: 'presign', title: 'Lambda (Presign)', Icon: LightningIcon, start: STEP.PERMISSION, doneAt: STEP.PERMISSION },
+  { key: 'upload', title: 'S3 Upload', Icon: CloudArrowUpIcon, start: STEP.UPLOADING, doneAt: STEP.UPLOADED },
+  { key: 'dynamo', title: 'DynamoDB Query', Icon: DatabaseIcon, start: STEP.CHECKING, doneAt: STEP.DONE },
+  { key: 'result', title: 'Validation Complete', Icon: CheckCircleIcon, start: STEP.DONE, doneAt: STEP.DONE },
 ];
 
 const STATUS_LABEL = { idle: 'Not started', active: 'In progress', done: 'Done', failed: 'Failed' };
 
+// failedAt values from useMediaUpload ('permission' | 'upload' | 'check') each cover
+// one request; 'permission' spans the gateway+presign nodes, 'check' is the dynamo node.
+const FAILED_AT_KEYS = { permission: ['gateway', 'presign'], upload: ['upload'], check: ['dynamo'] };
+
 function stageStatus(stage, { activeStep, failedAt, mediaStatus }) {
-  if (failedAt === stage.key) return 'failed';
+  if (FAILED_AT_KEYS[failedAt]?.includes(stage.key)) return 'failed';
   if (stage.key === 'result') {
     if (activeStep < STEP.DONE) return 'idle';
     return mediaStatus?.status === 'approved' ? 'done' : 'failed';
@@ -147,9 +154,9 @@ export default function PipelineStatus({ activeStep, failedAt, uploading, upload
       ...stage,
       status,
       working:
-        (stage.key === 'permission' && uploading && activeStep === STEP.PERMISSION) ||
+        ((stage.key === 'gateway' || stage.key === 'presign') && uploading && activeStep === STEP.PERMISSION) ||
         (stage.key === 'upload' && uploading && activeStep === STEP.UPLOADING) ||
-        (stage.key === 'check' && statusLoading),
+        (stage.key === 'dynamo' && statusLoading),
       showProgress: stage.key === 'upload' && status === 'active',
     };
   });
