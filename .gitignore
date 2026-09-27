@@ -65,3 +65,6 @@ Desktop.ini
 
 # Terraform plan files (contain account ID / ARNs)
 *.bin
+
+# Untracked local doc
+docs/aws-architecture.md
