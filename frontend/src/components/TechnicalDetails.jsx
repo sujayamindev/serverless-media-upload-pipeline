@@ -3,19 +3,6 @@ import { CaretDownIcon } from '@phosphor-icons/react';
 import { MONO_FONT } from '../theme';
 import { t } from '../lib/tokens';
 
-function redactPresign(presignResponse) {
-  if (!presignResponse?.upload?.fields) return presignResponse;
-  // eslint-disable-next-line no-unused-vars
-  const { policy, 'x-amz-signature': _signature, ...safeFields } = presignResponse.upload.fields;
-  return {
-    ...presignResponse,
-    upload: {
-      ...presignResponse.upload,
-      fields: { ...safeFields, policy: '[redacted]', 'x-amz-signature': '[redacted]' },
-    },
-  };
-}
-
 function JsonBlock({ title, value }) {
   return (
     <Box>
@@ -56,7 +43,7 @@ export default function TechnicalDetails({ presignResponse, uploadResponse, medi
       </AccordionSummary>
       <AccordionDetails>
         <Stack spacing={2.5}>
-          {presignResponse && <JsonBlock title="Upload permission" value={redactPresign(presignResponse)} />}
+          {presignResponse && <JsonBlock title="Upload permission" value={presignResponse} />}
           {uploadResponse && <JsonBlock title="S3 upload" value={uploadResponse} />}
           {mediaStatus && <JsonBlock title="Validation result" value={mediaStatus} />}
         </Stack>
