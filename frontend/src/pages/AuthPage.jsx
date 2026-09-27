@@ -166,6 +166,31 @@ export default function AuthPage() {
     />
   );
 
+  // GitHub link and theme toggle: top right of the form side (top of the page when stacked).
+  const controls = (
+    <>
+      <IconButton
+        component="a"
+        href={REPO_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Source on GitHub (opens in a new tab)"
+        sx={{
+          width: 28,
+          height: 28,
+          p: 0,
+          bgcolor: t.ink6,
+          color: t.ink70,
+          boxShadow: t.shadowNav,
+          '&:hover': { bgcolor: t.ink10, color: t.ink },
+        }}
+      >
+        <GitHubMark size={16} />
+      </IconButton>
+      <ThemeToggle />
+    </>
+  );
+
   return (
     <Box
       sx={{
@@ -184,35 +209,18 @@ export default function AuthPage() {
           justifyContent: 'space-between',
           gap: { xs: 2.5, md: 8 },
           px: { xs: 2, md: 7 },
-          py: { xs: 2, md: 7 },
+          py: { xs: 2, md: 5 },
           borderRight: { md: `1px dashed ${t.rule}` },
           borderBottom: { xs: `1px dashed ${t.rule}`, md: 0 },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: 28 }}>
           <BrandMark size={20} />
           <Typography variant="h5" component="span" sx={{ mr: 'auto' }}>
             Media Upload Pipeline
           </Typography>
-          <IconButton
-            component="a"
-            href={REPO_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Source on GitHub (opens in a new tab)"
-            sx={{
-              width: 28,
-              height: 28,
-              p: 0,
-              bgcolor: t.ink6,
-              color: t.ink70,
-              boxShadow: t.shadowNav,
-              '&:hover': { bgcolor: t.ink10, color: t.ink },
-            }}
-          >
-            <GitHubMark size={16} />
-          </IconButton>
-          <ThemeToggle />
+          {/* Stacked layout: the buttons stay at the top of the page. */}
+          <Box sx={{ display: { xs: 'contents', md: 'none' } }}>{controls}</Box>
         </Box>
 
         <Box sx={{ maxWidth: 480 }}>
@@ -237,136 +245,141 @@ export default function AuthPage() {
           </Link>
         </Box>
 
-        <Box>
-          <Typography variant="meta" component="p" sx={{ display: { xs: 'none', md: 'block' }, mb: 1 }}>
-            Serverless on AWS: CloudFront, API Gateway, Lambda, S3 and DynamoDB.
-          </Typography>
-          <Typography variant="meta" component="p">
-            Built by{' '}
-            <Link href={SITE_URL} target="_blank" rel="noopener noreferrer" sx={{ color: 'inherit', textTransform: 'none' }}>
-              sujaya.dev
-            </Link>
-          </Typography>
-        </Box>
+        <Typography variant="meta" component="p" sx={{ display: { xs: 'none', md: 'block' } }}>
+          Serverless on AWS: CloudFront, API Gateway, Lambda, S3 and DynamoDB.
+        </Typography>
       </Box>
 
       {/* Form */}
       <Box
         sx={{
           display: 'flex',
-          alignItems: { xs: 'flex-start', md: 'center' },
-          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: { xs: 2.5, md: 3 },
           px: { xs: 2, md: 7 },
-          py: { xs: 2.5, md: 7 },
+          py: { xs: 2.5, md: 5 },
         }}
       >
-        {/* Framed like the upload page's cards: corner ticks, no visible outline. */}
-        <Box sx={formCard}>
-          <Typography variant="h3" component="h2" sx={{ mb: { xs: 2, sm: 3 } }}>
-            {HEADINGS[view]}
-          </Typography>
-
-          {view !== VIEW_CONFIRM && (
-            <Alert severity="info" sx={{ mb: 2.5 }}>
-              {DEMO_HINT}
-            </Alert>
-          )}
-
-          {error && (
-            <Alert severity="error" sx={{ mb: 2.5 }}>
-              {error}
-            </Alert>
-          )}
-
-          {view === VIEW_LOGIN && (
-            <Box component="form" onSubmit={handleLogin}>
-              <Stack spacing={2.5}>
-                {emailField}
-                <TextField
-                  label="Password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  fullWidth
-                  autoComplete="current-password"
-                />
-                <Button type="submit" variant="contained" disabled={submitting}>
-                  {submitting ? 'Signing in…' : 'Sign in'}
-                </Button>
-                <Typography variant="body2" color="text.secondary">
-                  No account?{' '}
-                  <Link component="button" type="button" onClick={() => switchView(VIEW_REGISTER)}>
-                    Create one
-                  </Link>
-                </Typography>
-              </Stack>
-            </Box>
-          )}
-
-          {view === VIEW_REGISTER && (
-            <Box component="form" onSubmit={handleRegister}>
-              <Stack spacing={2.5}>
-                {emailField}
-                <TextField
-                  label="Password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  fullWidth
-                  autoComplete="new-password"
-                  helperText="Min 8 characters with upper, lower, and number."
-                />
-                <TextField
-                  label="Confirm password"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  fullWidth
-                  autoComplete="new-password"
-                />
-                <Button type="submit" variant="contained" disabled={submitting}>
-                  {submitting ? 'Creating account…' : 'Create account'}
-                </Button>
-                <Typography variant="body2" color="text.secondary">
-                  Already have an account?{' '}
-                  <Link component="button" type="button" onClick={() => switchView(VIEW_LOGIN)}>
-                    Sign in
-                  </Link>
-                </Typography>
-              </Stack>
-            </Box>
-          )}
-
-          {view === VIEW_CONFIRM && (
-            <Box component="form" onSubmit={handleConfirm}>
-              <Stack spacing={2.5}>
-                <Typography variant="body2" color="text.secondary">
-                  Check your email for a verification code, then enter it below.
-                </Typography>
-                {emailField}
-                <TextField
-                  label="Verification code"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  required
-                  fullWidth
-                  slotProps={{ htmlInput: { inputMode: 'numeric', autoComplete: 'one-time-code' } }}
-                />
-                <Button type="submit" variant="contained" disabled={submitting}>
-                  {submitting ? 'Confirming…' : 'Confirm'}
-                </Button>
-                <Typography variant="body2">
-                  <Link component="button" type="button" onClick={() => switchView(VIEW_LOGIN)}>
-                    Back to sign in
-                  </Link>
-                </Typography>
-              </Stack>
-            </Box>
-          )}
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end', gap: 1, minHeight: 28 }}>
+          {controls}
         </Box>
+
+        <Box sx={{ flex: 1, display: 'flex', alignItems: { xs: 'flex-start', md: 'center' }, justifyContent: 'center' }}>
+          {/* Framed like the upload page's cards: corner ticks, no visible outline. */}
+          <Box sx={formCard}>
+            <Typography variant="h3" component="h2" sx={{ mb: { xs: 2, sm: 3 } }}>
+              {HEADINGS[view]}
+            </Typography>
+
+            {view !== VIEW_CONFIRM && (
+              <Alert severity="info" sx={{ mb: 2.5 }}>
+                {DEMO_HINT}
+              </Alert>
+            )}
+
+            {error && (
+              <Alert severity="error" sx={{ mb: 2.5 }}>
+                {error}
+              </Alert>
+            )}
+
+            {view === VIEW_LOGIN && (
+              <Box component="form" onSubmit={handleLogin}>
+                <Stack spacing={2.5}>
+                  {emailField}
+                  <TextField
+                    label="Password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    fullWidth
+                    autoComplete="current-password"
+                  />
+                  <Button type="submit" variant="contained" disabled={submitting}>
+                    {submitting ? 'Signing in…' : 'Sign in'}
+                  </Button>
+                  <Typography variant="body2" color="text.secondary">
+                    No account?{' '}
+                    <Link component="button" type="button" onClick={() => switchView(VIEW_REGISTER)}>
+                      Create one
+                    </Link>
+                  </Typography>
+                </Stack>
+              </Box>
+            )}
+
+            {view === VIEW_REGISTER && (
+              <Box component="form" onSubmit={handleRegister}>
+                <Stack spacing={2.5}>
+                  {emailField}
+                  <TextField
+                    label="Password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    fullWidth
+                    autoComplete="new-password"
+                    helperText="Min 8 characters with upper, lower, and number."
+                  />
+                  <TextField
+                    label="Confirm password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    fullWidth
+                    autoComplete="new-password"
+                  />
+                  <Button type="submit" variant="contained" disabled={submitting}>
+                    {submitting ? 'Creating account…' : 'Create account'}
+                  </Button>
+                  <Typography variant="body2" color="text.secondary">
+                    Already have an account?{' '}
+                    <Link component="button" type="button" onClick={() => switchView(VIEW_LOGIN)}>
+                      Sign in
+                    </Link>
+                  </Typography>
+                </Stack>
+              </Box>
+            )}
+
+            {view === VIEW_CONFIRM && (
+              <Box component="form" onSubmit={handleConfirm}>
+                <Stack spacing={2.5}>
+                  <Typography variant="body2" color="text.secondary">
+                    Check your email for a verification code, then enter it below.
+                  </Typography>
+                  {emailField}
+                  <TextField
+                    label="Verification code"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    required
+                    fullWidth
+                    slotProps={{ htmlInput: { inputMode: 'numeric', autoComplete: 'one-time-code' } }}
+                  />
+                  <Button type="submit" variant="contained" disabled={submitting}>
+                    {submitting ? 'Confirming…' : 'Confirm'}
+                  </Button>
+                  <Typography variant="body2">
+                    <Link component="button" type="button" onClick={() => switchView(VIEW_LOGIN)}>
+                      Back to sign in
+                    </Link>
+                  </Typography>
+                </Stack>
+              </Box>
+            )}
+          </Box>
+        </Box>
+
+        <Typography variant="meta" component="p" sx={{ textAlign: { md: 'right' } }}>
+          Built by{' '}
+          <Link href={SITE_URL} target="_blank" rel="noopener noreferrer" sx={{ color: 'inherit', textTransform: 'none' }}>
+            sujaya.dev
+          </Link>
+        </Typography>
       </Box>
     </Box>
   );
