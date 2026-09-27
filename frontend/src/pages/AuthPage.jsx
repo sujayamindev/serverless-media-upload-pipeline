@@ -42,8 +42,16 @@ const formCard = {
   '&::before': bracketTicks(),
 };
 
-const DEMO_HINT =
-  'Testing the demo? Sign up with any working email and you’ll get a verification code. Disposable inboxes like temp-mail.org work.';
+const DEMO_HINT = (
+  <>
+    Testing the demo? Sign up with any working email and you&rsquo;ll get a verification code.
+    Disposable inboxes like{' '}
+    <Link href="https://temp-mail.org" target="_blank" rel="noopener noreferrer">
+      temp-mail.org
+    </Link>{' '}
+    work.
+  </>
+);
 
 function getErrorMessage(err) {
   if (!err) return 'Something went wrong.';
