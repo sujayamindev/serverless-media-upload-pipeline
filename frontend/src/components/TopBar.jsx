@@ -6,7 +6,7 @@ import GitHubMark from './GitHubMark';
 import { useAuth } from '../auth/useAuth';
 import { metaType, t } from '../lib/tokens';
 
-const REPO_URL = 'https://github.com/sujayamindev/serverless-media-upload-pipeline';
+export const REPO_URL = 'https://github.com/sujayamindev/serverless-media-upload-pipeline';
 
 const LINKS = [
   { to: '/', label: 'Upload' },

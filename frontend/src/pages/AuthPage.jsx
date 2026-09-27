@@ -7,11 +7,13 @@ import {
   Alert,
   Link,
   Box,
+  IconButton,
 } from '@mui/material';
 import BrandMark from '../components/BrandMark';
-import BracketFrame from '../components/BracketFrame';
+import GitHubMark from '../components/GitHubMark';
 import ThemeToggle from '../components/ThemeToggle';
-import { t } from '../lib/tokens';
+import { REPO_URL } from '../components/TopBar';
+import { bracketTicks, t } from '../lib/tokens';
 import { useAuth } from '../auth/useAuth';
 
 const VIEW_LOGIN = 'login';
@@ -29,6 +31,16 @@ const FACTS = [
   'Uploads go straight from your browser to S3. The API only issues a five-minute upload link.',
   'Only approved files get a preview link, and only the account that uploaded a file can ask for it.',
 ];
+
+const formCard = {
+  position: 'relative',
+  width: '100%',
+  maxWidth: 440,
+  border: '1px solid transparent',
+  bgcolor: t.card,
+  p: { xs: 2.5, sm: 4.5 },
+  '&::before': bracketTicks(),
+};
 
 const DEMO_HINT =
   'Testing the demo? Sign up with any working email and you’ll get a verification code. Disposable inboxes like temp-mail.org work.';
@@ -150,6 +162,8 @@ export default function AuthPage() {
         minHeight: '100vh',
         display: 'grid',
         gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) minmax(0, 1fr)' },
+        // Stacked on small screens: the brand section keeps its own height, the form takes the rest.
+        gridTemplateRows: { xs: 'auto 1fr', md: 'none' },
       }}
     >
       {/* Brand panel */}
@@ -158,17 +172,36 @@ export default function AuthPage() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          gap: { xs: 3, md: 8 },
-          p: { xs: 3, md: 7 },
+          gap: { xs: 2.5, md: 8 },
+          px: { xs: 2, md: 7 },
+          py: { xs: 2, md: 7 },
           borderRight: { md: `1px dashed ${t.rule}` },
           borderBottom: { xs: `1px dashed ${t.rule}`, md: 0 },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <BrandMark size={20} />
           <Typography variant="h5" component="span" sx={{ mr: 'auto' }}>
             Media Upload Pipeline
           </Typography>
+          <IconButton
+            component="a"
+            href={REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Source on GitHub (opens in a new tab)"
+            sx={{
+              width: 28,
+              height: 28,
+              p: 0,
+              bgcolor: t.ink6,
+              color: t.ink70,
+              boxShadow: t.shadowNav,
+              '&:hover': { bgcolor: t.ink10, color: t.ink },
+            }}
+          >
+            <GitHubMark size={16} />
+          </IconButton>
           <ThemeToggle />
         </Box>
 
@@ -191,9 +224,18 @@ export default function AuthPage() {
       </Box>
 
       {/* Form */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: { xs: 3, md: 7 } }}>
-        <BracketFrame sx={{ width: '100%', maxWidth: 440, bgcolor: t.card, p: { xs: 3, sm: 4.5 } }}>
-          <Typography variant="h3" component="h2" sx={{ mb: 3 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: { xs: 'flex-start', md: 'center' },
+          justifyContent: 'center',
+          px: { xs: 2, md: 7 },
+          py: { xs: 2.5, md: 7 },
+        }}
+      >
+        {/* Framed like the upload page's cards: corner ticks, no visible outline. */}
+        <Box sx={formCard}>
+          <Typography variant="h3" component="h2" sx={{ mb: { xs: 2, sm: 3 } }}>
             {HEADINGS[view]}
           </Typography>
 
@@ -297,7 +339,7 @@ export default function AuthPage() {
               </Stack>
             </Box>
           )}
-        </BracketFrame>
+        </Box>
       </Box>
     </Box>
   );
