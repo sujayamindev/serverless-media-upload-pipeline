@@ -56,6 +56,7 @@ function App() {
             />
             {/* Public, so visitors can read it before signing in. */}
             <Route path="/how-this-works" element={<HowItWorksPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
       </AuthProvider>
