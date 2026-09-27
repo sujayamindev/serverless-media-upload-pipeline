@@ -64,7 +64,7 @@ const navLink = {
 
 /** Three floating capsules: links (left), brand (centre), account (right). */
 export default function TopBar() {
-  const { user, signOut } = useAuth();
+  const { user, isAuthenticated, isLoading, signOut } = useAuth();
   const { pathname } = useLocation();
 
   return (
@@ -165,9 +165,18 @@ export default function TopBar() {
             {user.email}
           </Box>
         )}
-        <Button variant="contained" size="small" onClick={signOut}>
-          Sign out
-        </Button>
+        {isAuthenticated ? (
+          <Button variant="contained" size="small" onClick={signOut}>
+            Sign out
+          </Button>
+        ) : (
+          // Signed-out visitors can read How it works; this takes them back to the form.
+          !isLoading && (
+            <Button variant="contained" size="small" component={RouterLink} to="/login">
+              Sign in
+            </Button>
+          )
+        )}
       </Capsule>
     </Box>
   );

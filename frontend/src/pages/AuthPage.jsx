@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import { ArrowRightIcon } from '@phosphor-icons/react';
 import {
   Typography,
   TextField,
@@ -224,6 +226,15 @@ export default function AuthPage() {
               </Typography>
             ))}
           </Stack>
+          <Link
+            component={RouterLink}
+            to="/how-this-works"
+            variant="body1"
+            sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, mt: { xs: 1.5, md: 3 } }}
+          >
+            How it works
+            <ArrowRightIcon size={16} aria-hidden />
+          </Link>
         </Box>
 
         <Typography variant="meta" component="p" sx={{ display: { xs: 'none', md: 'block' } }}>

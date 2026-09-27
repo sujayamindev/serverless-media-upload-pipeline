@@ -54,14 +54,8 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/how-this-works"
-              element={
-                <ProtectedRoute>
-                  <HowItWorksPage />
-                </ProtectedRoute>
-              }
-            />
+            {/* Public, so visitors can read it before signing in. */}
+            <Route path="/how-this-works" element={<HowItWorksPage />} />
           </Routes>
         </Router>
       </AuthProvider>
