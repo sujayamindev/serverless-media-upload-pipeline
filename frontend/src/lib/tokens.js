@@ -1,4 +1,4 @@
-// Antimetal design tokens (see frontend/DESIGN.md). This is the only file that
+// Antimetal design tokens. This is the only file that
 // holds colour literals; components reference the CSS variables through `t`.
 
 export const SANS = '"Geist Variable", Geist, ui-sans-serif, system-ui, sans-serif';
@@ -9,7 +9,7 @@ export const EASE = 'cubic-bezier(.22, 1, .36, 1)';
 const INK = '#1a1614';
 const CREAM = '#f4f4e7';
 
-// Text opacity ladder (DESIGN.md §2.1): ink in light, cream in dark.
+// Text opacity ladder: ink in light, cream in dark.
 const ladder = (hex) => ({
   '--ink-70': `${hex}b3`,
   '--ink-60': `${hex}99`,
@@ -166,7 +166,7 @@ export function bracketTicks({ color = t.ink, length = 8, width = '1.5px' } = {}
   };
 }
 
-// Mono label styles (DESIGN.md §3).
+// Mono label styles.
 export const eyebrowType = {
   fontFamily: MONO,
   fontSize: 10,

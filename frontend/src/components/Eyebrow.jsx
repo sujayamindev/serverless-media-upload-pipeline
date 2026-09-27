@@ -5,7 +5,7 @@ import StatusDot from './StatusDot';
 const TONE = { ink: t.ink60, orange: t.orange, success: t.successText };
 
 /**
- * Mono uppercase eyebrow chip (DESIGN.md §6). `dot` prepends a coloured status
+ * Mono uppercase eyebrow chip. `dot` prepends a coloured status
  * dot, optionally pulsing.
  */
 export default function Eyebrow({ tone = 'ink', dot, pulse = false, sx, children }) {

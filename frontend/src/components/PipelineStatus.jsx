@@ -33,7 +33,7 @@ function stageStatus(stage, { activeStep, failedAt, mediaStatus }) {
   return 'idle';
 }
 
-// Same expanding ring as StatusDot's PENDING treatment (DESIGN.md §7).
+// Same expanding ring as StatusDot's PENDING treatment.
 const ring = keyframes`
   from { transform: scale(1); opacity: .9; }
   to { transform: scale(1.6); opacity: 0; }
@@ -69,7 +69,7 @@ function ProgressRing({ size, value }) {
   );
 }
 
-// Step icon in a circle, coloured by status with the chart palette (DESIGN.md §2.3):
+// Step icon in a circle, coloured by status with the chart palette:
 // hollow when not started, amber outline in progress, filled when done or failed.
 // With `progress` set, the outline becomes a progress ring.
 function StepIcon({ stage, size, progress }) {

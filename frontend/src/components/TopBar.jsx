@@ -15,7 +15,7 @@ const LINKS = [
   { to: '/how-this-works', label: 'How it works' },
 ];
 
-// Floating translucent capsule (DESIGN.md §4/§5).
+// Floating translucent capsule.
 function Capsule({ area, sx, children, ...props }) {
   return (
     <Box

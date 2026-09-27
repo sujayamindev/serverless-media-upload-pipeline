@@ -2,8 +2,8 @@ import { Box } from '@mui/material';
 import { bracketTicks, t } from '../lib/tokens';
 
 /**
- * Square-cornered frame with a dashed hairline border and ink corner ticks
- * (DESIGN.md §4). `active` switches the border to solid ink.
+ * Square-cornered frame with a dashed hairline border and ink corner ticks.
+ * `active` switches the border to solid ink.
  */
 export default function BracketFrame({ active = false, sx, children, ...props }) {
   return (

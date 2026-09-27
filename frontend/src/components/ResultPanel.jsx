@@ -38,7 +38,7 @@ function Preview({ url, contentType }) {
   return <Box component="img" src={url} alt="Approved upload" sx={fill} />;
 }
 
-// Status chip tone and dot (DESIGN.md §2.3).
+// Status chip tone and dot.
 const CHIP = {
   approved: { tone: 'success', dot: t.success },
   rejected: { tone: 'orange', dot: t.error },

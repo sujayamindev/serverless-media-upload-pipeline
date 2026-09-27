@@ -12,7 +12,7 @@ import {
   t,
 } from './lib/tokens';
 
-// Antimetal theme (frontend/DESIGN.md). Light and dark follow the OS by default;
+// Antimetal theme. Light and dark follow the OS by default;
 // the nav toggle overrides it through useColorScheme(). The attribute is also set
 // before the bundle loads by public/color-scheme-init.js (no inline scripts: the
 // CloudFront CSP is script-src 'self').

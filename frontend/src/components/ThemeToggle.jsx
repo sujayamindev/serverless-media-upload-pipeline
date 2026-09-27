@@ -6,7 +6,7 @@ import { t } from '../lib/tokens';
 const LABEL = { light: 'Light', dark: 'Dark' };
 const ICON = { light: SunIcon, dark: MoonIcon };
 
-/** Round capsule-style button switching between light and dark (DESIGN.md §8). */
+/** Round capsule-style button switching between light and dark. */
 export default function ThemeToggle() {
   const { mode, systemMode, setMode } = useColorScheme();
   // Until the user picks one, MUI reports 'system'; show what the OS resolved to.

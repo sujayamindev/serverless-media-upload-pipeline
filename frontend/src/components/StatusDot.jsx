@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import { keyframes } from '@mui/material/styles';
 import { reducedMotion, t } from '../lib/tokens';
 
-// PENDING treatment (DESIGN.md §7): a 1px ring expanding outward.
+// PENDING treatment: a 1px ring expanding outward.
 const ring = keyframes`
   from { transform: scale(1); opacity: .9; }
   to { transform: scale(2.8); opacity: 0; }

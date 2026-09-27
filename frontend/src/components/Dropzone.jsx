@@ -30,7 +30,7 @@ const hiddenInput = {
 };
 
 /**
- * File picker marked by bracket corner ticks, with no outline (DESIGN.md §9).
+ * File picker marked by bracket corner ticks, with no outline.
  * Drag-over tints the fill 6% ink. While `scanning` is true a
  * hairline sweeps over the preview, matching the server-side content check.
  * `children` are rendered as extra actions when a file is selected.
