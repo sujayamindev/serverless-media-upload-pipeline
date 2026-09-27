@@ -3,10 +3,12 @@ import { Box, Button, Typography } from '@mui/material';
 import BrandMark from './BrandMark';
 import ThemeToggle from './ThemeToggle';
 import GitHubMark from './GitHubMark';
+import { GlobeSimpleIcon } from '@phosphor-icons/react';
 import { useAuth } from '../auth/useAuth';
 import { metaType, t } from '../lib/tokens';
 
 export const REPO_URL = 'https://github.com/sujayamindev/serverless-media-upload-pipeline';
+export const SITE_URL = 'https://sujaya.dev';
 
 const LINKS = [
   { to: '/', label: 'Upload' },
@@ -106,8 +108,23 @@ export default function TopBar() {
           aria-label="Source on GitHub (opens in a new tab)"
         >
           <GitHubMark size={16} />
-          <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+          <Box component="span" sx={{ display: { xs: 'none', sm: 'inline', md: 'none', lg: 'inline' } }}>
             GitHub
+          </Box>
+        </Box>
+        <Box
+          component="a"
+          href={SITE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={navLink}
+          aria-label="sujaya.dev, the author's website (opens in a new tab)"
+          title="sujaya.dev"
+        >
+          <GlobeSimpleIcon size={16} />
+          {/* Text only where the links capsule clears the centred brand capsule. */}
+          <Box component="span" sx={{ display: 'none', '@media (min-width: 1360px)': { display: 'inline' } }}>
+            sujaya.dev
           </Box>
         </Box>
       </Capsule>
@@ -117,7 +134,7 @@ export default function TopBar() {
         sx={{
           justifySelf: { xs: 'start', md: 'center' },
           justifyContent: 'center',
-          width: { md: 385 },
+          width: { lg: 385 },
           px: { xs: 2, md: 3 },
         }}
       >
@@ -136,7 +153,7 @@ export default function TopBar() {
         >
           <BrandMark />
           <Typography component="span" sx={{ fontSize: 16, lineHeight: '24px', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
-            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline', md: 'none', lg: 'inline' } }}>
               Media Upload{' '}
             </Box>
             Pipeline

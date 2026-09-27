@@ -14,7 +14,7 @@ import {
 import BrandMark from '../components/BrandMark';
 import GitHubMark from '../components/GitHubMark';
 import ThemeToggle from '../components/ThemeToggle';
-import { REPO_URL } from '../components/TopBar';
+import { REPO_URL, SITE_URL } from '../components/TopBar';
 import { bracketTicks, t } from '../lib/tokens';
 import { useAuth } from '../auth/useAuth';
 
@@ -237,9 +237,17 @@ export default function AuthPage() {
           </Link>
         </Box>
 
-        <Typography variant="meta" component="p" sx={{ display: { xs: 'none', md: 'block' } }}>
-          Serverless on AWS: CloudFront, API Gateway, Lambda, S3 and DynamoDB.
-        </Typography>
+        <Box>
+          <Typography variant="meta" component="p" sx={{ display: { xs: 'none', md: 'block' }, mb: 1 }}>
+            Serverless on AWS: CloudFront, API Gateway, Lambda, S3 and DynamoDB.
+          </Typography>
+          <Typography variant="meta" component="p">
+            Built by{' '}
+            <Link href={SITE_URL} target="_blank" rel="noopener noreferrer" sx={{ color: 'inherit', textTransform: 'none' }}>
+              sujaya.dev
+            </Link>
+          </Typography>
+        </Box>
       </Box>
 
       {/* Form */}
