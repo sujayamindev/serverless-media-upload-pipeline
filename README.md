@@ -12,7 +12,7 @@ Files go directly from the browser to S3 — the backend never touches the file 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-<a href="https://d2mt0cnx8t9hcw.cloudfront.net/"> <img alt="Static Badge" src="https://img.shields.io/badge/%F0%9F%94%97%20Live%20Demo-brightgreen?style=for-the-badge"> </a>
+<a href="https://media.sujaya.dev/"> <img alt="Static Badge" src="https://img.shields.io/badge/%F0%9F%94%97%20Live%20Demo-brightgreen?style=for-the-badge"> </a>
 
 
 </div>
@@ -203,6 +203,7 @@ cp terraform.tfvars.example terraform.tfvars
 | `project_name` | Base name for all resources — must be globally unique (used as S3 bucket name) |
 | `cloudfront_waf_arn` | WAF ARN if your CloudFront distribution requires one |
 | `validator_layer_arns` | ARNs of Lambda layers for Pillow, OpenCV, and filetype |
+| `frontend_domain` | Optional custom domain for the frontend. Leave blank (default) to use the default CloudFront domain |
 
 ### Step 2 — Lambda layers
 
@@ -249,6 +250,13 @@ terraform output -raw cognito_user_pool_id          # → VITE_COGNITO_USER_POOL
 terraform output -raw cognito_client_id             # → VITE_COGNITO_CLIENT_ID
 terraform output cloudfront_domain                  # → your live URL
 ```
+
+<details>
+<summary><strong>Optional — custom domain</strong></summary>
+
+Set `frontend_domain` in `terraform.tfvars` (e.g. `media.example.com`) and re-apply. This requests a DNS-validated ACM cert in `us-east-1` and attaches it to CloudFront as an alias. If your domain's DNS isn't in Route 53, `terraform apply` will pause waiting for validation — grab the CNAME from `terraform output frontend_domain_validation` and create it at your registrar, then let the apply continue (or re-run it). Once the distribution updates, point your domain at it with a CNAME to the value from `cloudfront_domain`.
+
+</details>
 
 ### Step 4 — Deploy the frontend
 
@@ -436,7 +444,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 <div align="center">
 
-<a href="https://d2mt0cnx8t9hcw.cloudfront.net/"> <img alt="Static Badge" src="https://img.shields.io/badge/%F0%9F%94%97%20Live%20Demo-brightgreen?style=for-the-badge"> </a>
+<a href="https://media.sujaya.dev/"> <img alt="Static Badge" src="https://img.shields.io/badge/%F0%9F%94%97%20Live%20Demo-brightgreen?style=for-the-badge"> </a>
 
 If you found this project useful, consider giving it a ⭐
 

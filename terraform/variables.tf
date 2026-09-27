@@ -20,3 +20,9 @@ variable "cloudfront_waf_arn" {
   description = "WAF ARN auto-created by CloudFront — find in AWS Console > WAF > Web ACLs"
   type        = string
 }
+
+variable "frontend_domain" {
+  description = "Custom domain for the frontend CloudFront distribution. Leave blank to use the default CloudFront domain (no alias/cert requested)."
+  type        = string
+  default     = ""
+}

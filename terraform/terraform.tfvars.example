@@ -38,3 +38,12 @@ cloudfront_waf_arn = "arn:aws:wafv2:us-east-1:YOUR_ACCOUNT_ID:global/webacl/YOUR
 validator_layer_arns = [
   "arn:aws:lambda:REGION:ACCOUNT_ID:layer:YOUR_ARM64_LAYER:VERSION",
 ]
+
+# Optional: custom domain for the frontend CloudFront distribution.
+# Requesting/validating the ACM cert (us-east-1, DNS validation) is handled by
+# terraform/acm.tf. If your DNS isn't in Route 53, add the validation CNAME from
+# `terraform output frontend_domain_validation` manually at your registrar, then
+# apply again — CloudFront won't pick up the alias until the cert is issued.
+# Defaults to "media.sujaya.dev"; leave commented out to use the default CloudFront
+# domain (no alias/cert) instead.
+# frontend_domain = "your.custom-domain.com"

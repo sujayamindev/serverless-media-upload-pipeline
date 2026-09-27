@@ -13,6 +13,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   comment             = var.project_name
   http_version        = "http2and3"
   web_acl_id          = var.cloudfront_waf_arn
+  aliases             = var.frontend_domain != "" ? [var.frontend_domain] : []
   tags                = local.tags
 
   origin {
@@ -55,6 +56,9 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    cloudfront_default_certificate = var.frontend_domain == "" ? true : null
+    acm_certificate_arn            = var.frontend_domain != "" ? aws_acm_certificate_validation.frontend[0].certificate_arn : null
+    ssl_support_method             = var.frontend_domain != "" ? "sni-only" : null
+    minimum_protocol_version       = var.frontend_domain != "" ? "TLSv1.2_2021" : "TLSv1"
   }
 }
