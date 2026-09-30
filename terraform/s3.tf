@@ -54,7 +54,7 @@ resource "aws_s3_bucket_cors_configuration" "media" {
   cors_rule {
     allowed_headers = ["content-type", "cache-control"]
     allowed_methods = ["GET", "POST", "PUT"]
-    allowed_origins = ["https://${aws_cloudfront_distribution.frontend.domain_name}"]
+    allowed_origins = local.frontend_origins
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }

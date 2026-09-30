@@ -39,7 +39,7 @@ data "archive_file" "get_media_status" {
 
 data "archive_file" "image_validator" {
   type        = "zip"
-  source_dir  = "${path.root}/../lambda/imageValidator/"
+  source_file = "${path.root}/../lambda/imageValidator/lambda_function.py"
   output_path = "${path.root}/.terraform/zips/imageValidator.zip"
 }
 

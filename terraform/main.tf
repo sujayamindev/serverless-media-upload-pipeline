@@ -28,4 +28,11 @@ locals {
     Project   = var.project_name
     ManagedBy = "terraform"
   }
+
+  # Browser origins allowed by S3 and API Gateway CORS: the default CloudFront
+  # domain, plus the custom domain when frontend_domain is set.
+  frontend_origins = concat(
+    ["https://${aws_cloudfront_distribution.frontend.domain_name}"],
+    var.frontend_domain != "" ? ["https://${var.frontend_domain}"] : []
+  )
 }
