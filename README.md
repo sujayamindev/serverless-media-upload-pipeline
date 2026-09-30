@@ -8,7 +8,7 @@ Files go directly from the browser to S3 — the backend never touches the file 
 [![CI](https://github.com/sujayamindev/serverless-media-upload-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/sujayamindev/serverless-media-upload-pipeline/actions/workflows/ci.yml)
 ![AWS](https://img.shields.io/badge/AWS-Serverless-FF9900?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iODAwIiBmaWxsPSIjZmZmIiB2aWV3Qm94PSIwIDAgMzIgMzIiPjxwYXRoIGQ9Ik02LjU4NCA5LjAxYy0xLjM2IDAtMi43NC41My0yLjk3LjgyLS4wNi4xMi0uMiAxLjA5LjEzIDEuMDkuMTEgMCAuMTYuMDIuNDgtLjEzIDEuMi0uNDcgMS45Ni0uNDYgMi4wNy0uNDYgMS4zNS0uMTMgMi4xMy43OSAyLjAxIDEuOTh2LjdjLTEuMTQtLjI3LTEuNzktLjI4LTIuMTEtLjI4LTEuNjYtLjEtMy4xOTQuNzc2LTMuMTk0IDIuNyAwIDIuMTEgMS44ODMgMi41NiAyLjYxMyAyLjUzIDEuMDkuMDEgMi4xMy0uNDggMi44Mi0xLjMzLjU1IDEuMjMuOSAxLjE1LjkxIDEuMTUuMSAwIC4xOC0uMDQuMjYtLjA5bC41Ny0uNGMuMS0uMDYuMTgtLjE2LjE5LS4yOC0uMDEtLjI5LS41My0uNzQtLjQ5LTEuNzV2LTMuMTJhMy4xOCAzLjE4IDAgMCAwLS43OTktMi4zNSAzLjQyIDMuNDIgMCAwIDAtMi40OS0uNzhtMTkuMzczIDBjLTIgMC0zLjE1IDEuMjUtMy4xMiAyLjUyIDAgMS43NCAxLjc2IDIuMjkgMS45NiAyLjM1IDEuNjkuNTMgMS45Mi41NSAyLjM5Ljk1LjQuNDEuMzUgMS4yMS0uMjQgMS41Ni0uMTcuMS0uOS41NC0yLjU1LjItLjU1LS4xMS0uODQtLjI0LTEuMjktLjQzLS4xMi0uMDQtLjQtLjExLS40LjI2di40OWMwIC4yMy4xNC40NC4zNS41NCAxLjA1LjUzIDIuMzEuNTUgMi41OC41NS4wNCAwIDIuMzQuMDAxIDMuMTEtMS41NS4xNTgtLjMyLjU3LTEuNDktLjItMi40OS0uNjQtLjc1LTEuMTktLjgzLTIuODMtMS4zMy0uMTQtLjA0LTEuMzUtLjM1LTEuMzQtMS4yLS4wNi0xLjA5IDEuNDItMS4xNSAxLjczLTEuMTMgMS4yNS0uMDIgMS44Ny40NSAyLjIxLjQ4LjE1IDAgLjIyLS4wOS4yMi0uMjl2LS40NmEuNS41IDAgMCAwLS4wOS0uMzFjLS40LS41Mi0xLjkzLS43MS0yLjQ5LS43MW0tMTUuMTguMjVjLS4xMS4wMi0uMTkuMTMtLjE3LjI0LjAyLjEzLjA0LjI2LjA5LjM5bDIuMjQgNy4zOWMuMDUuMjQuMjEuNS41Ni40NmguODJjLjUuMDUuNTctLjQzLjU4LS40OGwxLjQ3LTYuMTYgMS40OSA2LjE3Yy4wMS4wNS4wOC41My41Ny40OGguODNjLjM2LjA0LjUzLS4yMi41OC0uNDYgMi41Mi04LjExIDIuMzUtNy41NiAyLjM3LTcuNjQuMDQtLjQyLS4yLS4zOS0uMjQtLjM4aC0uODljLS40NS0uMDUtLjU0LjM2LS41Ni40NmwtMS42NiA2LjQxLTEuNS02LjQxYy0uMDctLjQ5LS40Ny0uNDctLjU3LS40NmgtLjc3Yy0uNDQtLjA0LS41NS4zMS0uNTguNDZsLTEuNDkgNi4zMi0xLjYtNi4zMmMtLjA0LS4yLS4xNy0uNTEtLjU2LS40N3ptLTQuMjU0IDQuNjNjLjcyLjAxIDEuMzQyLjEyIDEuNzcyLjIyIDAgLjUuMDE4Ljc4LS4wOTIgMS4yMy0uMTQuNDgtLjc1OSAxLjM1LTIuMjE5IDEuMzctLjg0LjA0LTEuMzktLjYyLTEuMzQtMS4zNy0uMDUtMS4yIDEuMTktMS41IDEuODgtMS40NW0yMi41MTggNi4xMTJjLS45MzMuMDEzLTIuMDM1LjIyMi0yLjg3MS44MDktLjI1OC4xNzktLjIxMy40MjcuMDc0LjM5NC45NC0uMTEzIDMuMDMyLS4zNjcgMy40MDYuMTExcy0uNDE0IDIuNDUtLjc2MyAzLjMzMmMtLjEwOC4yNjMuMTIuMzcyLjM2MS4xNzIgMS41NjQtMS4zMSAxLjk3LTQuMDU2IDEuNjUtNC40NS0uMTYtLjE5OC0uOTI0LS4zODEtMS44NTctLjM2OG0tMjcuODI0IDFjLS4yMTguMDMtLjMxMi4zMDYtLjA4NC41MjVDNS4wNSAyNS4yMDEgMTAuMjI2IDI3IDE1Ljk3MyAyN2M0LjA5OSAwIDguODU3LTEuMzM3IDEyLjE0Mi0zLjg1Ny41NDMtLjQyLjA4LTEuMDQ3LS40NzYtLjgtMy42ODMgMS42MjYtNy42ODQgMi40MDktMTEuMzI1IDIuNDA5LTUuMzk2IDAtMTAuNjItMS4xMjctMTQuODQ1LTMuNjg2YS40LjQgMCAwIDAtLjI1Mi0uMDY0Ii8+PC9zdmc+)
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-7B42BC?logo=terraform&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -68,10 +68,10 @@ The backend is **never involved in file transfer**. S3 enforces all upload const
 |-------|-----------|
 | **Frontend** | React 19, Material UI 7, Vite — hosted on S3, delivered via CloudFront (OAC) |
 | **API** | Amazon API Gateway (HTTP API) — JWT authorizer backed by Amazon Cognito User Pool |
-| **Compute** | AWS Lambda (Python 3.12) — `generateUploadUrl`, `imageValidator`, `getMediaStatus` |
+| **Compute** | AWS Lambda (arm64) — `generateUploadUrl` and `getMediaStatus` on Python 3.11; `imageValidator` on Python 3.12 |
 | **Storage** | Amazon S3 — lifecycle rules, event triggers, presigned URLs |
 | **Database** | Amazon DynamoDB — validation status and file metadata |
-| **Amazon SQS** | Dead-letter queue for imageValidator async invocation failures — captures S3 event payloads after Lambda exhausts retries so failed validations can be inspected and replayed |
+| **Amazon SQS** | Dead-letter queue for imageValidator async invocation failures — when the function itself fails (init/import error, timeout, out of memory), the S3 event payload is captured after 2 retries so it can be inspected and replayed. Files that fail validation or hit a processing error are routed to `rejected/` instead |
 | **IaC** | Terraform — all resources defined as code |
 | **CI** | GitHub Actions — Lambda tests, frontend lint/build, Terraform validation |
 
@@ -88,7 +88,7 @@ The backend is **never involved in file transfer**. S3 enforces all upload const
 | **Binary content validation** | `filetype` checks magic numbers (not extensions) → Pillow verifies image integrity → OpenCV reads video frames — catches renamed executables and forged MIME types |
 | **Cognito JWT authentication** | All API Gateway routes require a valid Bearer token from the Cognito User Pool — unauthenticated or expired tokens are rejected at the gateway before any Lambda is invoked |
 | **Per-user upload isolation** | Every upload record stores the uploader's `user_sub` (Cognito subject claim) — `getMediaStatus` returns 403 if the requesting user does not match the record owner |
-| **Private S3 + OAC** | Bucket is inaccessible directly — frontend access goes through CloudFront, Lambda access through IAM roles only |
+| **Private S3 + OAC** | Both buckets block all public access — the frontend bucket is reachable only through CloudFront (OAC); the media bucket only through Lambda IAM roles and short-lived presigned URLs |
 | **Least-privilege IAM roles** | Each Lambda has its own scoped role — `generateUploadUrl` can only `s3:PutObject` on `incoming/*` |
 | **Presigned GET URLs** | Approved files previewed via short-lived signed URLs — bucket is never public |
 | **Automatic lifecycle cleanup** | `incoming/` expires after 1 day, `approved/` and `rejected/` after 7 days |
@@ -207,31 +207,34 @@ cp terraform.tfvars.example terraform.tfvars
 
 ### Step 2 — Lambda layers
 
-The `imageValidator` Lambda requires Pillow, OpenCV, and filetype as Lambda layers built for `python3.12` on Amazon Linux 2.
-
-**Option A — Use public KLayers (recommended)**
-
-The [KLayers project](https://github.com/keithrozario/Klayers) publishes pre-built Lambda layers. Find the Pillow ARN for `python3.12` in your region and add it to `terraform.tfvars`.
-
-**Option B — Build your own**
+The `imageValidator` Lambda requires Pillow, OpenCV, and filetype in a single Lambda layer built for `python3.12` on **arm64** (the function runs on Graviton; Pillow and OpenCV ship compiled binaries, so x86_64 builds won't load). Public layer collections such as KLayers don't cover this combination, so build it yourself. pip can fetch the prebuilt arm64 wheels directly — no Docker needed:
 
 ```bash
 mkdir -p lambda_layer/python
 
-docker run --rm \
-  -v "$PWD/lambda_layer:/out" \
-  public.ecr.aws/lambda/python:3.12 \
-  pip install Pillow opencv-python-headless filetype \
-  --target /out/python --quiet
+pip install \
+  --platform manylinux2014_aarch64 --python-version 3.12 \
+  --implementation cp --only-binary=:all: \
+  --target lambda_layer/python \
+  pillow opencv-python-headless filetype
 
-cd lambda_layer && zip -r ../validator-layer.zip python/
+cd lambda_layer && zip -r ../validator-layer.zip python/ && cd ..
+```
+
+The zip is ~65 MB (~165 MB unzipped), over the 50 MB limit for direct upload, so publish it via S3:
+
+```bash
+aws s3 cp validator-layer.zip s3://YOUR_ARTIFACT_BUCKET/validator-layer.zip
 
 aws lambda publish-layer-version \
   --layer-name validator-dependencies \
-  --zip-file fileb://validator-layer.zip \
+  --content S3Bucket=YOUR_ARTIFACT_BUCKET,S3Key=validator-layer.zip \
   --compatible-runtimes python3.12 \
+  --compatible-architectures arm64 \
   --region us-east-1
 ```
+
+Add the returned `LayerVersionArn` to `validator_layer_arns` in `terraform.tfvars`.
 
 ### Step 3 — Deploy infrastructure
 
@@ -311,17 +314,17 @@ GitHub Actions runs three jobs on every push to `main` or `develop`:
 
 | Scenario | Lambda | Result |
 |----------|--------|:------:|
-| Valid JPEG/PNG/WebP upload request | `generateUploadUrl` | ✅ |
+| Valid JPEG upload request | `generateUploadUrl` | ✅ |
 | Valid MP4 upload request | `generateUploadUrl` | ✅ |
 | Valid WebP upload request | `generateUploadUrl` | ✅ |
 | File exceeds 50 MB | `generateUploadUrl` | ❌ 400 |
-| Disallowed extension (`.exe`, `.pdf`) | `generateUploadUrl` | ❌ 400 |
-| Unsupported extension (`.pdf`) rejected | `generateUploadUrl` | ❌ 400 |
-| Missing filename or filesize | `generateUploadUrl` | ❌ 400 |
+| Disallowed extension (`.exe`) | `generateUploadUrl` | ❌ 400 |
+| Unsupported extension (`.pdf`) | `generateUploadUrl` | ❌ 400 |
+| Missing filename | `generateUploadUrl` | ❌ 400 |
 | Missing filesize | `generateUploadUrl` | ❌ 400 |
 | Request with missing JWT | `generateUploadUrl` | ❌ 401 |
 | DynamoDB record includes user_sub on upload | `generateUploadUrl` | ✅ |
-| Malformed JSON body | `generateUploadUrl` | ❌ 400 |
+| Empty request body | `generateUploadUrl` | ❌ 400 |
 | Approved file returns presigned URL | `getMediaStatus` | ✅ |
 | Rejected file returns rejection reason | `getMediaStatus` | ✅ |
 | Unknown media ID | `getMediaStatus` | ❌ 404 |
@@ -329,7 +332,7 @@ GitHub Actions runs three jobs on every push to `main` or `develop`:
 | Legacy record without user_sub | `getMediaStatus` | ❌ 403 |
 | Request with missing JWT | `getMediaStatus` | ❌ 401 |
 | Response contains all expected metadata fields | `getMediaStatus` | ✅ |
-| Malformed JSON body | `getMediaStatus` | ❌ 400 |
+| Missing media_id | `getMediaStatus` | ❌ 400 |
 | Real JPEG binary approved | `imageValidator` | ✅ → `approved/` |
 | Real PNG binary approved | `imageValidator` | ✅ → `approved/` |
 | Fake JPEG (wrong magic bytes) | `imageValidator` | ❌ → `rejected/` |
@@ -398,7 +401,7 @@ Each function is scoped to exactly the permissions it needs. `generateUploadUrl`
 <details>
 <summary><strong>Upload fails with 403</strong></summary>
 
-- Verify Cognito env vars (`VITE_COGNITO_USER_POOL_ID`, `VITE_COGNITO_CLIENT_ID`, `VITE_AWS_REGION`) are correctly set in `frontend/.env` and the frontend has been rebuilt and redeployed
+- Verify Cognito env vars (`VITE_COGNITO_USER_POOL_ID`, `VITE_COGNITO_CLIENT_ID`) are correctly set in `frontend/.env` and the frontend has been rebuilt and redeployed
 
 </details>
 
@@ -407,7 +410,7 @@ Each function is scoped to exactly the permissions it needs. `generateUploadUrl`
 
 - Check S3 event notification is configured (Terraform manages this — verify in the AWS console)
 - Check CloudWatch logs: `aws logs tail /aws/lambda/imageValidator --since 10m`
-- Verify Lambda layers are compatible with `python3.12`
+- Verify Lambda layers are built for `python3.12` on arm64
 
 </details>
 

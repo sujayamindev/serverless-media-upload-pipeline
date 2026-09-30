@@ -23,18 +23,15 @@ project_name = "your-project-name"
 cloudfront_waf_arn = "arn:aws:wafv2:us-east-1:YOUR_ACCOUNT_ID:global/webacl/YOUR_WEBACL_NAME/YOUR_WEBACL_ID"
 
 # Lambda layer ARNs for the imageValidator function (Pillow, OpenCV, filetype).
-# These layers must be compatible with the Lambda runtime (python3.12).
-#
-# Option A — Use the public KLayers for Pillow (recommended, no setup needed):
-#   Pillow: https://github.com/keithrozario/Klayers (find the ARN for your region + runtime)
-#
-# Option B — Build your own layers and publish them to your account:
-#   See README.md → Deployment → Lambda Layers for build instructions.
-#
-# A single consolidated arm64 layer containing Pillow, opencv-python-headless, and filetype.
-# Build with: pip install --platform manylinux2014_aarch64 --python-version 3.12
-#             --implementation cp --only-binary=:all: -t python/ pillow opencv-python-headless filetype
-# Publish with --compatible-architectures arm64
+# imageValidator runs python3.12 on arm64, so the layer must match both.
+# Public collections such as KLayers don't publish these packages for arm64,
+# so build a single consolidated layer containing Pillow, opencv-python-headless,
+# and filetype:
+#   pip install --platform manylinux2014_aarch64 --python-version 3.12
+#       --implementation cp --only-binary=:all: -t python/ pillow opencv-python-headless filetype
+# The zip is ~65 MB, so publish it via S3 (--content S3Bucket=...,S3Key=...)
+# with --compatible-architectures arm64.
+# Full steps: README.md → Deployment → Step 2 — Lambda layers.
 validator_layer_arns = [
   "arn:aws:lambda:REGION:ACCOUNT_ID:layer:YOUR_ARM64_LAYER:VERSION",
 ]
@@ -44,6 +41,7 @@ validator_layer_arns = [
 # terraform/acm.tf. If your DNS isn't in Route 53, add the validation CNAME from
 # `terraform output frontend_domain_validation` manually at your registrar, then
 # apply again — CloudFront won't pick up the alias until the cert is issued.
-# Defaults to "media.sujaya.dev"; leave commented out to use the default CloudFront
-# domain (no alias/cert) instead.
+# Defaults to "" (unset); leave commented out to use the default CloudFront
+# domain (no alias/cert) instead. When set, it's also added to the S3 and
+# API Gateway CORS allowed origins.
 # frontend_domain = "your.custom-domain.com"

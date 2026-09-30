@@ -109,10 +109,11 @@ const SECTIONS = [
         result. No manual action is needed.
       </>,
       <>
-        While polling, 404 responses are handled quietly: they only mean the{' '}
-        <code>imageValidator</code> Lambda hasn&rsquo;t finished writing to DynamoDB yet. Polling
-        continues until an <code>approved</code> or <code>rejected</code> status comes back, or the
-        90-second timeout is reached.
+        A <code>pending</code> record is written when the upload policy is issued, so until the{' '}
+        <code>imageValidator</code> Lambda finishes, the status comes back as <code>pending</code>{' '}
+        (a 404 is handled the same way). Polling continues for up to 30 attempts until an{' '}
+        <code>approved</code> or <code>rejected</code> status comes back, or the 90-second timeout
+        is reached.
       </>,
       <>
         If the file is approved, the <code>getMediaStatus</code> Lambda generates a temporary
