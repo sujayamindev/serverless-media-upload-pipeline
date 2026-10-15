@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.5"
+  required_version = ">= 1.10"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -11,12 +11,15 @@ terraform {
     }
   }
 
-  # Optional: remote state in S3
-  # backend "s3" {
-  #   bucket = "your-tf-state-bucket"
-  #   key    = "cloud-pipeline/terraform.tfstate"
-  #   region = "us-east-1"
-  # }
+  # Remote state in S3 with native lockfile locking (Terraform >= 1.10).
+  # The bucket name embeds the account ID, so it lives in the gitignored
+  # backend.hcl: terraform init -backend-config=backend.hcl
+  backend "s3" {
+    key          = "smart-media-upload-pipeline/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+  }
 }
 
 provider "aws" {

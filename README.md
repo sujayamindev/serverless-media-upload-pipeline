@@ -240,7 +240,8 @@ Add the returned `LayerVersionArn` to `validator_layer_arns` in `terraform.tfvar
 
 ```bash
 cd terraform
-terraform init
+cp backend.hcl.example backend.hcl   # set your state bucket (versioned, encrypted, created beforehand)
+terraform init -backend-config=backend.hcl
 terraform plan    # review what will be created
 terraform apply
 ```
